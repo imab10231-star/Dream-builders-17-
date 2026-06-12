@@ -577,9 +577,9 @@
       nid: document.getElementById('nid').value.trim(),
       address: document.getElementById('address').value.trim(),
       shares: shares + 'টি',
-      monthly: '৳' + monthly.toLocaleString('bn-BD'),
+      monthly: shares * 1000 + ' টাকা',
       payment: document.getElementById('payment').value || 'উল্লেখ করা হয়নি',
-      joinDate: now,
+      joinDate: new Date().toLocaleString('en-GB', { timeZone: 'Asia/Dhaka' }),
       agreed: 'হ্যাঁ'
     };
 
