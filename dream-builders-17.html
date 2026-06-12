@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dream Builders 17 – Members Form</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --green-deep:  #1a3c2e;
+    --green-mid:   #2d6a4f;
+    --green-light: #52b788;
+    --gold:        #c9a84c;
+    --gold-light:  #f0d080;
+    --cream:       #f8f4ec;
+    --white:       #ffffff;
+    --text-dark:   #1c1c1c;
+    --text-mid:    #3d3d3d;
+    --border:      #d4e6da;
+    --red:         #dc2626;
+  }
+  body { font-family: 'Hind Siliguri', sans-serif; background: var(--cream); color: var(--text-dark); line-height: 1.7; }
+
+  /* NAV TABS */
+  .tabs { display: flex; background: var(--green-deep); position: sticky; top: 0; z-index: 100; }
+  .tab-btn {
+    flex: 1; padding: 14px 8px; border: none; background: transparent;
+    color: rgba(255,255,255,0.6); font-family: 'Hind Siliguri', sans-serif;
+    font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    border-bottom: 3px solid transparent;
+  }
+  .tab-btn.active { color: var(--gold-light); border-bottom-color: var(--gold); }
+  .tab-btn:hover { color: var(--white); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(145deg, var(--green-deep) 0%, var(--green-mid) 60%, #3a7d58 100%);
+    color: var(--white); padding: 56px 24px 48px; text-align: center; position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 70% 30%, rgba(201,168,76,0.18) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .badge {
+    display: inline-block; background: rgba(201,168,76,0.25); border: 1px solid var(--gold);
+    color: var(--gold-light); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 4px 14px; border-radius: 20px; margin-bottom: 18px;
+  }
+  .hero h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); font-weight: 700; line-height: 1.25; margin-bottom: 14px; }
+  .hero h1 span { color: var(--gold-light); }
+  .hero p { font-size: 1rem; color: rgba(255,255,255,0.82); max-width: 520px; margin: 0 auto 28px; }
+  .hero-stats { display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; margin-top: 8px; }
+  .stat { text-align: center; }
+  .stat .num { display: block; font-size: 1.9rem; font-weight: 700; color: var(--gold-light); line-height: 1; }
+  .stat .lbl { font-size: 0.78rem; color: rgba(255,255,255,0.7); margin-top: 4px; }
+
+  /* LAYOUT */
+  .container { max-width: 860px; margin: 0 auto; padding: 40px 20px 60px; }
+  .section-title {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--green-mid); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* RULE CARDS */
+  .rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+  @media (max-width: 600px) { .rules-grid { grid-template-columns: 1fr; } }
+  .rule-card {
+    background: var(--white); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px 20px 18px; transition: box-shadow 0.2s;
+  }
+  .rule-card:hover { box-shadow: 0 4px 18px rgba(45,106,79,0.1); }
+  .rule-card.full { grid-column: 1 / -1; }
+  .rule-card.highlight { border-color: var(--gold); background: linear-gradient(135deg, #fffef7 0%, #fff9e6 100%); }
+  .rule-card.alert { border-color: #e07b54; background: linear-gradient(135deg, #fff8f5 0%, #fff1eb 100%); }
+  .rule-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; margin-bottom: 12px; }
+  .icon-green { background: #e8f5ee; } .icon-gold { background: #fef9e7; }
+  .icon-orange { background: #fff3ee; } .icon-blue { background: #edf4ff; }
+  .rule-card h3 { font-size: 0.92rem; font-weight: 700; color: var(--green-deep); margin-bottom: 10px; }
+  .rule-card ul { list-style: none; padding: 0; }
+  .rule-card ul li { font-size: 0.87rem; color: var(--text-mid); padding: 5px 0 5px 18px; position: relative; border-bottom: 1px dashed #e8ede9; }
+  .rule-card ul li:last-child { border-bottom: none; }
+  .rule-card ul li::before { content: '›'; position: absolute; left: 0; color: var(--green-light); font-weight: 700; font-size: 1rem; }
+  .rule-card.alert ul li::before { color: #e07b54; }
+  .rule-card.highlight ul li::before { color: var(--gold); }
+
+  /* TIMELINE */
+  .timeline { position: relative; padding-left: 36px; margin-bottom: 32px; }
+  .timeline::before { content: ''; position: absolute; left: 11px; top: 6px; bottom: 6px; width: 2px; background: linear-gradient(to bottom, var(--green-light), var(--gold)); }
+  .tl-item { position: relative; margin-bottom: 22px; }
+  .tl-item::before { content: ''; position: absolute; left: -29px; top: 5px; width: 12px; height: 12px; border-radius: 50%; background: var(--white); border: 2px solid var(--green-light); }
+  .tl-item:last-child { margin-bottom: 0; }
+  .tl-period { font-size: 0.72rem; font-weight: 700; color: var(--green-mid); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3px; }
+  .tl-desc { font-size: 0.88rem; color: var(--text-mid); background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; }
+
+  /* ── FORM STYLES ── */
+  .form-hero {
+    background: linear-gradient(145deg, var(--green-deep) 0%, #1e5c3a 100%);
+    color: var(--white); padding: 48px 24px 40px; text-align: center;
+  }
+  .form-hero h2 { font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700; margin-bottom: 10px; }
+  .form-hero h2 span { color: var(--gold-light); }
+  .form-hero p { color: rgba(255,255,255,0.78); font-size: 0.95rem; max-width: 480px; margin: 0 auto; }
+
+  .form-container { max-width: 680px; margin: 0 auto; padding: 40px 20px 60px; }
+
+  .form-card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; padding: 32px 28px; margin-bottom: 24px; }
+  .form-card h3 { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--green-mid); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 500px) { .form-row { grid-template-columns: 1fr; } }
+
+  .field { margin-bottom: 18px; }
+  .field label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--green-deep); margin-bottom: 6px; }
+  .field label span.req { color: var(--red); margin-left: 2px; }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 8px;
+    font-family: 'Hind Siliguri', sans-serif; font-size: 0.9rem; color: var(--text-dark);
+    background: #fafcfb; transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--green-light); box-shadow: 0 0 0 3px rgba(82,183,136,0.15);
+  }
+  .field input.error, .field select.error { border-color: var(--red); }
+  .field .hint { font-size: 0.78rem; color: #6b7280; margin-top: 4px; }
+  .field .err-msg { font-size: 0.78rem; color: var(--red); margin-top: 4px; display: none; }
+  .field.has-error .err-msg { display: block; }
+
+  /* Share selector */
+  .share-options { display: flex; gap: 12px; }
+  .share-opt { flex: 1; }
+  .share-opt input[type="radio"] { display: none; }
+  .share-opt label {
+    display: block; text-align: center; padding: 12px 6px; border: 2px solid var(--border);
+    border-radius: 10px; cursor: pointer; transition: all 0.2s; font-size: 0.88rem; font-weight: 600;
+    color: var(--text-mid); background: var(--white);
+  }
+  .share-opt input[type="radio"]:checked + label {
+    border-color: var(--green-mid); background: #eaf5ef; color: var(--green-deep);
+  }
+  .share-opt label .amount { display: block; font-size: 0.75rem; color: var(--green-light); font-weight: 500; margin-top: 2px; }
+
+  /* Rules agreement */
+  .rules-box {
+    background: #f4faf7; border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 18px; max-height: 220px; overflow-y: auto; margin-bottom: 16px;
+    font-size: 0.84rem; color: var(--text-mid); line-height: 1.8;
+  }
+  .rules-box p { margin-bottom: 8px; }
+  .rules-box strong { color: var(--green-deep); }
+
+  .checkbox-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+  .checkbox-row input[type="checkbox"] { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--green-mid); flex-shrink: 0; cursor: pointer; }
+  .checkbox-row label { font-size: 0.87rem; color: var(--text-mid); cursor: pointer; line-height: 1.5; }
+  .checkbox-row label strong { color: var(--green-deep); }
+
+  /* Submit btn */
+  .btn-submit {
+    width: 100%; padding: 15px; background: linear-gradient(135deg, var(--green-mid), var(--green-deep));
+    color: var(--white); border: none; border-radius: 10px; font-family: 'Hind Siliguri', sans-serif;
+    font-size: 1rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s, transform 0.1s;
+    letter-spacing: 0.03em;
+  }
+  .btn-submit:hover { opacity: 0.9; }
+  .btn-submit:active { transform: scale(0.99); }
+  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  /* Success */
+  .success-screen {
+    display: none; text-align: center; padding: 48px 24px;
+    background: var(--white); border: 1px solid var(--border); border-radius: 16px;
+  }
+  .success-icon { font-size: 3.5rem; margin-bottom: 16px; }
+  .success-screen h3 { font-size: 1.4rem; color: var(--green-deep); margin-bottom: 10px; }
+  .success-screen p { color: var(--text-mid); font-size: 0.92rem; max-width: 400px; margin: 0 auto; }
+
+  /* Status bar */
+  .status-bar {
+    padding: 12px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 600;
+    margin-bottom: 16px; display: none; align-items: center; gap: 8px;
+  }
+  .status-bar.loading { background: #eff6ff; color: #1d4ed8; display: flex; }
+  .status-bar.error { background: #fef2f2; color: #b91c1c; display: flex; }
+  .spinner { width: 16px; height: 16px; border: 2px solid #93c5fd; border-top-color: #1d4ed8; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* FOOTER */
+  .footer { background: var(--green-deep); color: rgba(255,255,255,0.75); text-align: center; padding: 28px 20px; font-size: 0.82rem; }
+  .footer strong { color: var(--gold-light); }
+</style>
+</head>
+<body>
+
+<!-- NAV TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('rules')">📋 নিয়মাবলি</button>
+  <button class="tab-btn" onclick="showTab('form')">✍️ সদস্যপদ ফর্ম</button>
+</div>
+
+<!-- ══════════ TAB 1: RULES ══════════ -->
+<div id="tab-rules" class="tab-panel active">
+
+  <div class="hero">
+    <div class="badge">SSC ব্যাচ ২০১৭</div>
+    <h1>বন্ধুদের <span>সঞ্চয়</span> ও বিনিয়োগ<br>প্ল্যাটফর্ম</h1>
+    <p>পারস্পরিক বিশ্বাস ও সহযোগিতার ভিত্তিতে গড়ে ওঠা একটি দীর্ঘমেয়াদি আর্থিক উদ্যোগ।</p>
+    <div class="hero-stats">
+      <div class="stat"><span class="num">৩</span><span class="lbl">সর্বোচ্চ শেয়ার/সদস্য</span></div>
+      <div class="stat"><span class="num">৳১,০০০</span><span class="lbl">প্রতি শেয়ারের মূল্য</span></div>
+      <div class="stat"><span class="num">৪ বছর</span><span class="lbl">প্রাথমিক মেয়াদ</span></div>
+      <div class="stat"><span class="num">৬ মাস</span><span class="lbl">বিনিয়োগ চক্র</span></div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="section-title">মূল নিয়মাবলি</div>
+    <div class="rules-grid">
+      <div class="rule-card">
+        <div class="rule-icon icon-green">💰</div>
+        <h3>মাসিক সঞ্চয় ও শেয়ার</h3>
+        <ul>
+          <li>প্রতি শেয়ার = ৳১,০০০/মাস</li>
+          <li>সর্বোচ্চ ৩টি শেয়ার নেওয়া যাবে</li>
+          <li>প্রতি মাসের <strong>১০ তারিখের</strong> মধ্যে জমা বাধ্যতামূলক</li>
+          <li>দেরি হলে <strong>আগেই গ্রুপে জানাতে হবে</strong></li>
+        </ul>
+      </div>
+      <div class="rule-card">
+        <div class="rule-icon icon-blue">📈</div>
+        <h3>বিনিয়োগ পরিকল্পনা</h3>
+        <ul>
+          <li>প্রতি ৬ মাসে জমা অর্থ বিনিয়োগ করা হবে</li>
+          <li>নিরাপদ ও লাভজনক খাতে বিনিয়োগ</li>
+          <li>লাভ মূল তহবিলের সাথে যুক্ত হবে</li>
+          <li>সকল সিদ্ধান্ত সম্মিলিতভাবে নেওয়া হবে</li>
+        </ul>
+      </div>
+      <div class="rule-card highlight">
+        <div class="rule-icon icon-gold">🏡</div>
+        <h3>দীর্ঘমেয়াদি লক্ষ্য</h3>
+        <ul>
+          <li>৪ বছর পর উপযুক্ত জমি ক্রয়</li>
+          <li>সুযোগ পেলে মেয়াদের আগেও বিনিয়োগ সম্ভব</li>
+          <li>ভালো অবস্থানের সম্পদ অর্জনই মূল লক্ষ্য</li>
+          <li>লক্ষ্য পরিবর্তনে সকলের সম্মতি প্রয়োজন</li>
+        </ul>
+      </div>
+      <div class="rule-card">
+        <div class="rule-icon icon-green">🤝</div>
+        <h3>শেয়ার হস্তান্তর</h3>
+        <ul>
+          <li>বিক্রির ইচ্ছায় <strong>৩ মাস আগে</strong> নোটিশ দিতে হবে</li>
+          <li>শেয়ার শুধু বর্তমান সদস্যদের কাছে বিক্রয়যোগ্য</li>
+          <li>৩ শেয়ারধারী অতিরিক্ত শেয়ার কিনতে পারবেন না</li>
+          <li>বাইরের কারো কাছে শেয়ার বিক্রি নিষিদ্ধ</li>
+        </ul>
+      </div>
+      <div class="rule-card alert">
+        <div class="rule-icon icon-orange">🏥</div>
+        <h3>জরুরি সহায়তা তহবিল</h3>
+        <ul>
+          <li>চিকিৎসাজনিত জরুরি প্রয়োজনে সহায়তা পাওয়া যাবে</li>
+          <li>সদস্য বা পরিবারের জন্য প্রযোজ্য</li>
+          <li>গৃহীত অর্থ <strong>সর্বোচ্চ ৩ মাসে</strong> ফেরত দিতে হবে</li>
+          <li>গ্রুপের অনুমোদন সাপেক্ষে প্রদান করা হবে</li>
+        </ul>
+      </div>
+      <div class="rule-card">
+        <div class="rule-icon icon-green">⚖️</div>
+        <h3>যৌথ সিদ্ধান্ত ও স্বচ্ছতা</h3>
+        <ul>
+          <li>সকল আর্থিক হিসাব নিয়মিত প্রকাশ করা হবে</li>
+          <li>গুরুত্বপূর্ণ সিদ্ধান্তে সবার মতামত নেওয়া হবে</li>
+          <li>টানা ৩ মাস নিষ্ক্রিয় সদস্যের বিষয়ে আলোচনা হবে</li>
+          <li>অডিট রিপোর্ট প্রতি ৬ মাসে শেয়ার করা হবে</li>
+        </ul>
+      </div>
+      <div class="rule-card full">
+        <div class="rule-icon icon-blue">✨</div>
+        <h3>নতুন প্রস্তাবিত নিয়মসমূহ</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">
+          <ul>
+            <li>নতুন সদস্য যোগে <strong>৭৫% সদস্যের সম্মতি</strong> প্রয়োজন</li>
+            <li>প্রতি বছর একবার <strong>বার্ষিক সভা</strong> বাধ্যতামূলক</li>
+            <li>যেকোনো বিনিয়োগে সর্বনিম্ন <strong>৬০% সম্মতি</strong> দরকার</li>
+            <li>প্ল্যাটফর্ম ভাঙতে হলে <strong>৯০% সদস্যের মত</strong> লাগবে</li>
+          </ul>
+          <ul>
+            <li>মাসিক হিসাবের <strong>স্ক্রিনশট গ্রুপে</strong> পোস্ট করতে হবে</li>
+            <li>একজন নিরপেক্ষ <strong>হিসাবরক্ষক</strong> নিয়োগ দেওয়া হবে</li>
+            <li>বিনিয়োগ লোকসানে <strong>সবাই সমান ভাগ</strong> বহন করবেন</li>
+            <li>সদস্যপদ বাতিলে <strong>জমা অর্থ ফেরত</strong> দেওয়া হবে</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">প্ল্যাটফর্মের রোডম্যাপ</div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-period">মাস ১ – ৬</div>
+        <div class="tl-desc">সদস্য নিবন্ধন, শেয়ার বিতরণ ও প্রথম তহবিল সংগ্রহ। ব্যাংক হিসাব খোলা ও হিসাবরক্ষক নিয়োগ।</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-period">মাস ৬ (প্রথম চক্র)</div>
+        <div class="tl-desc">প্রথম বিনিয়োগ সিদ্ধান্ত গ্রহণ। সম্ভাব্য খাত পর্যালোচনা ও সম্মিলিত ভোটে বিনিয়োগ।</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-period">প্রতি ৬ মাস অন্তর</div>
+        <div class="tl-desc">তহবিল পর্যালোচনা, লাভ-লোকসান হিসাব, পরবর্তী বিনিয়োগ পরিকল্পনা ও সদস্য সভা।</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-period">বছর ২ – ৩</div>
+        <div class="tl-desc">তহবিল পরিপক্কতা। জমি বা সম্পদ ক্রয়ের সম্ভাবনা যাচাই শুরু। উপযুক্ত অবস্থান সরেজমিনে পরিদর্শন।</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-period">বছর ৪ (লক্ষ্যমাত্রা)</div>
+        <div class="tl-desc">জমি বা সম্পদ ক্রয়। প্ল্যাটফর্মের ভবিষ্যৎ নির্ধারণ — মেয়াদ বাড়ানো, বিভাজন বা সম্প্রসারণ।</div>
+      </div>
+    </div>
+
+    <div class="section-title">আচরণবিধি</div>
+    <div class="rules-grid">
+      <div class="rule-card">
+        <div class="rule-icon icon-green">🌿</div>
+        <h3>শৃঙ্খলা</h3>
+        <ul>
+          <li>পারস্পরিক সম্মান ও সৌহার্দ্য বজায় রাখতে হবে</li>
+          <li>অপমানজনক মন্তব্য সম্পূর্ণ নিষিদ্ধ</li>
+          <li>মতভেদ শান্তিপূর্ণভাবে সমাধান করতে হবে</li>
+        </ul>
+      </div>
+      <div class="rule-card">
+        <div class="rule-icon icon-blue">📋</div>
+        <h3>যোগাযোগ</h3>
+        <ul>
+          <li>গুরুত্বপূর্ণ বিষয় সর্বদা গ্রুপে জানাতে হবে</li>
+          <li>ব্যক্তিগত সমস্যা আগেভাগে শেয়ার করুন</li>
+          <li>সভায় উপস্থিতি নিশ্চিত করার চেষ্টা করুন</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top: 32px;">
+      <button class="btn-submit" style="max-width:320px;" onclick="showTab('form')">
+        ✍️ সদস্যপদ ফর্ম পূরণ করুন →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ TAB 2: FORM ══════════ -->
+<div id="tab-form" class="tab-panel">
+
+  <div class="form-hero">
+    <div class="badge">Dream Builders 17</div>
+    <h2><span>সদস্যপদ</span> নিবন্ধন ফর্ম</h2>
+    <p>নিচের তথ্যগুলো সঠিকভাবে পূরণ করুন এবং সকল শর্ত মেনে জমা দিন।</p>
+  </div>
+
+  <div class="form-container">
+
+    <!-- Status -->
+    <div id="statusBar" class="status-bar">
+      <div class="spinner" id="spinner"></div>
+      <span id="statusMsg">তথ্য সংরক্ষণ হচ্ছে...</span>
+    </div>
+
+    <!-- Form -->
+    <div id="memberForm">
+
+      <!-- Personal Info -->
+      <div class="form-card">
+        <h3>👤 ব্যক্তিগত তথ্য</h3>
+        <div class="form-row">
+          <div class="field" id="f-name">
+            <label>পূর্ণ নাম <span class="req">*</span></label>
+            <input type="text" id="name" placeholder="আপনার পূর্ণ নাম লিখুন">
+            <div class="err-msg">নাম আবশ্যক</div>
+          </div>
+          <div class="field" id="f-phone">
+            <label>মোবাইল নম্বর <span class="req">*</span></label>
+            <input type="tel" id="phone" placeholder="01XXXXXXXXX">
+            <div class="err-msg">সঠিক মোবাইল নম্বর দিন</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field" id="f-email">
+            <label>ইমেইল <span class="req">*</span></label>
+            <input type="email" id="email" placeholder="example@gmail.com">
+            <div class="err-msg">সঠিক ইমেইল দিন</div>
+          </div>
+          <div class="field" id="f-nid">
+            <label>NID / জন্ম সনদ নম্বর <span class="req">*</span></label>
+            <input type="text" id="nid" placeholder="NID বা জন্ম সনদ নম্বর">
+            <div class="err-msg">এই তথ্য আবশ্যক</div>
+          </div>
+        </div>
+        <div class="field" id="f-address">
+          <label>বর্তমান ঠিকানা <span class="req">*</span></label>
+          <input type="text" id="address" placeholder="গ্রাম/শহর, জেলা">
+          <div class="err-msg">ঠিকানা আবশ্যক</div>
+        </div>
+      </div>
+
+      <!-- Share Selection -->
+      <div class="form-card">
+        <h3>📊 শেয়ার নির্বাচন</h3>
+        <div class="field" id="f-shares">
+          <label>কতটি শেয়ার নিতে চান? <span class="req">*</span></label>
+          <div class="share-options">
+            <div class="share-opt">
+              <input type="radio" name="shares" id="s1" value="1">
+              <label for="s1">১ শেয়ার<span class="amount">৳১,০০০/মাস</span></label>
+            </div>
+            <div class="share-opt">
+              <input type="radio" name="shares" id="s2" value="2">
+              <label for="s2">২ শেয়ার<span class="amount">৳২,০০০/মাস</span></label>
+            </div>
+            <div class="share-opt">
+              <input type="radio" name="shares" id="s3" value="3">
+              <label for="s3">৩ শেয়ার<span class="amount">৳৩,০০০/মাস</span></label>
+            </div>
+          </div>
+          <div class="err-msg" style="display:none;" id="shares-err">শেয়ার সংখ্যা নির্বাচন করুন</div>
+        </div>
+        <div class="field">
+          <label>পেমেন্ট পদ্ধতি পছন্দ</label>
+          <select id="payment">
+            <option value="">-- নির্বাচন করুন --</option>
+            <option>বিকাশ</option>
+            <option>নগদ</option>
+            <option>রকেট</option>
+            <option>ব্যাংক ট্রান্সফার</option>
+            <option>নগদ হাতে</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Terms & Agreement -->
+      <div class="form-card">
+        <h3>📜 শর্তাবলি ও সম্মতি</h3>
+        <p style="font-size:0.85rem;color:#6b7280;margin-bottom:12px;">নিচের শর্তগুলো মনোযোগ দিয়ে পড়ুন এবং সম্মত হলে চেকবক্সে টিক দিন।</p>
+
+        <div class="rules-box">
+          <p><strong>১. মাসিক সঞ্চয়:</strong> প্রতি মাসের ১০ তারিখের মধ্যে শেয়ার অনুযায়ী টাকা জমা দিতে হবে।</p>
+          <p><strong>২. শেয়ার সীমা:</strong> একজন সদস্য সর্বোচ্চ ৩টি শেয়ার নিতে পারবেন। প্রতিটি শেয়ারের মূল্য ৳১,০০০/মাস।</p>
+          <p><strong>৩. বিনিয়োগ:</strong> প্রতি ৬ মাস অন্তর জমাকৃত অর্থ লাভজনক খাতে বিনিয়োগ করা হবে। লাভ মূল তহবিলে যুক্ত হবে।</p>
+          <p><strong>৪. দীর্ঘমেয়াদি লক্ষ্য:</strong> ৪ বছর পর উপযুক্ত জমি বা সম্পদ ক্রয় করা হবে।</p>
+          <p><strong>৫. শেয়ার বিক্রয়:</strong> শেয়ার বিক্রি করতে হলে কমপক্ষে ৩ মাস আগে গ্রুপে জানাতে হবে এবং শুধুমাত্র বর্তমান সদস্যদের কাছে বিক্রয় করা যাবে।</p>
+          <p><strong>৬. জরুরি সহায়তা:</strong> চিকিৎসাজনিত জরুরি প্রয়োজনে তহবিল থেকে অস্থায়ী সহায়তা নেওয়া যাবে, তবে সর্বোচ্চ ৩ মাসের মধ্যে ফেরত দিতে হবে।</p>
+          <p><strong>৭. আচরণবিধি:</strong> পারস্পরিক সম্মান বজায় রাখতে হবে। কোনো অপমানজনক মন্তব্য গ্রহণযোগ্য নয়।</p>
+          <p><strong>৮. সিদ্ধান্ত গ্রহণ:</strong> গুরুত্বপূর্ণ বিষয়ে সকল সদস্যের মতামতের ভিত্তিতে সিদ্ধান্ত নেওয়া হবে।</p>
+          <p><strong>৯. নিষ্ক্রিয়তা:</strong> টানা ৩ মাস অনুপস্থিত থাকলে সদস্যপদ বিষয়ে গ্রুপে আলোচনা করা হবে।</p>
+          <p><strong>১০. স্বচ্ছতা:</strong> সকল আর্থিক লেনদেন নিয়মিত গ্রুপে প্রকাশ করা হবে।</p>
+        </div>
+
+        <div class="checkbox-row" id="chk1-row">
+          <input type="checkbox" id="chk1">
+          <label for="chk1">আমি উপরের সকল <strong>নিয়মাবলি ও শর্তাবলি</strong> মনোযোগ দিয়ে পড়েছি এবং সম্পূর্ণরূপে মেনে চলতে সম্মত।</label>
+        </div>
+        <div class="checkbox-row" id="chk2-row">
+          <input type="checkbox" id="chk2">
+          <label for="chk2">আমি নির্ধারিত সময়ে <strong>নিয়মিত মাসিক সঞ্চয়</strong> জমা দেওয়ার প্রতিশ্রুতি দিচ্ছি।</label>
+        </div>
+        <div class="checkbox-row" id="chk3-row">
+          <input type="checkbox" id="chk3">
+          <label for="chk3">আমি বুঝতে পারছি যে এটি একটি <strong>দীর্ঘমেয়াদি প্রতিশ্রুতি</strong> এবং আমি স্বেচ্ছায় এই প্ল্যাটফর্মে যোগ দিচ্ছি।</label>
+        </div>
+        <div id="chk-err" style="color:var(--red);font-size:0.82rem;margin-top:4px;display:none;">সকল শর্তে সম্মত হওয়া আবশ্যক</div>
+      </div>
+
+      <button class="btn-submit" id="submitBtn" onclick="submitForm()">
+        ✅ সদস্যপদ ফর্ম জমা করুন
+      </button>
+    </div>
+
+    <!-- Success Screen -->
+    <div class="success-screen" id="successScreen">
+      <div class="success-icon">🎉</div>
+      <h3>স্বাগতম, Dream Builders 17-তে!</h3>
+      <p>আপনার তথ্য সফলভাবে জমা হয়েছে এবং Google Drive-এ সংরক্ষিত হয়েছে। শীঘ্রই আপনার সাথে যোগাযোগ করা হবে।</p>
+      <div style="margin-top:20px;padding:14px;background:#f4faf7;border-radius:8px;font-size:0.85rem;color:#2d6a4f;">
+        ধন্যবাদ! বিশ্বাস · সহযোগিতা · সমৃদ্ধি 🌿
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <strong>Dream Builders 17 – SSC ব্যাচ ২০১৭</strong><br>
+  বিশ্বাস · সহযোগিতা · সমৃদ্ধি
+</div>
+
+<script>
+  const SHEET_ID = "1pD_ksMrh2ERJ3LQF5D8-44Z_RQuLmcZvLyEs0sQU9u0";
+
+  function showTab(tab) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    document.querySelectorAll('.tab-btn')[tab === 'rules' ? 0 : 1].classList.add('active');
+    window.scrollTo(0,0);
+  }
+
+  function setStatus(type, msg) {
+    const bar = document.getElementById('statusBar');
+    const spinner = document.getElementById('spinner');
+    const statusMsg = document.getElementById('statusMsg');
+    bar.className = 'status-bar ' + type;
+    spinner.style.display = type === 'loading' ? 'block' : 'none';
+    statusMsg.textContent = msg;
+  }
+
+  function validate() {
+    let ok = true;
+    const fields = [
+      { id: 'name', fid: 'f-name', check: v => v.trim().length > 1 },
+      { id: 'phone', fid: 'f-phone', check: v => /^01[3-9]\d{8}$/.test(v.trim()) },
+      { id: 'email', fid: 'f-email', check: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) },
+      { id: 'nid', fid: 'f-nid', check: v => v.trim().length > 4 },
+      { id: 'address', fid: 'f-address', check: v => v.trim().length > 3 },
+    ];
+    fields.forEach(({ id, fid, check }) => {
+      const el = document.getElementById(id);
+      const wrap = document.getElementById(fid);
+      if (!check(el.value)) {
+        wrap.classList.add('has-error');
+        el.classList.add('error');
+        ok = false;
+      } else {
+        wrap.classList.remove('has-error');
+        el.classList.remove('error');
+      }
+    });
+
+    const shares = document.querySelector('input[name="shares"]:checked');
+    if (!shares) {
+      document.getElementById('shares-err').style.display = 'block';
+      ok = false;
+    } else {
+      document.getElementById('shares-err').style.display = 'none';
+    }
+
+    const chks = ['chk1','chk2','chk3'].every(id => document.getElementById(id).checked);
+    if (!chks) {
+      document.getElementById('chk-err').style.display = 'block';
+      ok = false;
+    } else {
+      document.getElementById('chk-err').style.display = 'none';
+    }
+    return ok;
+  }
+
+  async function submitForm() {
+    if (!validate()) return;
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    setStatus('loading', 'তথ্য Google Drive-এ সংরক্ষণ হচ্ছে...');
+
+    const shares = document.querySelector('input[name="shares"]:checked').value;
+    const monthly = parseInt(shares) * 1000;
+    const now = new Date().toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka' });
+
+    const data = {
+      name: document.getElementById('name').value.trim(),
+      phone: document.getElementById('phone').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      nid: document.getElementById('nid').value.trim(),
+      address: document.getElementById('address').value.trim(),
+      shares: shares + 'টি',
+      monthly: '৳' + monthly.toLocaleString('bn-BD'),
+      payment: document.getElementById('payment').value || 'উল্লেখ করা হয়নি',
+      joinDate: now,
+      agreed: 'হ্যাঁ'
+    };
+
+    try {
+      const prompt = `You are a data entry assistant. A new member has registered for "Dream Builders 17" savings platform. 
+Save this member's data by appending a new row to Google Sheets file with ID: ${SHEET_ID}
+
+Member data:
+- পূর্ণ নাম: ${data.name}
+- মোবাইল: ${data.phone}
+- ইমেইল: ${data.email}
+- NID/জন্ম সনদ: ${data.nid}
+- ঠিকানা: ${data.address}
+- শেয়ার সংখ্যা: ${data.shares}
+- মাসিক পরিমাণ: ${data.monthly}
+- পেমেন্ট পদ্ধতি: ${data.payment}
+- যোগদানের তারিখ: ${data.joinDate}
+- শর্ত গ্রহণ: ${data.agreed}
+
+Please append this as a new row to the spreadsheet. The columns are: পূর্ণ নাম, মোবাইল নম্বর, ইমেইল, NID/জন্ম সনদ নম্বর, ঠিকানা, শেয়ার সংখ্যা, মাসিক পরিমাণ (টাকা), পেমেন্ট পদ্ধতি, যোগদানের তারিখ, শর্ত গ্রহণ.
+Confirm when done.`;
+
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-6",
+          max_tokens: 1000,
+          mcp_servers: [
+            { type: "url", url: "https://drivemcp.googleapis.com/mcp/v1", name: "google-drive" }
+          ],
+          messages: [{ role: "user", content: prompt }]
+        })
+      });
+
+      const result = await response.json();
+      if (result.error) throw new Error(result.error.message);
+
+      // Show success
+      document.getElementById('statusBar').style.display = 'none';
+      document.getElementById('memberForm').style.display = 'none';
+      document.getElementById('successScreen').style.display = 'block';
+
+    } catch (err) {
+      setStatus('error', 'সংরক্ষণে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+      btn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>
