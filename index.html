@@ -570,16 +570,25 @@
     const monthly = parseInt(shares) * 1000;
     const now = new Date().toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka' });
 
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const year = today.getFullYear();
+    const dateOnly = day + '/' + month + '/' + year;
+
+    const sharesNum = parseInt(shares);
+    const monthlyAmount = sharesNum * 1000;
+
     const data = {
       name: document.getElementById('name').value.trim(),
       phone: document.getElementById('phone').value.trim(),
       email: document.getElementById('email').value.trim(),
       nid: document.getElementById('nid').value.trim(),
       address: document.getElementById('address').value.trim(),
-      shares: shares + 'টি',
-      monthly: shares * 1000 + ' টাকা',
+      shares: sharesNum + 'টি',
+      monthly: monthlyAmount + ' টাকা',
       payment: document.getElementById('payment').value || 'উল্লেখ করা হয়নি',
-      joinDate: new Date().toLocaleString('en-GB', { timeZone: 'Asia/Dhaka' }),
+      joinDate: dateOnly,
       agreed: 'হ্যাঁ'
     };
 
