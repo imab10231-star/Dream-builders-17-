@@ -569,14 +569,44 @@
         <input type="tel" id="regMobile" placeholder=" " required>
         <label>মোবাইল নম্বর</label>
       </div>
-      <div class="float-field pin">
-        <input type="password" id="regPin" placeholder=" " required>
-        <label>পিন (৪ সংখ্যা)</label>
-        <button type="button" class="toggle-eye" onclick="toggleEye('regPin', this)">👁</button>
+      <div class="float-field">
+        <input type="email" id="regEmail" placeholder=" ">
+        <label>ইমেইল</label>
+      </div>
+      <div class="float-field">
+        <input type="text" id="regNid" placeholder=" " required>
+        <label>NID/জন্ম সনদ নম্বর</label>
+      </div>
+      <div class="float-field full">
+        <input type="text" id="regAddress" placeholder=" " required>
+        <label>ঠিকানা</label>
       </div>
       <div class="float-field">
         <input type="number" id="regShares" placeholder=" " min="1" value="1" required>
         <label>শেয়ার সংখ্যা</label>
+      </div>
+      <div class="float-field">
+        <input type="text" id="regMonthly" placeholder=" " readonly style="background:#f1f5f2;color:var(--forest-dark);font-weight:700;">
+        <label>মাসিক পরিমাণ (স্বয়ংক্রিয়)</label>
+      </div>
+      <div>
+        <label style="display:block;font-size:12px;font-weight:700;color:var(--mid-green);margin-bottom:6px;">পেমেন্ট পদ্ধতি</label>
+        <select id="regPayment" required style="width:100%;padding:13px 14px;border-radius:9px;border:1.5px solid var(--line);font-size:15px;font-family:inherit;background:#fbfcfb;">
+          <option value="" disabled selected>নির্বাচন করুন</option>
+          <option value="ব্যাংক ট্রান্সফার">ব্যাংক ট্রান্সফার</option>
+          <option value="বিকাশ">বিকাশ</option>
+          <option value="নগদ">নগদ</option>
+          <option value="রকেট">রকেট</option>
+        </select>
+      </div>
+      <div>
+        <label style="display:block;font-size:12px;font-weight:700;color:var(--mid-green);margin-bottom:6px;">যোগদানের তারিখ</label>
+        <input type="date" id="regJoinDate" required style="width:100%;padding:13px 14px;border-radius:9px;border:1.5px solid var(--line);font-size:15px;font-family:inherit;background:#fbfcfb;">
+      </div>
+      <div class="float-field pin">
+        <input type="password" id="regPin" placeholder=" " required>
+        <label>পিন (লগইনের জন্য, ৪ সংখ্যা)</label>
+        <button type="button" class="toggle-eye" onclick="toggleEye('regPin', this)">👁</button>
       </div>
       <div class="full">
         <label style="display:block;font-size:13.5px;font-weight:600;color:var(--ink-soft);margin-bottom:8px;">Receipt Upload</label>
@@ -638,10 +668,16 @@
       <button class="tab-btn" data-tab="loans" onclick="adminTab('loans')">লোন আবেদন</button>
     </div>
     <div class="panel" id="adminMembersPanel">
-      <table class="ledger-table">
-        <thead><tr><th>নাম</th><th>মোবাইল</th><th>শেয়ার</th><th>রশিদ</th><th>অবস্থা</th><th>অ্যাকশন</th></tr></thead>
+      <div style="overflow-x:auto;">
+      <table class="ledger-table" style="min-width:1080px;">
+        <thead><tr>
+          <th>নাম</th><th>মোবাইল</th><th>ইমেইল</th><th>NID/জন্ম সনদ</th><th>ঠিকানা</th>
+          <th>শেয়ার</th><th>মাসিক পরিমাণ</th><th>পেমেন্ট পদ্ধতি</th><th>যোগদানের তারিখ</th>
+          <th>রশিদ</th><th>অবস্থা</th><th>অ্যাকশন</th>
+        </tr></thead>
         <tbody id="adminMembersBody"></tbody>
       </table>
+      </div>
       <p class="empty" id="adminMembersEmpty" style="display:none;">কোনো সদস্য নেই।</p>
     </div>
     <div class="panel" id="adminLoansPanel" style="display:none;">
@@ -764,6 +800,20 @@ function showFileName(name){
   document.getElementById('fileName').textContent = '✔ ' + name;
 }
 
+/* শেয়ার সংখ্যা অনুযায়ী মাসিক পরিমাণ স্বয়ংক্রিয়ভাবে হিসাব */
+const SHARE_PRICE = 1000;
+const regSharesInput = document.getElementById('regShares');
+const regMonthlyInput = document.getElementById('regMonthly');
+function updateMonthlyAmount(){
+  const shares = parseInt(regSharesInput.value || '0', 10);
+  regMonthlyInput.value = shares > 0 ? `৳${(shares*SHARE_PRICE).toLocaleString('bn-BD')} টাকা` : '';
+}
+regSharesInput.addEventListener('input', updateMonthlyAmount);
+updateMonthlyAmount();
+
+/* যোগদানের তারিখ ডিফল্ট আজকের তারিখ */
+document.getElementById('regJoinDate').valueAsDate = new Date();
+
 document.getElementById('registerForm').addEventListener('submit', async e=>{
   e.preventDefault();
   const msg = document.getElementById('regMsg');
@@ -772,14 +822,20 @@ document.getElementById('registerForm').addEventListener('submit', async e=>{
 
   const name = document.getElementById('regName').value.trim();
   const mobile = document.getElementById('regMobile').value.trim();
-  const pin = document.getElementById('regPin').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const nid = document.getElementById('regNid').value.trim();
+  const address = document.getElementById('regAddress').value.trim();
   const shares = parseInt(document.getElementById('regShares').value || '1', 10);
+  const monthly = shares * SHARE_PRICE;
+  const payment = document.getElementById('regPayment').value;
+  const joinDate = document.getElementById('regJoinDate').value;
+  const pin = document.getElementById('regPin').value.trim();
   const submitBtn = e.target.querySelector('button[type="submit"]');
   submitBtn.disabled = true; submitBtn.textContent = 'জমা হচ্ছে...';
 
   try{
     const r = await apiCall('register', {
-      name, mobile, pin, shares,
+      name, mobile, email, nid, address, shares, monthly, payment, joinDate, pin,
       receipt: uploadedFileName || 'জমা দেওয়া হয়নি'
     });
     if(r.success){
@@ -788,6 +844,8 @@ document.getElementById('registerForm').addEventListener('submit', async e=>{
       e.target.reset();
       document.getElementById('fileName').textContent = '';
       uploadedFileName = '';
+      updateMonthlyAmount();
+      document.getElementById('regJoinDate').valueAsDate = new Date();
       updateHomeStats();
     } else {
       msg.textContent = r.message || 'নিবন্ধন ব্যর্থ হয়েছে।';
@@ -931,7 +989,7 @@ let cachedLoans = [];
 async function renderAdminMembers(){
   const tbody = document.getElementById('adminMembersBody');
   const emptyMsg = document.getElementById('adminMembersEmpty');
-  tbody.innerHTML = `<tr><td colspan="6" class="empty">লোড হচ্ছে...</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="12" class="empty">লোড হচ্ছে...</td></tr>`;
   try{
     const r = await apiCall('listMembers', {});
     cachedMembers = r.success ? r.members : [];
@@ -945,7 +1003,9 @@ async function renderAdminMembers(){
                 : m.status==='rejected' ? '<span class="badge no">বাতিল</span>'
                 : '<span class="badge pending">অপেক্ষমান</span>';
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${m.name}</td><td>${m.mobile}</td><td>${m.shares}</td><td>${m.receipt}</td><td>${badge}</td>
+    tr.innerHTML = `<td>${m.name}</td><td>${m.mobile}</td><td>${m.email||'-'}</td><td>${m.nid||'-'}</td>
+      <td>${m.address||'-'}</td><td>${m.shares}টি</td><td>৳${m.monthly||''}</td><td>${m.payment||'-'}</td>
+      <td>${m.joinDate||'-'}</td><td>${m.receipt}</td><td>${badge}</td>
       <td class="row-actions">
         <button class="approve" onclick="setMemberStatus(${m.row},'approved')">অনুমোদন</button>
         <button class="reject" onclick="setMemberStatus(${m.row},'rejected')">বাতিল</button>
