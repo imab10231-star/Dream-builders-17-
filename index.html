@@ -250,35 +250,6 @@
   .badge.pending{background:#fff4dd;color:#8a5a00;}
   .badge.no{background:#fdecea;color:var(--danger);}
 
-  /* member search-select combobox (like a country/timezone picker) */
-  .member-select{position:relative;}
-  .member-select input{
-    width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);
-    font-size:14.5px;font-family:inherit;background:#fbfcfb;
-  }
-  .member-select input:focus{outline:none;border-color:var(--mid-green);background:#fff;box-shadow:0 0 0 3px rgba(25,135,84,.12);}
-  .member-select-list{
-    position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:20;
-    background:#fff;border:1px solid var(--line);border-radius:12px;
-    box-shadow:var(--shadow-lg);max-height:230px;overflow-y:auto;display:none;
-  }
-  .member-select-list.open{display:block;}
-  .member-select-list li{list-style:none;padding:10px 14px;font-size:14px;cursor:pointer;display:flex;justify-content:space-between;gap:10px;}
-  .member-select-list li:hover,.member-select-list li.active{background:#eef6f0;}
-  .member-select-list li .msl-name{font-weight:600;color:var(--forest-dark);}
-  .member-select-list li .msl-mobile{color:var(--ink-soft);font-size:12.5px;}
-  .member-select-list .msl-empty{padding:14px;text-align:center;color:var(--ink-soft);font-size:13px;cursor:default;}
-  .member-select-list .msl-empty:hover{background:none;}
-
-  .mini-stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px;}
-  .mini-stat-card{
-    background:#f7faf8;border:1px solid var(--line);border-radius:14px;padding:14px 16px;
-    transition:.2s;
-  }
-  .mini-stat-card .msc-label{font-size:12px;color:var(--ink-soft);font-weight:600;margin-bottom:4px;}
-  .mini-stat-card .msc-value{font-size:16.5px;font-weight:700;color:var(--forest-dark);}
-  .ledger-placeholder{padding:22px 10px;text-align:center;color:var(--ink-soft);font-size:13.5px;}
-
   /* Registration form */
   .reg-form{display:grid;grid-template-columns:1fr 1fr;gap:18px 20px;}
   .reg-form .full{grid-column:1/-1;}
@@ -533,39 +504,18 @@
       <p class="progress-note">লক্ষ্যমাত্রা: ৳৩০,০০,০০০ • সংগৃহীত: ৳২২,২০,০০০ (আনুমানিক)</p>
 
       <h3 style="font-size:16px;color:var(--forest-dark);margin:26px 0 10px;">সদস্যদের জমার তালিকা</h3>
-      <div class="member-select">
-        <input type="text" id="memberSearchInput" placeholder="নাম বা মোবাইল নম্বর লিখে খুঁজুন..." autocomplete="off">
-        <ul class="member-select-list" id="memberSearchList"></ul>
-      </div>
-
-      <div class="mini-stat-grid" id="memberStatGrid" style="display:none;">
-        <div class="mini-stat-card">
-          <div class="msc-label">নাম</div>
-          <div class="msc-value" id="mscName">—</div>
-        </div>
-        <div class="mini-stat-card">
-          <div class="msc-label">মোবাইল</div>
-          <div class="msc-value" id="mscMobile">—</div>
-        </div>
-        <div class="mini-stat-card">
-          <div class="msc-label">শেয়ার</div>
-          <div class="msc-value" id="mscShares">—</div>
-        </div>
-        <div class="mini-stat-card">
-          <div class="msc-label">অবস্থা</div>
-          <div class="msc-value" id="mscStatus">—</div>
-        </div>
-      </div>
-      <p class="ledger-placeholder" id="ledgerPlaceholder">উপরের বক্সে নাম বা মোবাইল নম্বর লিখে নিজের হিসাব খুঁজে নিন।</p>
+      <table class="ledger-table" id="ledgerTable">
+        <thead><tr><th>নাম</th><th>মোবাইল</th><th>শেয়ার</th><th>অবস্থা</th></tr></thead>
+        <tbody></tbody>
+      </table>
       <p class="empty" id="ledgerEmpty" style="display:none;">এখনো কোনো সদস্য নিবন্ধিত হয়নি। <a href="#register" onclick="goPage('register')" style="color:var(--mid-green);font-weight:700;">নিবন্ধন করুন</a></p>
     </div>
 
     <div class="panel">
       <h3 style="font-size:16px;color:var(--forest-dark);">তহবিল বণ্টন (ভিজ্যুয়াল)</h3>
-      <p class="progress-note" id="donutHeadline" style="margin-top:4px;">সদস্য নির্বাচন করলে আপনার নিজের জমার বণ্টন এখানে দেখাবে।</p>
       <div class="donut-wrap">
-        <div class="donut" id="donutChart" style="background:conic-gradient(var(--forest) 0% 45%, var(--mid-green) 45% 70%, var(--gold) 70% 88%, #dfe9e2 88% 100%);"></div>
-        <ul class="legend" id="donutLegend">
+        <div class="donut" style="background:conic-gradient(var(--forest) 0% 45%, var(--mid-green) 45% 70%, var(--gold) 70% 88%, #dfe9e2 88% 100%);"></div>
+        <ul class="legend">
           <li><span class="dot" style="background:var(--forest);"></span> মূল সঞ্চয় — ৪৫%</li>
           <li><span class="dot" style="background:var(--mid-green);"></span> বিনিয়োগ মুনাফা — ২৫%</li>
           <li><span class="dot" style="background:var(--gold);"></span> জরুরি সহায়তা ফান্ড — ১৮%</li>
@@ -619,14 +569,44 @@
         <input type="tel" id="regMobile" placeholder=" " required>
         <label>মোবাইল নম্বর</label>
       </div>
-      <div class="float-field pin">
-        <input type="password" id="regPin" placeholder=" " required>
-        <label>পিন (৪ সংখ্যা)</label>
-        <button type="button" class="toggle-eye" onclick="toggleEye('regPin', this)">👁</button>
+      <div class="float-field">
+        <input type="email" id="regEmail" placeholder=" ">
+        <label>ইমেইল</label>
+      </div>
+      <div class="float-field">
+        <input type="text" id="regNid" placeholder=" " required>
+        <label>NID/জন্ম সনদ নম্বর</label>
+      </div>
+      <div class="float-field full">
+        <input type="text" id="regAddress" placeholder=" " required>
+        <label>ঠিকানা</label>
       </div>
       <div class="float-field">
         <input type="number" id="regShares" placeholder=" " min="1" value="1" required>
         <label>শেয়ার সংখ্যা</label>
+      </div>
+      <div class="float-field">
+        <input type="text" id="regMonthly" placeholder=" " readonly style="background:#f1f5f2;color:var(--forest-dark);font-weight:700;">
+        <label>মাসিক পরিমাণ (স্বয়ংক্রিয়)</label>
+      </div>
+      <div>
+        <label style="display:block;font-size:12px;font-weight:700;color:var(--mid-green);margin-bottom:6px;">পেমেন্ট পদ্ধতি</label>
+        <select id="regPayment" required style="width:100%;padding:13px 14px;border-radius:9px;border:1.5px solid var(--line);font-size:15px;font-family:inherit;background:#fbfcfb;">
+          <option value="" disabled selected>নির্বাচন করুন</option>
+          <option value="ব্যাংক ট্রান্সফার">ব্যাংক ট্রান্সফার</option>
+          <option value="বিকাশ">বিকাশ</option>
+          <option value="নগদ">নগদ</option>
+          <option value="রকেট">রকেট</option>
+        </select>
+      </div>
+      <div>
+        <label style="display:block;font-size:12px;font-weight:700;color:var(--mid-green);margin-bottom:6px;">যোগদানের তারিখ</label>
+        <input type="date" id="regJoinDate" required style="width:100%;padding:13px 14px;border-radius:9px;border:1.5px solid var(--line);font-size:15px;font-family:inherit;background:#fbfcfb;">
+      </div>
+      <div class="float-field pin">
+        <input type="password" id="regPin" placeholder=" " required>
+        <label>পিন (লগইনের জন্য, ৪ সংখ্যা)</label>
+        <button type="button" class="toggle-eye" onclick="toggleEye('regPin', this)">👁</button>
       </div>
       <div class="full">
         <label style="display:block;font-size:13.5px;font-weight:600;color:var(--ink-soft);margin-bottom:8px;">Receipt Upload</label>
@@ -688,10 +668,16 @@
       <button class="tab-btn" data-tab="loans" onclick="adminTab('loans')">লোন আবেদন</button>
     </div>
     <div class="panel" id="adminMembersPanel">
-      <table class="ledger-table">
-        <thead><tr><th>নাম</th><th>মোবাইল</th><th>শেয়ার</th><th>রশিদ</th><th>অবস্থা</th><th>অ্যাকশন</th></tr></thead>
+      <div style="overflow-x:auto;">
+      <table class="ledger-table" style="min-width:1080px;">
+        <thead><tr>
+          <th>নাম</th><th>মোবাইল</th><th>ইমেইল</th><th>NID/জন্ম সনদ</th><th>ঠিকানা</th>
+          <th>শেয়ার</th><th>মাসিক পরিমাণ</th><th>পেমেন্ট পদ্ধতি</th><th>যোগদানের তারিখ</th>
+          <th>রশিদ</th><th>অবস্থা</th><th>অ্যাকশন</th>
+        </tr></thead>
         <tbody id="adminMembersBody"></tbody>
       </table>
+      </div>
       <p class="empty" id="adminMembersEmpty" style="display:none;">কোনো সদস্য নেই।</p>
     </div>
     <div class="panel" id="adminLoansPanel" style="display:none;">
@@ -709,17 +695,36 @@
 </footer>
 
 <script>
-/* ---------- Google Sheets ব্যাকএন্ড (Apps Script Web App) ---------- */
-const API_URL = 'YOUR_APPS_SCRIPT_WEB_APP_URL'; // এখানে আপনার Deploy করা Web App URL বসান
+/* ============================================================
+   Google Sheets ব্যাকএন্ড কনফিগারেশন
+   ------------------------------------------------------------
+   ১. Google Sheet খুলুন > Extensions > Apps Script
+   ২. Code.gs ফাইলের কোড পেস্ট করুন (আলাদা দেওয়া হয়েছে)
+   ৩. Deploy > New deployment > Web app
+      - Execute as: Me
+      - Who has access: Anyone
+   ৪. যে URL পাবেন সেটা নিচে বসান
+   ============================================================ */
+const API_URL = "https://script.google.com/macros/s/AKfycbyE5kE-skMJOFoWzQRFFqB0UuNLRABgz4Yya5GcFY4fNBTfqI6grRD8he4uiH2uvAzR/exec";
 
-async function apiPost(payload){
-  const res = await fetch(API_URL, { method:'POST', body: JSON.stringify(payload) });
+async function apiCall(action, payload){
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action, ...payload })
+  });
+  if(!res.ok) throw new Error('Network error');
   return res.json();
 }
-async function apiGet(params){
-  const qs = new URLSearchParams(params).toString();
-  const res = await fetch(`${API_URL}?${qs}`);
-  return res.json();
+function isApiConfigured(){
+  return API_URL && API_URL.startsWith('http');
+}
+function showApiWarning(msg){
+  if(!isApiConfigured()){
+    msg.textContent = 'ব্যাকএন্ড এখনো কানেক্ট করা হয়নি। HTML ফাইলে API_URL বসান।';
+    msg.classList.add('error','show');
+    return true;
+  }
+  return false;
 }
 
 /* ---------- navigation ---------- */
@@ -752,20 +757,28 @@ function toggleEye(id, btn){
 /* ---------- member login ---------- */
 document.getElementById('memberLoginForm').addEventListener('submit', async e=>{
   e.preventDefault();
-  const mobile = document.getElementById('loginMobile').value.trim();
-  const pin = document.getElementById('loginPin').value.trim();
   const msg = document.getElementById('loginMsg');
   msg.classList.remove('error','success');
-  msg.textContent = 'যাচাই করা হচ্ছে...'; msg.classList.add('show');
-  const result = await apiPost({ action:'login', mobile, pin });
-  msg.classList.remove('error','success');
-  if(result.success){
-    msg.textContent = `স্বাগতম, ${result.name}! আপনার শেয়ার: ${result.shares}টি`;
-    msg.classList.add('success','show');
-  } else {
-    msg.textContent = 'মোবাইল নম্বর বা পিন সঠিক নয়। প্রথমে নিবন্ধন করুন।';
+  if(showApiWarning(msg)) return;
+
+  const mobile = document.getElementById('loginMobile').value.trim();
+  const pin = document.getElementById('loginPin').value.trim();
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  submitBtn.disabled = true; submitBtn.textContent = 'চেক করা হচ্ছে...';
+  try{
+    const r = await apiCall('login', { mobile, pin });
+    if(r.success){
+      msg.textContent = `স্বাগতম, ${r.name}! আপনার শেয়ার: ${r.shares}টি`;
+      msg.classList.add('success','show');
+    } else {
+      msg.textContent = r.message || 'মোবাইল নম্বর বা পিন সঠিক নয়।';
+      msg.classList.add('error','show');
+    }
+  } catch(err){
+    msg.textContent = 'সার্ভারে সংযোগ করা যায়নি। আবার চেষ্টা করুন।';
     msg.classList.add('error','show');
   }
+  submitBtn.disabled = false; submitBtn.textContent = 'Login';
 });
 
 /* ---------- registration ---------- */
@@ -787,264 +800,276 @@ function showFileName(name){
   document.getElementById('fileName').textContent = '✔ ' + name;
 }
 
+/* শেয়ার সংখ্যা অনুযায়ী মাসিক পরিমাণ স্বয়ংক্রিয়ভাবে হিসাব */
+const SHARE_PRICE = 1000;
+const regSharesInput = document.getElementById('regShares');
+const regMonthlyInput = document.getElementById('regMonthly');
+function updateMonthlyAmount(){
+  const shares = parseInt(regSharesInput.value || '0', 10);
+  regMonthlyInput.value = shares > 0 ? `৳${(shares*SHARE_PRICE).toLocaleString('bn-BD')} টাকা` : '';
+}
+regSharesInput.addEventListener('input', updateMonthlyAmount);
+updateMonthlyAmount();
+
+/* যোগদানের তারিখ ডিফল্ট আজকের তারিখ */
+document.getElementById('regJoinDate').valueAsDate = new Date();
+
 document.getElementById('registerForm').addEventListener('submit', async e=>{
   e.preventDefault();
+  const msg = document.getElementById('regMsg');
+  msg.classList.remove('error','success');
+  if(showApiWarning(msg)) return;
+
   const name = document.getElementById('regName').value.trim();
   const mobile = document.getElementById('regMobile').value.trim();
-  const pin = document.getElementById('regPin').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const nid = document.getElementById('regNid').value.trim();
+  const address = document.getElementById('regAddress').value.trim();
   const shares = parseInt(document.getElementById('regShares').value || '1', 10);
-  const msg = document.getElementById('regMsg');
+  const monthly = shares * SHARE_PRICE;
+  const payment = document.getElementById('regPayment').value;
+  const joinDate = document.getElementById('regJoinDate').value;
+  const pin = document.getElementById('regPin').value.trim();
   const submitBtn = e.target.querySelector('button[type="submit"]');
-  msg.classList.remove('error','success');
-  msg.textContent = 'জমা দেওয়া হচ্ছে...'; msg.classList.add('show');
-  submitBtn.disabled = true;
+  submitBtn.disabled = true; submitBtn.textContent = 'জমা হচ্ছে...';
 
-  const result = await apiPost({
-    action:'register', name, mobile, pin, shares,
-    receiptName: uploadedFileName || 'জমা দেওয়া হয়নি'
-  });
-  submitBtn.disabled = false;
-  msg.classList.remove('error','success');
-
-  if(!result.success){
-    msg.textContent = result.message || 'নিবন্ধন ব্যর্থ হয়েছে, আবার চেষ্টা করুন।';
+  try{
+    const r = await apiCall('register', {
+      name, mobile, email, nid, address, shares, monthly, payment, joinDate, pin,
+      receipt: uploadedFileName || 'জমা দেওয়া হয়নি'
+    });
+    if(r.success){
+      msg.textContent = 'নিবন্ধন সফল হয়েছে! অ্যাডমিন অনুমোদনের পর সক্রিয় হবে।';
+      msg.classList.add('success','show');
+      e.target.reset();
+      document.getElementById('fileName').textContent = '';
+      uploadedFileName = '';
+      updateMonthlyAmount();
+      document.getElementById('regJoinDate').valueAsDate = new Date();
+      updateHomeStats();
+    } else {
+      msg.textContent = r.message || 'নিবন্ধন ব্যর্থ হয়েছে।';
+      msg.classList.add('error','show');
+    }
+  } catch(err){
+    msg.textContent = 'সার্ভারে সংযোগ করা যায়নি। আবার চেষ্টা করুন।';
     msg.classList.add('error','show');
-    return;
   }
-  msg.textContent = 'নিবন্ধন সফল হয়েছে! অ্যাডমিন অনুমোদনের পর সক্রিয় হবে।';
-  msg.classList.add('success','show');
-  e.target.reset();
-  document.getElementById('fileName').textContent = '';
-  uploadedFileName = '';
-  updateHomeStats();
+  submitBtn.disabled = false; submitBtn.textContent = 'নিবন্ধন সম্পন্ন করুন';
 });
 
 /* ---------- loan application ---------- */
 document.getElementById('loanForm').addEventListener('submit', async e=>{
   e.preventDefault();
+  const msg = document.getElementById('loanMsg');
+  msg.classList.remove('error','success');
+  if(showApiWarning(msg)) return;
+
   const mobile = document.getElementById('loanMobile').value.trim();
   const amount = document.getElementById('loanAmount').value.trim();
   const reason = document.getElementById('loanReason').value.trim();
-  const msg = document.getElementById('loanMsg');
   const submitBtn = e.target.querySelector('button[type="submit"]');
-  msg.classList.remove('error','success');
-  msg.textContent = 'জমা দেওয়া হচ্ছে...'; msg.classList.add('show');
-  submitBtn.disabled = true;
+  submitBtn.disabled = true; submitBtn.textContent = 'জমা হচ্ছে...';
 
-  const result = await apiPost({ action:'applyLoan', mobile, amount, reason });
-  submitBtn.disabled = false;
-  msg.classList.remove('error','success');
-
-  if(!result.success){
-    msg.textContent = result.message || 'এই মোবাইল নম্বরে কোনো সদস্য নিবন্ধিত পাওয়া যায়নি।';
+  try{
+    const r = await apiCall('loanApply', { mobile, amount, reason });
+    if(r.success){
+      msg.textContent = 'আপনার লোন আবেদন জমা হয়েছে। যাচাইয়ের পর জানানো হবে।';
+      msg.classList.add('success','show');
+      e.target.reset();
+    } else {
+      msg.textContent = r.message || 'আবেদন ব্যর্থ হয়েছে।';
+      msg.classList.add('error','show');
+    }
+  } catch(err){
+    msg.textContent = 'সার্ভারে সংযোগ করা যায়নি। আবার চেষ্টা করুন।';
     msg.classList.add('error','show');
+  }
+  submitBtn.disabled = false; submitBtn.textContent = 'আবেদন জমা দিন';
+});
+
+/* ---------- savings ledger (public) ---------- */
+async function renderLedger(){
+  const tbody = document.querySelector('#ledgerTable tbody');
+  const emptyMsg = document.getElementById('ledgerEmpty');
+  if(!isApiConfigured()){
+    tbody.innerHTML = '';
+    emptyMsg.style.display = 'block';
+    emptyMsg.textContent = 'ব্যাকএন্ড কানেক্ট করা হয়নি — HTML ফাইলে API_URL বসান।';
     return;
   }
-  msg.textContent = 'আপনার লোন আবেদন জমা হয়েছে। যাচাইয়ের পর জানানো হবে।';
-  msg.classList.add('success','show');
-  e.target.reset();
-});
-
-/* ---------- savings ledger (public, search-select + personalized chart) ---------- */
-const SHARE_PRICE = 1000; // প্রতি শেয়ারের মূল্য (৳)
-const FUND_RATIOS = [
-  { label:'মূল সঞ্চয়',        pct:45, color:'var(--forest)'    },
-  { label:'বিনিয়োগ মুনাফা',    pct:25, color:'var(--mid-green)' },
-  { label:'জরুরি সহায়তা ফান্ড', pct:18, color:'var(--gold)'     },
-  { label:'পরিচালন ব্যয়',      pct:12, color:'#dfe9e2'          }
-];
-let ledgerMembers = [];
-
-async function renderLedger(){
-  const result = await apiGet({ type:'ledger' });
-  ledgerMembers = result.success ? result.data : [];
-  document.getElementById('ledgerEmpty').style.display = ledgerMembers.length ? 'none' : 'block';
-  requestAnimationFrame(()=>{ document.getElementById('progressFill').style.width = '74%'; });
-  resetMemberSelection();
-}
-
-const memberSearchInput = document.getElementById('memberSearchInput');
-const memberSearchList = document.getElementById('memberSearchList');
-
-memberSearchInput.addEventListener('input', ()=>{
-  const q = memberSearchInput.value.trim().toLowerCase();
-  renderMemberOptions(q);
-});
-memberSearchInput.addEventListener('focus', ()=>{
-  renderMemberOptions(memberSearchInput.value.trim().toLowerCase());
-});
-document.addEventListener('click', e=>{
-  if(!e.target.closest('.member-select')) memberSearchList.classList.remove('open');
-});
-
-function renderMemberOptions(query){
-  const filtered = ledgerMembers.filter(m=>
-    m.name.toLowerCase().includes(query) || String(m.mobile).toLowerCase().includes(query)
-  );
-  memberSearchList.innerHTML = '';
-  if(!filtered.length){
-    memberSearchList.innerHTML = '<li class="msl-empty">কোনো সদস্য পাওয়া যায়নি</li>';
-  } else {
-    filtered.forEach(m=>{
-      const li = document.createElement('li');
-      li.innerHTML = `<span class="msl-name">${m.name}</span><span class="msl-mobile">${m.mobile}</span>`;
-      li.addEventListener('click', ()=>selectMember(m));
-      memberSearchList.appendChild(li);
-    });
+  let members = [];
+  try{
+    const r = await apiCall('listMembers', {});
+    members = r.success ? r.members : [];
+  } catch(err){
+    emptyMsg.style.display = 'block';
+    emptyMsg.textContent = 'ডেটা লোড করা যায়নি।';
+    return;
   }
-  memberSearchList.classList.add('open');
+  tbody.innerHTML = '';
+  emptyMsg.style.display = members.length ? 'none' : 'block';
+  emptyMsg.textContent = 'এখনো কোনো সদস্য নিবন্ধিত হয়নি।';
+  members.forEach(m=>{
+    const tr = document.createElement('tr');
+    const badge = m.status==='approved' ? '<span class="badge ok">অনুমোদিত</span>'
+                : m.status==='rejected' ? '<span class="badge no">বাতিল</span>'
+                : '<span class="badge pending">অপেক্ষমান</span>';
+    tr.innerHTML = `<td>${m.name}</td><td>${maskMobile(m.mobile)}</td><td>${m.shares}</td><td>${badge}</td>`;
+    tbody.appendChild(tr);
+  });
+  requestAnimationFrame(()=>{ document.getElementById('progressFill').style.width = '74%'; });
+  updateHomeStats(members);
 }
-
-function selectMember(m){
-  memberSearchInput.value = `${m.name} (${m.mobile})`;
-  memberSearchList.classList.remove('open');
-
-  document.getElementById('memberStatGrid').style.display = 'grid';
-  document.getElementById('ledgerPlaceholder').style.display = 'none';
-  document.getElementById('mscName').textContent = m.name;
-  document.getElementById('mscMobile').textContent = m.mobile;
-  document.getElementById('mscShares').textContent = m.shares + ' টি';
-  const statusText = m.status==='approved' ? 'অনুমোদিত' : m.status==='rejected' ? 'বাতিল' : 'অপেক্ষমান';
-  document.getElementById('mscStatus').textContent = statusText;
-
-  updatePersonalDonut(m);
-}
-
-function resetMemberSelection(){
-  memberSearchInput.value = '';
-  document.getElementById('memberStatGrid').style.display = 'none';
-  document.getElementById('ledgerPlaceholder').style.display = 'block';
-  document.getElementById('donutHeadline').textContent = 'সদস্য নির্বাচন করলে আপনার নিজের জমার বণ্টন এখানে দেখাবে।';
-}
-
-/* নির্বাচিত সদস্যের মোট জমা (শেয়ার × শেয়ার মূল্য) হিসাব করে একই অনুপাতে (৪৫/২৫/১৮/১২%) ভেঙে দেখানো হয় */
-function updatePersonalDonut(m){
-  const total = Number(m.shares || 0) * SHARE_PRICE;
-  document.getElementById('donutHeadline').innerHTML =
-    `<strong style="color:var(--forest-dark);">${m.name}</strong>-এর মোট সংগৃহীত জমা — ৳${total.toLocaleString('bn-BD')}`;
-
-  let cursor = 0;
-  const stops = FUND_RATIOS.map(f=>{
-    const start = cursor; cursor += f.pct;
-    return `${f.color} ${start}% ${cursor}%`;
-  }).join(', ');
-  document.getElementById('donutChart').style.background = `conic-gradient(${stops})`;
-
-  document.getElementById('donutLegend').innerHTML = FUND_RATIOS.map(f=>{
-    const amount = Math.round(total * f.pct / 100);
-    return `<li><span class="dot" style="background:${f.color};"></span> ${f.label} — ৳${amount.toLocaleString('bn-BD')} (${f.pct}%)</li>`;
-  }).join('');
+function maskMobile(m){
+  if(!m || m.length < 6) return m;
+  return m.slice(0,4) + '••' + m.slice(-3);
 }
 
 /* ---------- admin ---------- */
-function adminCreds(){
-  return {
-    adminMobile: sessionStorage.getItem('db17_admin_mobile') || '',
-    adminPin: sessionStorage.getItem('db17_admin_pin') || ''
-  };
-}
 document.getElementById('adminLoginForm').addEventListener('submit', async e=>{
   e.preventDefault();
-  const mobile = document.getElementById('adminMobile').value.trim();
-  const pin = document.getElementById('adminPin').value.trim();
   const msg = document.getElementById('adminMsg');
   msg.classList.remove('error','success');
-  const result = await apiPost({ action:'adminLogin', mobile, pin });
-  if(result.success){
-    sessionStorage.setItem('db17_admin_mobile', mobile);
-    sessionStorage.setItem('db17_admin_pin', pin);
-    showAdminDash();
-  } else {
-    msg.textContent = 'ভুল মোবাইল নম্বর অথবা পিন।';
+  if(showApiWarning(msg)) return;
+
+  const mobile = document.getElementById('adminMobile').value.trim();
+  const pin = document.getElementById('adminPin').value.trim();
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  submitBtn.disabled = true; submitBtn.textContent = 'চেক করা হচ্ছে...';
+
+  try{
+    const r = await apiCall('adminLogin', { mobile, pin });
+    if(r.success){
+      sessionStorage.setItem('db17_admin_ok','1');
+      showAdminDash();
+    } else {
+      msg.textContent = r.message || 'ভুল মোবাইল নম্বর অথবা পিন।';
+      msg.classList.add('error','show');
+    }
+  } catch(err){
+    msg.textContent = 'সার্ভারে সংযোগ করা যায়নি। আবার চেষ্টা করুন।';
     msg.classList.add('error','show');
   }
+  submitBtn.disabled = false; submitBtn.textContent = 'Login';
 });
+
 function renderAdminIfLoggedIn(){
-  if(sessionStorage.getItem('db17_admin_mobile')){ showAdminDash(); }
+  if(sessionStorage.getItem('db17_admin_ok')==='1'){ showAdminDash(); }
   else {
     document.getElementById('adminLoginView').style.display='block';
     document.getElementById('adminDashView').style.display='none';
   }
 }
+
 async function showAdminDash(){
   document.getElementById('adminLoginView').style.display='none';
   document.getElementById('adminDashView').style.display='block';
-  await Promise.all([renderAdminMembers(), renderAdminLoans()]);
+  await renderAdminMembers();
+  await renderAdminLoans();
 }
+
 function adminLogout(){
-  sessionStorage.removeItem('db17_admin_mobile');
-  sessionStorage.removeItem('db17_admin_pin');
+  sessionStorage.removeItem('db17_admin_ok');
   document.getElementById('adminMobile').value='';
   document.getElementById('adminPin').value='';
   document.getElementById('adminLoginView').style.display='block';
   document.getElementById('adminDashView').style.display='none';
 }
+
 function adminTab(tab){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
   document.getElementById('adminMembersPanel').style.display = tab==='members' ? 'block':'none';
   document.getElementById('adminLoansPanel').style.display = tab==='loans' ? 'block':'none';
 }
+
+let cachedMembers = [];
+let cachedLoans = [];
+
 async function renderAdminMembers(){
-  const result = await apiPost({ action:'adminGetMembers', ...adminCreds() });
-  const members = result.success ? result.data : [];
   const tbody = document.getElementById('adminMembersBody');
-  tbody.innerHTML='';
-  document.getElementById('adminMembersEmpty').style.display = members.length ? 'none':'block';
-  document.getElementById('dashMembers').textContent = members.length;
-  document.getElementById('dashShares').textContent = members.reduce((s,m)=>s+Number(m.shares||0),0);
-  members.forEach(m=>{
+  const emptyMsg = document.getElementById('adminMembersEmpty');
+  tbody.innerHTML = `<tr><td colspan="12" class="empty">লোড হচ্ছে...</td></tr>`;
+  try{
+    const r = await apiCall('listMembers', {});
+    cachedMembers = r.success ? r.members : [];
+  } catch(err){
+    cachedMembers = [];
+  }
+  tbody.innerHTML = '';
+  emptyMsg.style.display = cachedMembers.length ? 'none' : 'block';
+  cachedMembers.forEach(m=>{
     const badge = m.status==='approved' ? '<span class="badge ok">অনুমোদিত</span>'
                 : m.status==='rejected' ? '<span class="badge no">বাতিল</span>'
                 : '<span class="badge pending">অপেক্ষমান</span>';
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${m.name}</td><td>${m.mobile}</td><td>${m.shares}</td><td>${m.receipt}</td><td>${badge}</td>
+    tr.innerHTML = `<td>${m.name}</td><td>${m.mobile}</td><td>${m.email||'-'}</td><td>${m.nid||'-'}</td>
+      <td>${m.address||'-'}</td><td>${m.shares}টি</td><td>৳${m.monthly||''}</td><td>${m.payment||'-'}</td>
+      <td>${m.joinDate||'-'}</td><td>${m.receipt}</td><td>${badge}</td>
       <td class="row-actions">
-        <button class="approve" onclick="setMemberStatus(${m.rowIndex},'approved')">অনুমোদন</button>
-        <button class="reject" onclick="setMemberStatus(${m.rowIndex},'rejected')">বাতিল</button>
+        <button class="approve" onclick="setMemberStatus(${m.row},'approved')">অনুমোদন</button>
+        <button class="reject" onclick="setMemberStatus(${m.row},'rejected')">বাতিল</button>
       </td>`;
     tbody.appendChild(tr);
   });
+  document.getElementById('dashMembers').textContent = cachedMembers.length;
+  document.getElementById('dashShares').textContent = cachedMembers.reduce((s,m)=>s+Number(m.shares||0),0);
 }
-async function setMemberStatus(rowIndex, status){
-  await apiPost({ action:'setMemberStatus', rowIndex, status, ...adminCreds() });
-  renderAdminMembers();
-  renderLedger();
+
+async function setMemberStatus(row, status){
+  try{
+    await apiCall('updateMemberStatus', { row, status });
+    await renderAdminMembers();
+    await renderLedger();
+  } catch(err){
+    alert('আপডেট করা যায়নি, আবার চেষ্টা করুন।');
+  }
 }
+
 async function renderAdminLoans(){
-  const result = await apiPost({ action:'adminGetLoans', ...adminCreds() });
-  const loans = result.success ? result.data : [];
   const tbody = document.getElementById('adminLoansBody');
-  tbody.innerHTML='';
-  document.getElementById('adminLoansEmpty').style.display = loans.length ? 'none':'block';
-  document.getElementById('dashLoans').textContent = loans.length;
-  loans.forEach(l=>{
+  const emptyMsg = document.getElementById('adminLoansEmpty');
+  tbody.innerHTML = `<tr><td colspan="5" class="empty">লোড হচ্ছে...</td></tr>`;
+  try{
+    const r = await apiCall('listLoans', {});
+    cachedLoans = r.success ? r.loans : [];
+  } catch(err){
+    cachedLoans = [];
+  }
+  tbody.innerHTML = '';
+  emptyMsg.style.display = cachedLoans.length ? 'none' : 'block';
+  cachedLoans.forEach(l=>{
     const badge = l.status==='approved' ? '<span class="badge ok">অনুমোদিত</span>'
                 : l.status==='rejected' ? '<span class="badge no">বাতিল</span>'
                 : '<span class="badge pending">অপেক্ষমান</span>';
     const tr = document.createElement('tr');
     tr.innerHTML = `<td>${l.mobile}</td><td>৳${l.amount}</td><td>${l.reason}</td><td>${badge}</td>
       <td class="row-actions">
-        <button class="approve" onclick="setLoanStatus(${l.rowIndex},'approved')">অনুমোদন</button>
-        <button class="reject" onclick="setLoanStatus(${l.rowIndex},'rejected')">বাতিল</button>
+        <button class="approve" onclick="setLoanStatus(${l.row},'approved')">অনুমোদন</button>
+        <button class="reject" onclick="setLoanStatus(${l.row},'rejected')">বাতিল</button>
       </td>`;
     tbody.appendChild(tr);
   });
+  document.getElementById('dashLoans').textContent = cachedLoans.length;
 }
-async function setLoanStatus(rowIndex, status){
-  await apiPost({ action:'setLoanStatus', rowIndex, status, ...adminCreds() });
-  renderAdminLoans();
+
+async function setLoanStatus(row, status){
+  try{
+    await apiCall('updateLoanStatus', { row, status });
+    await renderAdminLoans();
+  } catch(err){
+    alert('আপডেট করা যায়নি, আবার চেষ্টা করুন।');
+  }
 }
 
 /* ---------- home stats (live member count) ---------- */
-async function updateHomeStats(){
-  const result = await apiGet({ type:'stats' });
-  if(result.success && result.count){
-    document.getElementById('statMembers').textContent = result.count.toLocaleString('bn-BD');
+function updateHomeStats(members){
+  if(members && members.length){
+    document.getElementById('statMembers').textContent = members.length.toLocaleString('bn-BD');
   }
 }
 
 /* ---------- init ---------- */
-updateHomeStats();
 renderLedger();
 </script>
 </body>
