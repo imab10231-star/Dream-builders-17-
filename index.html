@@ -585,6 +585,10 @@
         <input type="number" id="regShares" placeholder=" " min="1" value="1" required>
         <label>শেয়ার সংখ্যা</label>
       </div>
+      <div class="float-field">
+        <input type="number" id="regMonthlyAmount" placeholder=" " min="0" required>
+        <label>মাসিক পরিমাণ (টাকা)</label>
+      </div>
       <div>
         <label style="display:block;font-size:12px;font-weight:700;color:var(--mid-green);margin-bottom:6px;">পেমেন্ট পদ্ধতি</label>
         <select id="regPayment" required style="width:100%;padding:13px 14px;border-radius:9px;border:1.5px solid var(--line);font-size:15px;font-family:inherit;background:#fbfcfb;">
@@ -668,7 +672,7 @@
       <table class="ledger-table" style="min-width:1080px;">
         <thead><tr>
           <th>নাম</th><th>মোবাইল</th><th>ইমেইল</th><th>NID/জন্ম সনদ</th><th>ঠিকানা</th>
-          <th>শেয়ার</th><th>পেমেন্ট পদ্ধতি</th><th>যোগদানের তারিখ</th>
+          <th>শেয়ার</th><th>মাসিক পরিমাণ</th><th>পেমেন্ট পদ্ধতি</th><th>যোগদানের তারিখ</th>
           <th>রশিদ</th><th>অবস্থা</th><th>অ্যাকশন</th>
         </tr></thead>
         <tbody id="adminMembersBody"></tbody>
@@ -811,6 +815,7 @@ document.getElementById('registerForm').addEventListener('submit', async e=>{
   const nid = document.getElementById('regNid').value.trim();
   const address = document.getElementById('regAddress').value.trim();
   const shares = parseInt(document.getElementById('regShares').value || '1', 10);
+  const monthlyAmount = document.getElementById('regMonthlyAmount').value.trim();
   const payment = document.getElementById('regPayment').value;
   const joinDate = document.getElementById('regJoinDate').value;
   const pin = document.getElementById('regPin').value.trim();
@@ -819,7 +824,7 @@ document.getElementById('registerForm').addEventListener('submit', async e=>{
 
   try{
     const r = await apiCall('register', {
-      name, mobile, email, nid, address, shares, payment, joinDate, pin,
+      name, mobile, email, nid, address, shares, monthlyAmount, payment, joinDate, pin,
       receipt: uploadedFileName || 'জমা দেওয়া হয়নি'
     });
     if(r.success){
@@ -987,7 +992,7 @@ async function renderAdminMembers(){
                 : '<span class="badge pending">অপেক্ষমান</span>';
     const tr = document.createElement('tr');
     tr.innerHTML = `<td>${m.name}</td><td>${m.mobile}</td><td>${m.email||'-'}</td><td>${m.nid||'-'}</td>
-      <td>${m.address||'-'}</td><td>${m.shares}টি</td><td>${m.payment||'-'}</td>
+      <td>${m.address||'-'}</td><td>${m.shares}টি</td><td>${m.monthlyAmount||'-'}</td><td>${m.payment||'-'}</td>
       <td>${m.joinDate||'-'}</td><td>${m.receipt}</td><td>${badge}</td>
       <td class="row-actions">
         <button class="approve" onclick="setMemberStatus(${m.row},'approved')">অনুমোদন</button>
