@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <style>
   :root{
     --forest:#ff7a1a;
@@ -324,8 +325,34 @@
   }
   .row-actions .approve{background:var(--mid-green);color:#fff;}
   .row-actions .reject{background:rgba(255,77,77,.14);color:#ff4d4d;}
+  .row-actions .disburse{background:var(--gold);color:#1a1a1e;}
+  .row-actions .repay{background:#3a86ff;color:#fff;}
   .empty{color:var(--ink-soft);font-size:14px;padding:20px 0;text-align:center;}
   .logout-btn{font-size:13px;color:var(--danger);font-weight:700;background:none;border:none;}
+  .finance-btn{font-size:13px;color:var(--gold);font-weight:700;background:none;border:1.5px solid var(--gold);border-radius:8px;padding:6px 14px;}
+
+  /* ===== Finance dashboard ===== */
+  .finance-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-bottom:22px;}
+  .finance-cards .fcard{
+    background:#1a1a1f;border-radius:10px;padding:16px 18px;border:1px solid var(--line);
+  }
+  .finance-cards .fcard .n{font-size:19px;font-weight:700;color:var(--mid-green);word-break:break-word;}
+  .finance-cards .fcard .n.neg{color:var(--danger);}
+  .finance-cards .fcard .l{font-size:12px;color:var(--ink-soft);margin-top:4px;}
+  .finance-toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:20px;}
+  .finance-toolbar select,.finance-toolbar input[type=date]{
+    background:#1a1a1e;border:1.5px solid var(--line);color:var(--ink);border-radius:8px;
+    padding:8px 10px;font-family:inherit;font-size:13.5px;
+  }
+  .finance-panel{margin-bottom:0;}
+  .finance-add-form{display:none;margin-bottom:20px;}
+  .finance-add-form.open{display:block;}
+  .finance-form-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+  .finance-total{font-size:14px;font-weight:700;color:var(--forest-dark);margin-top:12px;}
+  .charts-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:20px;margin-bottom:20px;}
+  .chart-box{background:#1a1a1f;border-radius:10px;padding:16px;border:1px solid var(--line);}
+  .chart-box h4{font-size:14px;color:var(--forest-dark);margin-bottom:12px;}
+  @media (max-width:880px){ .charts-grid{grid-template-columns:1fr;} }
 
   footer{
     background:#0d0d10;color:#c9c4bc;padding:26px 24px;text-align:center;font-size:13px;
@@ -683,6 +710,259 @@
       </table>
       <p class="empty" id="adminLoansEmpty" style="display:none;">কোনো লোন আবেদন নেই।</p>
     </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FINANCIAL MANAGEMENT — admin-only, gated the same as page-admin
+     ============================================================ -->
+<section id="page-finance" class="page">
+  <div class="admin-dash-head">
+    <h2>ফাইন্যান্সিয়াল ড্যাশবোর্ড</h2>
+    <button class="logout-btn" style="color:var(--gold);" onclick="goPage('admin')">← অ্যাডমিন প্যানেলে ফিরুন</button>
+  </div>
+
+  <div class="finance-toolbar">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+      <select id="financeDateRange" onchange="onFinanceRangeChange()">
+        <option value="today">আজ</option>
+        <option value="week">এই সপ্তাহ</option>
+        <option value="month" selected>এই মাস</option>
+        <option value="lastMonth">গত মাস</option>
+        <option value="year">এই বছর</option>
+        <option value="lastYear">গত বছর</option>
+        <option value="custom">কাস্টম রেঞ্জ</option>
+      </select>
+      <input type="date" id="financeStartDate" style="display:none;" onchange="refreshFinanceAll()">
+      <input type="date" id="financeEndDate" style="display:none;" onchange="refreshFinanceAll()">
+    </div>
+  </div>
+
+  <div class="finance-cards" id="financeCards">
+    <div class="empty">লোড হচ্ছে...</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-ftab="overview" onclick="financeTab('overview')">ওভারভিউ</button>
+    <button class="tab-btn" data-ftab="expense" onclick="financeTab('expense')">খরচ</button>
+    <button class="tab-btn" data-ftab="income" onclick="financeTab('income')">আয়</button>
+    <button class="tab-btn" data-ftab="investment" onclick="financeTab('investment')">বিনিয়োগ</button>
+    <button class="tab-btn" data-ftab="bankinterest" onclick="financeTab('bankinterest')">ব্যাংক সুদ</button>
+    <button class="tab-btn" data-ftab="donation" onclick="financeTab('donation')">দান</button>
+    <button class="tab-btn" data-ftab="reports" onclick="financeTab('reports')">লেনদেন রিপোর্ট</button>
+  </div>
+
+  <!-- ---------- Overview: charts ---------- -->
+  <div class="finance-panel" id="financeOverviewPanel">
+    <div class="charts-grid">
+      <div class="chart-box"><h4>মাসিক আয় বনাম খরচ</h4><canvas id="chartIncomeExpense" height="220"></canvas></div>
+      <div class="chart-box"><h4>ক্যাটাগরি অনুযায়ী খরচ</h4><canvas id="chartExpenseCategory" height="220"></canvas></div>
+      <div class="chart-box"><h4>মাসিক নেট ক্যাশ ফ্লো</h4><canvas id="chartCashFlow" height="220"></canvas></div>
+      <div class="chart-box"><h4>ক্যাটাগরি অনুযায়ী আয়</h4><canvas id="chartIncomeCategory" height="220"></canvas></div>
+      <div class="chart-box"><h4>বিনিয়োগ বণ্টন</h4><canvas id="chartInvestmentDist" height="220"></canvas></div>
+      <div class="chart-box"><h4>মাসিক ব্যাংক সুদ</h4><canvas id="chartBankInterest" height="220"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ---------- Expense ---------- -->
+  <div class="finance-panel panel" id="financeExpensePanel" style="display:none;">
+    <div class="finance-form-toolbar">
+      <h3 style="font-size:16px;">খরচের তালিকা</h3>
+      <button class="finance-btn" onclick="toggleFinanceForm('expenseForm')">+ খরচ যোগ করুন</button>
+    </div>
+    <form id="expenseForm" class="finance-add-form reg-form" onsubmit="return submitExpenseForm(event)">
+      <input type="hidden" id="expenseId">
+      <div class="field"><label>শিরোনাম</label><input id="expenseTitle" required></div>
+      <div class="field"><label>ক্যাটাগরি</label>
+        <select id="expenseCategory" required>
+          <option value="Office">Office</option><option value="Salary">Salary</option>
+          <option value="Rent">Rent</option><option value="Electricity">Electricity</option>
+          <option value="Internet">Internet</option><option value="Transport">Transport</option>
+          <option value="Marketing">Marketing</option><option value="Equipment">Equipment</option>
+          <option value="Maintenance">Maintenance</option><option value="Bank charges">Bank charges</option>
+          <option value="Loan-related expense">Loan-related expense</option><option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="field"><label>পরিমাণ (৳)</label><input type="number" id="expenseAmount" min="0" step="0.01" required></div>
+      <div class="field"><label>তারিখ</label><input type="date" id="expenseDate" required></div>
+      <div class="field"><label>পেমেন্ট পদ্ধতি</label><input id="expensePaymentMethod"></div>
+      <div class="field"><label>অ্যাকাউন্ট/উৎস</label><input id="expenseAccount"></div>
+      <div class="field full"><label>নোট</label><input id="expenseNote"></div>
+      <div class="field full" style="display:flex;gap:10px;">
+        <button type="submit" class="btn btn-gold">সংরক্ষণ করুন</button>
+        <button type="button" class="btn" onclick="toggleFinanceForm('expenseForm')">বাতিল</button>
+      </div>
+      <p class="form-msg" id="expenseFormMsg"></p>
+    </form>
+    <div style="overflow-x:auto;">
+    <table class="ledger-table">
+      <thead><tr><th>তারিখ</th><th>শিরোনাম</th><th>ক্যাটাগরি</th><th>পরিমাণ</th><th>পদ্ধতি</th><th>অ্যাকশন</th></tr></thead>
+      <tbody id="expenseTableBody"></tbody>
+    </table>
+    </div>
+    <p class="empty" id="expenseEmpty" style="display:none;">কোনো খরচ নেই।</p>
+    <p class="finance-total" id="expenseTotal"></p>
+  </div>
+
+  <!-- ---------- Income ---------- -->
+  <div class="finance-panel panel" id="financeIncomePanel" style="display:none;">
+    <div class="finance-form-toolbar">
+      <h3 style="font-size:16px;">আয়ের তালিকা</h3>
+      <button class="finance-btn" onclick="toggleFinanceForm('incomeForm')">+ আয় যোগ করুন</button>
+    </div>
+    <form id="incomeForm" class="finance-add-form reg-form" onsubmit="return submitIncomeForm(event)">
+      <input type="hidden" id="incomeId">
+      <div class="field"><label>শিরোনাম</label><input id="incomeTitle" required></div>
+      <div class="field"><label>ক্যাটাগরি</label>
+        <select id="incomeCategory" required>
+          <option value="Business income">Business income</option>
+          <option value="Service income">Service income</option>
+          <option value="Membership income">Membership income</option>
+          <option value="Other income">Other income</option>
+        </select>
+      </div>
+      <div class="field"><label>পরিমাণ (৳)</label><input type="number" id="incomeAmount" min="0" step="0.01" required></div>
+      <div class="field"><label>তারিখ</label><input type="date" id="incomeDate" required></div>
+      <div class="field"><label>পেমেন্ট পদ্ধতি</label><input id="incomePaymentMethod"></div>
+      <div class="field"><label>অ্যাকাউন্ট/উৎস</label><input id="incomeAccount"></div>
+      <div class="field full"><label>নোট</label><input id="incomeNote"></div>
+      <div class="field full" style="display:flex;gap:10px;">
+        <button type="submit" class="btn btn-gold">সংরক্ষণ করুন</button>
+        <button type="button" class="btn" onclick="toggleFinanceForm('incomeForm')">বাতিল</button>
+      </div>
+      <p class="form-msg" id="incomeFormMsg"></p>
+    </form>
+    <div style="overflow-x:auto;">
+    <table class="ledger-table">
+      <thead><tr><th>তারিখ</th><th>শিরোনাম</th><th>ক্যাটাগরি</th><th>পরিমাণ</th><th>পদ্ধতি</th><th>অ্যাকশন</th></tr></thead>
+      <tbody id="incomeTableBody"></tbody>
+    </table>
+    </div>
+    <p class="empty" id="incomeEmpty" style="display:none;">কোনো আয় নেই।</p>
+    <p class="finance-total" id="incomeTotal"></p>
+  </div>
+
+  <!-- ---------- Investment ---------- -->
+  <div class="finance-panel panel" id="financeInvestmentPanel" style="display:none;">
+    <div class="finance-form-toolbar">
+      <h3 style="font-size:16px;">বিনিয়োগের তালিকা</h3>
+      <button class="finance-btn" onclick="toggleFinanceForm('investmentForm')">+ বিনিয়োগ যোগ করুন</button>
+    </div>
+    <form id="investmentForm" class="finance-add-form reg-form" onsubmit="return submitInvestmentForm(event)">
+      <input type="hidden" id="investmentId">
+      <div class="field"><label>নাম</label><input id="investmentName" required></div>
+      <div class="field"><label>ধরন</label>
+        <select id="investmentType">
+          <option value="Bank deposit">Bank deposit</option><option value="Fixed deposit">Fixed deposit</option>
+          <option value="Business investment">Business investment</option><option value="Property">Property</option>
+          <option value="Equipment">Equipment</option><option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="field"><label>প্রাথমিক পরিমাণ (৳)</label><input type="number" id="investmentPrincipal" min="0" step="0.01" required></div>
+      <div class="field"><label>বিনিয়োগের তারিখ</label><input type="date" id="investmentDate" required></div>
+      <div class="field"><label>মেয়াদপূর্তির তারিখ</label><input type="date" id="investmentMaturity"></div>
+      <div class="field"><label>বর্তমান মূল্য (৳)</label><input type="number" id="investmentCurrentValue" min="0" step="0.01"></div>
+      <div class="field"><label>প্রতিষ্ঠান/ব্যক্তি</label><input id="investmentInstitution"></div>
+      <div class="field"><label>স্ট্যাটাস</label>
+        <select id="investmentStatus"><option value="active">Active</option><option value="matured">Matured</option><option value="closed">Closed</option></select>
+      </div>
+      <div class="field full"><label>নোট</label><input id="investmentNote"></div>
+      <div class="field full" style="display:flex;gap:10px;">
+        <button type="submit" class="btn btn-gold">সংরক্ষণ করুন</button>
+        <button type="button" class="btn" onclick="toggleFinanceForm('investmentForm')">বাতিল</button>
+      </div>
+      <p class="form-msg" id="investmentFormMsg"></p>
+    </form>
+    <div style="overflow-x:auto;">
+    <table class="ledger-table">
+      <thead><tr><th>নাম</th><th>ধরন</th><th>প্রিন্সিপাল</th><th>বর্তমান মূল্য</th><th>রিটার্ন</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr></thead>
+      <tbody id="investmentTableBody"></tbody>
+    </table>
+    </div>
+    <p class="empty" id="investmentEmpty" style="display:none;">কোনো বিনিয়োগ নেই।</p>
+    <p class="finance-total" id="investmentTotal"></p>
+  </div>
+
+  <!-- ---------- Bank Interest ---------- -->
+  <div class="finance-panel panel" id="financeBankinterestPanel" style="display:none;">
+    <div class="finance-form-toolbar">
+      <h3 style="font-size:16px;">ব্যাংক সুদের তালিকা</h3>
+      <button class="finance-btn" onclick="toggleFinanceForm('bankinterestForm')">+ সুদ যোগ করুন</button>
+    </div>
+    <form id="bankinterestForm" class="finance-add-form reg-form" onsubmit="return submitBankInterestForm(event)">
+      <input type="hidden" id="bankinterestId">
+      <div class="field"><label>ব্যাংকের নাম</label><input id="bankinterestBankName" required></div>
+      <div class="field"><label>অ্যাকাউন্ট নম্বর</label><input id="bankinterestAccountNumber" placeholder="শুধু শেষ ৪ ডিজিট দেখানো হবে"></div>
+      <div class="field"><label>গ্রস সুদ (৳)</label><input type="number" id="bankinterestGross" min="0" step="0.01" required></div>
+      <div class="field"><label>ট্যাক্স/চার্জ (৳)</label><input type="number" id="bankinterestTax" min="0" step="0.01" value="0"></div>
+      <div class="field"><label>তারিখ</label><input type="date" id="bankinterestDate" required></div>
+      <div class="field"><label>মেয়াদ</label><input id="bankinterestPeriod" placeholder="যেমন: Q1 2026"></div>
+      <div class="field full"><label>নোট</label><input id="bankinterestNote"></div>
+      <div class="field full" style="display:flex;gap:10px;">
+        <button type="submit" class="btn btn-gold">সংরক্ষণ করুন</button>
+        <button type="button" class="btn" onclick="toggleFinanceForm('bankinterestForm')">বাতিল</button>
+      </div>
+      <p class="form-msg" id="bankinterestFormMsg"></p>
+    </form>
+    <div style="overflow-x:auto;">
+    <table class="ledger-table">
+      <thead><tr><th>তারিখ</th><th>ব্যাংক</th><th>অ্যাকাউন্ট</th><th>গ্রস</th><th>ট্যাক্স</th><th>নেট</th><th>অ্যাকশন</th></tr></thead>
+      <tbody id="bankinterestTableBody"></tbody>
+    </table>
+    </div>
+    <p class="empty" id="bankinterestEmpty" style="display:none;">কোনো তথ্য নেই।</p>
+    <p class="finance-total" id="bankinterestTotal"></p>
+  </div>
+
+  <!-- ---------- Donation ---------- -->
+  <div class="finance-panel panel" id="financeDonationPanel" style="display:none;">
+    <div class="finance-form-toolbar">
+      <h3 style="font-size:16px;">দানের তালিকা</h3>
+      <button class="finance-btn" onclick="toggleFinanceForm('donationForm')">+ দান যোগ করুন</button>
+    </div>
+    <form id="donationForm" class="finance-add-form reg-form" onsubmit="return submitDonationForm(event)">
+      <input type="hidden" id="donationId">
+      <div class="field"><label>দাতার নাম</label><input id="donationDonorName"></div>
+      <div class="field">
+        <label><input type="checkbox" id="donationAnonymous" style="width:auto;margin-right:6px;">অজ্ঞাতনামা দান</label>
+      </div>
+      <div class="field"><label>পরিমাণ (৳)</label><input type="number" id="donationAmount" min="0" step="0.01" required></div>
+      <div class="field"><label>তারিখ</label><input type="date" id="donationDate" required></div>
+      <div class="field"><label>ক্যাটাগরি</label>
+        <select id="donationCategory">
+          <option value="General">General</option><option value="Education">Education</option>
+          <option value="Medical">Medical</option><option value="Emergency">Emergency</option>
+          <option value="Community">Community</option><option value="Charity">Charity</option><option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="field"><label>পেমেন্ট পদ্ধতি</label><input id="donationPaymentMethod"></div>
+      <div class="field full"><label>নোট</label><input id="donationNote"></div>
+      <div class="field full" style="display:flex;gap:10px;">
+        <button type="submit" class="btn btn-gold">সংরক্ষণ করুন</button>
+        <button type="button" class="btn" onclick="toggleFinanceForm('donationForm')">বাতিল</button>
+      </div>
+      <p class="form-msg" id="donationFormMsg"></p>
+    </form>
+    <div style="overflow-x:auto;">
+    <table class="ledger-table">
+      <thead><tr><th>তারিখ</th><th>দাতা</th><th>ক্যাটাগরি</th><th>পরিমাণ</th><th>অ্যাকশন</th></tr></thead>
+      <tbody id="donationTableBody"></tbody>
+    </table>
+    </div>
+    <p class="empty" id="donationEmpty" style="display:none;">কোনো দান নেই।</p>
+    <p class="finance-total" id="donationTotal"></p>
+  </div>
+
+  <!-- ---------- Reports (unified ledger) ---------- -->
+  <div class="finance-panel panel" id="financeReportsPanel" style="display:none;">
+    <h3 style="font-size:16px;margin-bottom:14px;">সকল লেনদেন</h3>
+    <div style="overflow-x:auto;">
+    <table class="ledger-table">
+      <thead><tr><th>তারিখ</th><th>ধরন</th><th>ক্যাটাগরি</th><th>পরিমাণ</th><th>বিবরণ</th></tr></thead>
+      <tbody id="reportsTableBody"></tbody>
+    </table>
+    </div>
+    <p class="empty" id="reportsEmpty" style="display:none;">কোনো লেনদেন নেই।</p>
   </div>
 </section>
 
@@ -1057,193 +1337,3 @@ renderLedger();
 </script>
 </body>
 </html>
-/**
- * Dream Builders 17 — Backend (Google Apps Script + Google Sheets)
- * -----------------------------------------------------------------
- * Members শিটের কলাম অর্ডার:
- * পূর্ন নাম | মোবাইল নম্বর | ইমেইল | NID/জন্ম সনদ | ঠিকানা |
- * শেয়ার সংখ্যা | পেমেন্ট পদ্ধতি | যোগদানের তারিখ | PIN | Status
- */
-
-function doPost(e) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let result = { success: false, message: 'অজানা request' };
-
-  try {
-    const data = JSON.parse(e.postData.contents);
-    const action = data.action;
-
-    switch (action) {
-      case 'register':           result = registerMember(ss, data); break;
-      case 'login':               result = loginMember(ss, data); break;
-      case 'loanApply':           result = applyLoan(ss, data); break;
-      case 'adminLogin':          result = adminLogin(ss, data); break;
-      case 'listMembers':         result = listMembers(ss); break;
-      case 'listLoans':           result = listLoans(ss); break;
-      case 'updateMemberStatus':  result = updateMemberStatus(ss, data); break;
-      case 'updateLoanStatus':    result = updateLoanStatus(ss, data); break;
-      default:                    result = { success: false, message: 'Unknown action' };
-    }
-  } catch (err) {
-    result = { success: false, message: err.toString() };
-  }
-
-  return ContentService
-    .createTextOutput(JSON.stringify(result))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-function doGet(e) {
-  return ContentService
-    .createTextOutput(JSON.stringify({ status: 'Dream Builders 17 API is running' }))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-/* ---------------- Helpers ---------------- */
-
-function getOrCreateSheet(ss, name, headers) {
-  let sheet = ss.getSheetByName(name);
-  if (!sheet) {
-    sheet = ss.insertSheet(name);
-    sheet.appendRow(headers);
-    sheet.setFrozenRows(1);
-  }
-  return sheet;
-}
-
-/* ---------------- Members ---------------- */
-// কলাম: 1 পূর্ন নাম, 2 মোবাইল নম্বর, 3 ইমেইল, 4 NID/জন্ম সনদ,
-//        5 ঠিকানা, 6 শেয়ার সংখ্যা, 7 পেমেন্ট পদ্ধতি,
-//        8 যোগদানের তারিখ, 9 PIN, 10 Status
-
-function membersSheet(ss) {
-  return getOrCreateSheet(ss, 'Members', [
-    'পূর্ন নাম', 'মোবাইল নম্বর', 'ইমেইল', 'NID/জন্ম সনদ',
-    'ঠিকানা', 'শেয়ার সংখ্যা', 'পেমেন্ট পদ্ধতি', 'যোগদানের তারিখ',
-    'PIN', 'Status'
-  ]);
-}
-
-function registerMember(ss, data) {
-  const sheet = membersSheet(ss);
-  const rows = sheet.getDataRange().getValues();
-  for (let i = 1; i < rows.length; i++) {
-    if (String(rows[i][1]) === String(data.mobile)) {
-      return { success: false, message: 'এই মোবাইল নম্বর দিয়ে ইতিমধ্যে নিবন্ধন করা হয়েছে।' };
-    }
-  }
-  sheet.appendRow([
-    data.name || '',
-    data.mobile || '',
-    data.email || '',
-    data.nid || '',
-    data.address || '',
-    data.shares || 1,
-    data.payment || '',
-    data.joinDate || Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd'),
-    data.pin || '',
-    'approved'
-  ]);
-  return { success: true };
-}
-
-function loginMember(ss, data) {
-  const sheet = membersSheet(ss);
-  const rows = sheet.getDataRange().getValues();
-  for (let i = 1; i < rows.length; i++) {
-    if (String(rows[i][1]) === String(data.mobile) && String(rows[i][8]) === String(data.pin)) {
-      return { success: true, name: rows[i][0], shares: rows[i][5], status: rows[i][9] };
-    }
-  }
-  return { success: false, message: 'মোবাইল নম্বর বা পিন সঠিক নয়।' };
-}
-
-function listMembers(ss) {
-  const sheet = membersSheet(ss);
-  const rows = sheet.getDataRange().getValues();
-  const members = [];
-  for (let i = 1; i < rows.length; i++) {
-    members.push({
-      row: i + 1,
-      name: rows[i][0],
-      mobile: rows[i][1],
-      email: rows[i][2],
-      nid: rows[i][3],
-      address: rows[i][4],
-      shares: rows[i][5],
-      payment: rows[i][6],
-      joinDate: rows[i][7],
-      status: rows[i][9]
-    });
-  }
-  return { success: true, members: members };
-}
-
-function updateMemberStatus(ss, data) {
-  const sheet = membersSheet(ss);
-  sheet.getRange(data.row, 10).setValue(data.status); // Status column
-  return { success: true };
-}
-
-/* ---------------- Loans ---------------- */
-
-function loansSheet(ss) {
-  return getOrCreateSheet(ss, 'Loans', ['Timestamp', 'মোবাইল', 'পরিমাণ', 'কারণ', 'Status']);
-}
-
-function applyLoan(ss, data) {
-  const members = membersSheet(ss).getDataRange().getValues();
-  let found = false;
-  for (let i = 1; i < members.length; i++) {
-    if (String(members[i][1]) === String(data.mobile)) { found = true; break; }
-  }
-  if (!found) {
-    return { success: false, message: 'এই মোবাইল নম্বরে কোনো সদস্য নিবন্ধিত পাওয়া যায়নি।' };
-  }
-  loansSheet(ss).appendRow([new Date(), data.mobile, data.amount, data.reason, 'pending']);
-  return { success: true };
-}
-
-function listLoans(ss) {
-  const sheet = loansSheet(ss);
-  const rows = sheet.getDataRange().getValues();
-  const loans = [];
-  for (let i = 1; i < rows.length; i++) {
-    loans.push({
-      row: i + 1,
-      mobile: rows[i][1],
-      amount: rows[i][2],
-      reason: rows[i][3],
-      status: rows[i][4]
-    });
-  }
-  return { success: true, loans: loans };
-}
-
-function updateLoanStatus(ss, data) {
-  const sheet = loansSheet(ss);
-  sheet.getRange(data.row, 5).setValue(data.status);
-  return { success: true };
-}
-
-/* ---------------- Admin ---------------- */
-
-function adminSheet(ss) {
-  const sheet = getOrCreateSheet(ss, 'Admin', ['Mobile', 'PIN']);
-  if (sheet.getLastRow() < 2) {
-    // ডিফল্ট অ্যাডমিন — প্রথমবার লগইনের পর Sheet থেকে বদলে নিন
-    sheet.appendRow(['01700000000', '0000']);
-  }
-  return sheet;
-}
-
-function adminLogin(ss, data) {
-  const sheet = adminSheet(ss);
-  const rows = sheet.getDataRange().getValues();
-  const mobile = rows[1][0];
-  const pin = rows[1][1];
-  if (String(mobile) === String(data.mobile) && String(pin) === String(data.pin)) {
-    return { success: true };
-  }
-  return { success: false, message: 'ভুল মোবাইল নম্বর অথবা পিন।' };
-}
