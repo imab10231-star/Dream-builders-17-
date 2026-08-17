@@ -271,6 +271,39 @@
     top:5px;font-size:11px;font-weight:700;color:var(--mid-green);
   }
 
+  /* Registration form — sectioned cards */
+  .reg-section{margin-bottom:30px;}
+  .reg-section:last-child{margin-bottom:0;}
+  .reg-section-title{
+    display:flex;align-items:center;gap:12px;font-size:16.5px;font-weight:800;
+    color:var(--forest-dark);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--line);
+  }
+  .reg-section-title .icon{
+    width:36px;height:36px;border-radius:10px;flex-shrink:0;font-size:17px;
+    background:rgba(255,148,51,.14);display:flex;align-items:center;justify-content:center;
+  }
+  .share-tier-label{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:14px;}
+  .share-tier-label .req{color:var(--danger);}
+  .share-tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;}
+  .share-tier{
+    cursor:pointer;border:1.5px solid var(--line);border-radius:11px;padding:16px 10px;
+    text-align:center;background:#1a1a1e;transition:.15s;
+  }
+  .share-tier:hover{border-color:var(--mid-green);}
+  .share-tier.active{
+    border-color:var(--mid-green);background:rgba(255,148,51,.10);
+    box-shadow:0 0 0 3px rgba(255,148,51,.16);
+  }
+  .share-tier .tier-count{font-size:15px;font-weight:800;color:var(--forest-dark);margin-bottom:6px;}
+  .share-tier .tier-price{font-size:13px;font-weight:700;color:var(--mid-green);}
+  .select-field label{display:block;font-size:12px;font-weight:700;color:var(--mid-green);margin-bottom:6px;}
+  .select-field select,.select-field input{
+    width:100%;padding:13px 14px;border-radius:9px;border:1.5px solid var(--line);
+    font-size:15px;font-family:inherit;background:#1a1a1e;color:var(--ink);
+  }
+  .select-field select:focus,.select-field input:focus{outline:none;border-color:var(--mid-green);box-shadow:0 0 0 3px rgba(255,148,51,.18);}
+  @media(max-width:640px){ .share-tier-grid{grid-template-columns:1fr;} }
+
   /* Admin */
   .admin-hero{
     background:linear-gradient(150deg,#0d0d10 0%, #1a1a1f 55%, #ff7a1a 100%);
@@ -589,53 +622,81 @@
   </div>
   <div class="panel">
     <form id="registerForm" class="reg-form">
-      <div class="float-field">
-        <input type="text" id="regName" placeholder=" " required>
-        <label>পূর্ণ নাম</label>
+
+      <div class="reg-section full" style="grid-column:1/-1;">
+        <div class="reg-section-title"><span class="icon">👤</span> ব্যক্তিগত তথ্য</div>
+        <div class="reg-form" style="gap:18px 20px;">
+          <div class="float-field">
+            <input type="text" id="regName" placeholder=" " required>
+            <label>পূর্ণ নাম</label>
+          </div>
+          <div class="float-field">
+            <input type="tel" id="regMobile" placeholder=" " required>
+            <label>মোবাইল নম্বর</label>
+          </div>
+          <div class="float-field">
+            <input type="email" id="regEmail" placeholder=" " required>
+            <label>ইমেইল</label>
+          </div>
+          <div class="float-field">
+            <input type="text" id="regNid" placeholder=" " required>
+            <label>NID/জন্ম সনদ নম্বর</label>
+          </div>
+          <div class="float-field full">
+            <input type="text" id="regAddress" placeholder=" " required>
+            <label>বর্তমান ঠিকানা</label>
+          </div>
+        </div>
       </div>
-      <div class="float-field">
-        <input type="tel" id="regMobile" placeholder=" " required>
-        <label>মোবাইল নম্বর</label>
+
+      <div class="reg-section full" style="grid-column:1/-1;">
+        <div class="reg-section-title"><span class="icon">📊</span> শেয়ার নির্বাচন</div>
+
+        <div class="share-tier-label">কতটি শেয়ার নিতে চান? <span class="req">*</span></div>
+        <div class="share-tier-grid">
+          <div class="share-tier" data-shares="1" data-amount="1000" onclick="selectShareTier(this)">
+            <div class="tier-count">১ শেয়ার</div>
+            <div class="tier-price">৳১,০০০/মাস</div>
+          </div>
+          <div class="share-tier" data-shares="2" data-amount="2000" onclick="selectShareTier(this)">
+            <div class="tier-count">২ শেয়ার</div>
+            <div class="tier-price">৳২,০০০/মাস</div>
+          </div>
+          <div class="share-tier" data-shares="3" data-amount="3000" onclick="selectShareTier(this)">
+            <div class="tier-count">৩ শেয়ার</div>
+            <div class="tier-price">৳৩,০০০/মাস</div>
+          </div>
+        </div>
+        <input type="hidden" id="regShares" required>
+        <input type="hidden" id="regMonthlyAmount">
+
+        <div class="select-field">
+          <label>পেমেন্ট পদ্ধতি পছন্দ</label>
+          <select id="regPayment" required>
+            <option value="" disabled selected>-- নির্বাচন করুন --</option>
+            <option value="ব্যাংক ট্রান্সফার">ব্যাংক ট্রান্সফার</option>
+            <option value="বিকাশ">বিকাশ</option>
+            <option value="নগদ">নগদ</option>
+            <option value="রকেট">রকেট</option>
+          </select>
+        </div>
       </div>
-      <div class="float-field">
-        <input type="email" id="regEmail" placeholder=" ">
-        <label>ইমেইল</label>
+
+      <div class="reg-section full" style="grid-column:1/-1;">
+        <div class="reg-section-title"><span class="icon">🔒</span> যোগদান ও নিরাপত্তা</div>
+        <div class="reg-form" style="gap:18px 20px;">
+          <div class="select-field">
+            <label>যোগদানের তারিখ</label>
+            <input type="date" id="regJoinDate" required>
+          </div>
+          <div class="float-field pin">
+            <input type="password" id="regPin" placeholder=" " required>
+            <label>পিন (লগইনের জন্য, ৪ সংখ্যা)</label>
+            <button type="button" class="toggle-eye" onclick="toggleEye('regPin', this)">👁</button>
+          </div>
+        </div>
       </div>
-      <div class="float-field">
-        <input type="text" id="regNid" placeholder=" " required>
-        <label>NID/জন্ম সনদ নম্বর</label>
-      </div>
-      <div class="float-field full">
-        <input type="text" id="regAddress" placeholder=" " required>
-        <label>ঠিকানা</label>
-      </div>
-      <div class="float-field">
-        <input type="number" id="regShares" placeholder=" " min="1" value="1" required>
-        <label>শেয়ার সংখ্যা</label>
-      </div>
-      <div class="float-field">
-        <input type="number" id="regMonthlyAmount" placeholder=" " min="0" step="1">
-        <label>মাসিক পরিমাণ (৳)</label>
-      </div>
-      <div>
-        <label style="display:block;font-size:12px;font-weight:700;color:var(--mid-green);margin-bottom:6px;">পেমেন্ট পদ্ধতি</label>
-        <select id="regPayment" required style="width:100%;padding:13px 14px;border-radius:9px;border:1.5px solid var(--line);font-size:15px;font-family:inherit;background:#1a1a1e;">
-          <option value="" disabled selected>নির্বাচন করুন</option>
-          <option value="ব্যাংক ট্রান্সফার">ব্যাংক ট্রান্সফার</option>
-          <option value="বিকাশ">বিকাশ</option>
-          <option value="নগদ">নগদ</option>
-          <option value="রকেট">রকেট</option>
-        </select>
-      </div>
-      <div>
-        <label style="display:block;font-size:12px;font-weight:700;color:var(--mid-green);margin-bottom:6px;">যোগদানের তারিখ</label>
-        <input type="date" id="regJoinDate" required style="width:100%;padding:13px 14px;border-radius:9px;border:1.5px solid var(--line);font-size:15px;font-family:inherit;background:#1a1a1e;">
-      </div>
-      <div class="float-field pin">
-        <input type="password" id="regPin" placeholder=" " required>
-        <label>পিন (লগইনের জন্য, ৪ সংখ্যা)</label>
-        <button type="button" class="toggle-eye" onclick="toggleEye('regPin', this)">👁</button>
-      </div>
+
       <div class="full">
         <button type="submit" class="btn btn-primary btn-block">নিবন্ধন সম্পন্ন করুন</button>
         <p class="form-msg" id="regMsg"></p>
@@ -1082,11 +1143,25 @@ document.getElementById('memberLoginForm').addEventListener('submit', async e=>{
 /* যোগদানের তারিখ ডিফল্ট আজকের তারিখ */
 document.getElementById('regJoinDate').valueAsDate = new Date();
 
+/* শেয়ার টায়ার কার্ড নির্বাচন */
+function selectShareTier(el){
+  document.querySelectorAll('.share-tier').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('regShares').value = el.dataset.shares;
+  document.getElementById('regMonthlyAmount').value = el.dataset.amount;
+}
+
 document.getElementById('registerForm').addEventListener('submit', async e=>{
   e.preventDefault();
   const msg = document.getElementById('regMsg');
   msg.classList.remove('error','success');
   if(showApiWarning(msg)) return;
+
+  if(!document.getElementById('regShares').value){
+    msg.textContent = 'অনুগ্রহ করে কতটি শেয়ার নিতে চান তা নির্বাচন করুন।';
+    msg.classList.add('error','show');
+    return;
+  }
 
   const name = document.getElementById('regName').value.trim();
   const mobile = document.getElementById('regMobile').value.trim();
@@ -1109,6 +1184,7 @@ document.getElementById('registerForm').addEventListener('submit', async e=>{
       msg.textContent = 'নিবন্ধন সফল হয়েছে! আপনি এখনই লগইন করতে পারবেন।';
       msg.classList.add('success','show');
       e.target.reset();
+      document.querySelectorAll('.share-tier').forEach(t=>t.classList.remove('active'));
       document.getElementById('regJoinDate').valueAsDate = new Date();
       updateHomeStats();
     } else {
