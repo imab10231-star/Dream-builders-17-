@@ -270,16 +270,6 @@
   .float-field select.filled + label{
     top:5px;font-size:11px;font-weight:700;color:var(--mid-green);
   }
-  .dropzone{
-    border:2px dashed #3a3a40;border-radius:12px;padding:30px 16px;text-align:center;
-    background:#151518;cursor:pointer;transition:.15s;
-  }
-  .dropzone.drag{background:rgba(255,148,51,.14);border-color:var(--mid-green);}
-  .dropzone .dz-icon{font-size:26px;margin-bottom:8px;}
-  .dropzone strong{display:block;color:var(--forest-dark);font-size:14.5px;}
-  .dropzone span{font-size:12.5px;color:var(--ink-soft);}
-  .dropzone .filename{margin-top:10px;font-size:13px;color:var(--mid-green);font-weight:600;}
-  .dropzone .limit-note{display:block;margin-top:6px;font-size:11.5px;color:#8f8a82;}
 
   /* Admin */
   .admin-hero{
@@ -431,37 +421,48 @@
 
   <div class="stats">
     <div class="stats-grid">
+      <div class="stat-card highlight">
+        <div class="stat-icon">📊</div>
+        <div class="stat-label">ওভারভিউ (নেট ক্যাশ ফ্লো)</div>
+        <div class="stat-value" id="pubOverview">লোড হচ্ছে...</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💸</div>
+        <div class="stat-label">মোট খরচ</div>
+        <div class="stat-value" id="pubExpense">লোড হচ্ছে...</div>
+      </div>
       <div class="stat-card">
         <div class="stat-icon">💰</div>
-        <div class="stat-label">সর্বমোট সদস্য/শেয়ার</div>
-        <div class="stat-value" id="statMembers">৩০০</div>
-      </div>
-      <div class="stat-card highlight">
-        <div class="stat-icon">৳</div>
-        <div class="stat-label">প্রতি শেয়ারের মূল্য</div>
-        <div class="stat-value">৳১,০০০</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">📅</div>
-        <div class="stat-label">প্রাথমিক মেয়াদ</div>
-        <div class="stat-value">৪ বছর</div>
+        <div class="stat-label">মোট আয়</div>
+        <div class="stat-value" id="pubIncome">লোড হচ্ছে...</div>
       </div>
       <div class="stat-card">
         <div class="stat-icon">📈</div>
-        <div class="stat-label">বিনিয়োগ চক্র</div>
-        <div class="stat-value">৬ মাস</div>
+        <div class="stat-label">মোট বিনিয়োগ</div>
+        <div class="stat-value" id="pubInvestment">লোড হচ্ছে...</div>
       </div>
       <div class="stat-card">
         <div class="stat-icon">🏦</div>
-        <div class="stat-label">সর্বমোট সঞ্চিত তহবিল</div>
-        <div class="stat-value">৳২২.২ লক্ষ</div>
+        <div class="stat-label">ব্যাংক সুদ (নেট)</div>
+        <div class="stat-value" id="pubBankInterest">লোড হচ্ছে...</div>
       </div>
       <div class="stat-card">
-        <div class="mini-donut"></div>
-        <div class="stat-label">জরুরি সহায়তা ফান্ড</div>
-        <div class="stat-value" style="font-size:15px;">২ জন সহায়তা পেয়েছেন</div>
+        <div class="stat-icon">🤲</div>
+        <div class="stat-label">মোট দান</div>
+        <div class="stat-value" id="pubDonation">লোড হচ্ছে...</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🧾</div>
+        <div class="stat-label">মোট লেনদেন</div>
+        <div class="stat-value" id="pubTxCount">লোড হচ্ছে...</div>
+      </div>
+      <div class="stat-card highlight">
+        <div class="stat-icon">🏦</div>
+        <div class="stat-label">উপলব্ধ তহবিল (Available Fund)</div>
+        <div class="stat-value" id="pubAvailableFund">লোড হচ্ছে...</div>
       </div>
     </div>
+    <p class="progress-note" style="margin-top:12px;">সংক্ষিপ্ত সারাংশ — প্রতি ৩ মাস অন্তর বিস্তারিত আর্থিক প্রতিবেদন সদস্যদের সাথে শেয়ার করা হয়।</p>
   </div>
 
   <div class="rules-section">
@@ -612,6 +613,10 @@
         <input type="number" id="regShares" placeholder=" " min="1" value="1" required>
         <label>শেয়ার সংখ্যা</label>
       </div>
+      <div class="float-field">
+        <input type="number" id="regMonthlyAmount" placeholder=" " min="0" step="1">
+        <label>মাসিক পরিমাণ (৳)</label>
+      </div>
       <div>
         <label style="display:block;font-size:12px;font-weight:700;color:var(--mid-green);margin-bottom:6px;">পেমেন্ট পদ্ধতি</label>
         <select id="regPayment" required style="width:100%;padding:13px 14px;border-radius:9px;border:1.5px solid var(--line);font-size:15px;font-family:inherit;background:#1a1a1e;">
@@ -630,17 +635,6 @@
         <input type="password" id="regPin" placeholder=" " required>
         <label>পিন (লগইনের জন্য, ৪ সংখ্যা)</label>
         <button type="button" class="toggle-eye" onclick="toggleEye('regPin', this)">👁</button>
-      </div>
-      <div class="full">
-        <label style="display:block;font-size:13.5px;font-weight:600;color:var(--ink-soft);margin-bottom:8px;">Receipt Upload</label>
-        <div class="dropzone" id="dropzone">
-          <div class="dz-icon">⬆️</div>
-          <strong>Drag &amp; Drop</strong>
-          <span>অথবা ক্লিক করে রশিদের ছবি/PDF আপলোড করুন</span>
-          <span class="limit-note">সর্বোচ্চ সাইজ ৫ MB • JPG, PNG অথবা PDF</span>
-          <div class="filename" id="fileName"></div>
-          <input type="file" id="receiptFile" accept="image/*,.pdf" style="display:none;">
-        </div>
       </div>
       <div class="full">
         <button type="submit" class="btn btn-primary btn-block">নিবন্ধন সম্পন্ন করুন</button>
@@ -689,6 +683,13 @@
       <div class="box"><div class="n" id="dashShares">০</div><div class="l">মোট শেয়ার</div></div>
       <div class="box"><div class="n" id="dashLoans">০</div><div class="l">লোন আবেদন</div></div>
     </div>
+    <div class="panel" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
+      <div>
+        <strong style="font-size:14.5px;color:var(--forest-dark);">নতুন সদস্য নিবন্ধন</strong>
+        <p style="font-size:12.5px;color:var(--ink-soft);margin-top:3px;" id="regStatusNote">অবস্থা যাচাই হচ্ছে...</p>
+      </div>
+      <button class="finance-btn" id="regToggleBtn" onclick="toggleRegistrationStatus()">লোড হচ্ছে...</button>
+    </div>
     <div class="tabs">
       <button class="tab-btn active" data-tab="members" onclick="adminTab('members')">সদস্য তালিকা</button>
       <button class="tab-btn" data-tab="loans" onclick="adminTab('loans')">লোন আবেদন</button>
@@ -698,8 +699,8 @@
       <table class="ledger-table" style="min-width:1080px;">
         <thead><tr>
           <th>নাম</th><th>মোবাইল</th><th>ইমেইল</th><th>NID/জন্ম সনদ</th><th>ঠিকানা</th>
-          <th>শেয়ার</th><th>পেমেন্ট পদ্ধতি</th><th>যোগদানের তারিখ</th>
-          <th>রশিদ</th><th>অবস্থা</th><th>অ্যাকশন</th>
+          <th>শেয়ার</th><th>মাসিক পরিমাণ</th><th>পেমেন্ট পদ্ধতি</th><th>যোগদানের তারিখ</th>
+          <th>অবস্থা</th><th>অ্যাকশন</th>
         </tr></thead>
         <tbody id="adminMembersBody"></tbody>
       </table>
@@ -1077,23 +1078,6 @@ document.getElementById('memberLoginForm').addEventListener('submit', async e=>{
 });
 
 /* ---------- registration ---------- */
-const dropzone = document.getElementById('dropzone');
-const fileInput = document.getElementById('receiptFile');
-let uploadedFileName = '';
-dropzone.addEventListener('click', ()=>fileInput.click());
-['dragenter','dragover'].forEach(evt=>dropzone.addEventListener(evt, e=>{e.preventDefault(); dropzone.classList.add('drag');}));
-['dragleave','drop'].forEach(evt=>dropzone.addEventListener(evt, e=>{e.preventDefault(); dropzone.classList.remove('drag');}));
-dropzone.addEventListener('drop', e=>{
-  const f = e.dataTransfer.files[0];
-  if(f){ fileInput.files = e.dataTransfer.files; showFileName(f.name); }
-});
-fileInput.addEventListener('change', ()=>{
-  if(fileInput.files[0]) showFileName(fileInput.files[0].name);
-});
-function showFileName(name){
-  uploadedFileName = name;
-  document.getElementById('fileName').textContent = '✔ ' + name;
-}
 
 /* যোগদানের তারিখ ডিফল্ট আজকের তারিখ */
 document.getElementById('regJoinDate').valueAsDate = new Date();
@@ -1110,6 +1094,7 @@ document.getElementById('registerForm').addEventListener('submit', async e=>{
   const nid = document.getElementById('regNid').value.trim();
   const address = document.getElementById('regAddress').value.trim();
   const shares = parseInt(document.getElementById('regShares').value || '1', 10);
+  const monthlyAmount = document.getElementById('regMonthlyAmount').value.trim();
   const payment = document.getElementById('regPayment').value;
   const joinDate = document.getElementById('regJoinDate').value;
   const pin = document.getElementById('regPin').value.trim();
@@ -1118,15 +1103,12 @@ document.getElementById('registerForm').addEventListener('submit', async e=>{
 
   try{
     const r = await apiCall('register', {
-      name, mobile, email, nid, address, shares, payment, joinDate, pin,
-      receipt: uploadedFileName || 'জমা দেওয়া হয়নি'
+      name, mobile, email, nid, address, shares, monthlyAmount, payment, joinDate, pin
     });
     if(r.success){
-      msg.textContent = 'নিবন্ধন সফল হয়েছে! অ্যাডমিন অনুমোদনের পর সক্রিয় হবে।';
+      msg.textContent = 'নিবন্ধন সফল হয়েছে! আপনি এখনই লগইন করতে পারবেন।';
       msg.classList.add('success','show');
       e.target.reset();
-      document.getElementById('fileName').textContent = '';
-      uploadedFileName = '';
       document.getElementById('regJoinDate').valueAsDate = new Date();
       updateHomeStats();
     } else {
@@ -1248,6 +1230,35 @@ async function showAdminDash(){
   document.getElementById('adminDashView').style.display='block';
   await renderAdminMembers();
   await renderAdminLoans();
+  await loadRegistrationStatusAdmin();
+}
+
+let regIsOpen = true;
+async function loadRegistrationStatusAdmin(){
+  const btn = document.getElementById('regToggleBtn');
+  const note = document.getElementById('regStatusNote');
+  try{
+    const r = await apiCall('getRegistrationStatus', {});
+    regIsOpen = !!r.open;
+    btn.textContent = regIsOpen ? 'নিবন্ধন বন্ধ করুন' : 'নিবন্ধন খুলুন';
+    note.textContent = regIsOpen
+      ? 'নিবন্ধন এখন খোলা আছে — নতুন সদস্য যোগ হতে পারবে।'
+      : 'নিবন্ধন এখন বন্ধ আছে — ফর্ম দেখা যাবে কিন্তু জমা দিলে সদস্য হিসেবে যোগ হবে না।';
+  } catch(err){
+    btn.textContent = 'স্ট্যাটাস পাওয়া যায়নি';
+    note.textContent = '';
+  }
+}
+async function toggleRegistrationStatus(){
+  const btn = document.getElementById('regToggleBtn');
+  btn.disabled = true;
+  try{
+    await apiCall('setRegistrationStatus', { open: !regIsOpen });
+    await loadRegistrationStatusAdmin();
+  } catch(err){
+    alert('পরিবর্তন করা যায়নি, আবার চেষ্টা করুন।');
+  }
+  btn.disabled = false;
 }
 
 async function adminLogout(){
@@ -1287,8 +1298,8 @@ async function renderAdminMembers(){
                 : '<span class="badge pending">অপেক্ষমান</span>';
     const tr = document.createElement('tr');
     tr.innerHTML = `<td>${m.name}</td><td>${m.mobile}</td><td>${m.email||'-'}</td><td>${m.nid||'-'}</td>
-      <td>${m.address||'-'}</td><td>${m.shares}টি</td><td>${m.payment||'-'}</td>
-      <td>${m.joinDate||'-'}</td><td>${m.receipt}</td><td>${badge}</td>
+      <td>${m.address||'-'}</td><td>${m.shares}টি</td><td>${m.monthlyAmount ? '৳'+m.monthlyAmount : '-'}</td><td>${m.payment||'-'}</td>
+      <td>${m.joinDate||'-'}</td><td>${badge}</td>
       <td class="row-actions">
         <button class="approve" onclick="setMemberStatus(${m.row},'approved')">অনুমোদন</button>
         <button class="reject" onclick="setMemberStatus(${m.row},'rejected')">বাতিল</button>
@@ -1375,8 +1386,9 @@ async function setLoanStatus(row, status){
 
 /* ---------- home stats (live member count) ---------- */
 function updateHomeStats(members){
-  if(members && members.length){
-    document.getElementById('statMembers').textContent = members.length.toLocaleString('bn-BD');
+  const el = document.getElementById('statMembers');
+  if(el && members && members.length){
+    el.textContent = members.length.toLocaleString('bn-BD');
   }
 }
 
@@ -1851,7 +1863,29 @@ async function renderReportsList(){
   } catch(err){ tbody.innerHTML = ''; emptyMsg.style.display = 'block'; }
 }
 
+/* ---------- public home-page financial summary (7 report cards) ---------- */
+async function loadPublicFinanceSummary(){
+  try{
+    const r = await apiCall('getPublicFinancialSummary', {});
+    if(!r.success) return;
+    document.getElementById('pubOverview').textContent = fmtTaka(r.netOperatingCashFlow);
+    document.getElementById('pubExpense').textContent = fmtTaka(r.totalExpense);
+    document.getElementById('pubIncome').textContent = fmtTaka(r.totalIncome);
+    document.getElementById('pubInvestment').textContent = fmtTaka(r.totalInvestmentCurrentValue);
+    document.getElementById('pubBankInterest').textContent = fmtTaka(r.totalBankInterest);
+    document.getElementById('pubDonation').textContent = fmtTaka(r.totalDonation);
+    document.getElementById('pubTxCount').textContent = Number(r.transactionCount||0).toLocaleString('bn-BD');
+    document.getElementById('pubAvailableFund').textContent = fmtTaka(r.availableFund);
+  } catch(err){
+    ['pubOverview','pubExpense','pubIncome','pubInvestment','pubBankInterest','pubDonation','pubTxCount','pubAvailableFund'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.textContent = 'পাওয়া যায়নি';
+    });
+  }
+}
+
 renderLedger();
+loadPublicFinanceSummary();
 </script>
 </body>
 </html>
