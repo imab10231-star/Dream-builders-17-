@@ -413,7 +413,7 @@
     <nav class="main-nav" id="mainNav">
       <a href="#home" class="nav-link" data-page="home">হোম</a>
       <a href="#savings" class="nav-link" data-page="savings">[ জমার হিসাব ]</a>
-      <a href="#loan" class="nav-link" data-page="loan">[ লোন আবেদন ]</a>
+      <a href="#deposit" class="nav-link" data-page="deposit">[ জমা / লোন ]</a>
       <a href="#register" class="nav-link" data-page="register">[ নিবন্ধন ]</a>
       <a href="#admin" class="nav-link admin" data-page="admin">অ্যাডমিন প্যানেল</a>
     </nav>
@@ -588,29 +588,109 @@
   </div>
 </section>
 
-<!-- ================= LOAN ================= -->
-<section id="page-loan" class="page">
+<!-- ================= MEMBER MONTHLY DEPOSIT ================= -->
+<section id="page-deposit" class="page">
   <div class="section-head">
-    <h2>লোন আবেদন</h2>
-    <p>জমাকৃত শেয়ারের বিপরীতে স্বল্প-সুদে লোনের জন্য আবেদন করুন। অ্যাডমিন প্যানেল থেকে আবেদন যাচাই করা হবে।</p>
+    <h2>মাসিক জমা</h2>
+    <p>মোবাইল নম্বর ও পিন দিয়ে যাচাই করে আপনার এই মাসের জমা দিন, অথবা লোনের জন্য আবেদন করুন।</p>
   </div>
-  <div class="panel" style="max-width:640px;">
-    <form id="loanForm">
-      <div class="field">
-        <label>নিবন্ধিত মোবাইল নম্বর</label>
-        <input type="tel" id="loanMobile" placeholder="মোবাইল নম্বর" required>
+
+  <div class="tabs" style="margin-bottom:22px;">
+    <button class="tab-btn active" data-dtab="deposit" onclick="depositSubTab('deposit')">মাসিক জমা</button>
+    <button class="tab-btn" data-dtab="loan" onclick="depositSubTab('loan')">লোন আবেদন</button>
+  </div>
+
+  <div id="depositSubDeposit">
+    <div class="panel" id="depositLoginPanel" style="max-width:440px;">
+      <h3 style="font-size:16px;color:var(--forest-dark);margin-bottom:16px;">সদস্য যাচাই</h3>
+      <form id="depositLoginForm">
+        <div class="field">
+          <label>মোবাইল নম্বর</label>
+          <input type="tel" id="depMobile" placeholder="মোবাইল নম্বর" required>
+        </div>
+        <div class="field pin">
+          <label>পিন</label>
+          <input type="password" id="depPin" placeholder="৪ সংখ্যার পিন" required>
+          <button type="button" class="toggle-eye" onclick="toggleEye('depPin', this)">👁</button>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">যাচাই করুন</button>
+        <p class="form-msg" id="depLoginMsg"></p>
+      </form>
+    </div>
+
+    <div id="depositMainPanel" style="display:none;">
+      <div class="panel" style="margin-bottom:22px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px;">
+          <h3 style="font-size:16px;color:var(--forest-dark);">স্বাগতম, <span id="depMemberName"></span> — শেয়ার: <span id="depMemberShares"></span>টি</h3>
+          <button class="btn btn-ghost" style="padding:8px 16px;font-size:13px;" onclick="depositLogout()">লগআউট</button>
+        </div>
+
+        <form id="depositForm">
+          <div class="reg-form" style="gap:16px 18px;">
+            <div class="field">
+              <label>কোন মাসের জমা</label>
+              <input type="month" id="depMonth" required>
+            </div>
+            <div class="field">
+              <label>শেয়ার সংখ্যা</label>
+              <input type="number" id="depShares" min="1" required>
+            </div>
+            <div class="field">
+              <label>পরিমাণ (৳)</label>
+              <input type="number" id="depAmount" min="1" required>
+            </div>
+            <div class="field">
+              <label>পেমেন্ট পদ্ধতি</label>
+              <select id="depPayment" required style="width:100%;padding:12px 14px;border-radius:9px;border:1.5px solid rgba(255,122,26,.18);font-size:15px;font-family:inherit;background:rgba(255,255,255,.06);color:var(--ink);">
+                <option value="" disabled selected>নির্বাচন করুন</option>
+                <option value="ব্যাংক ট্রান্সফার">ব্যাংক ট্রান্সফার</option>
+                <option value="বিকাশ">বিকাশ</option>
+                <option value="নগদ">নগদ</option>
+                <option value="রকেট">রকেট</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label>ট্রানজেকশন আইডি / রেফারেন্স (ঐচ্ছিক)</label>
+              <input type="text" id="depReference" placeholder="যেমন: bKash TrxID">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">জমা দিন</button>
+          <p class="form-msg" id="depMsg"></p>
+        </form>
       </div>
-      <div class="field">
-        <label>লোনের পরিমাণ (৳)</label>
-        <input type="number" id="loanAmount" placeholder="যেমন: ৫০০০০" required min="1000">
+
+      <div class="panel">
+        <h3 style="font-size:16px;color:var(--forest-dark);margin-bottom:14px;">আমার জমার ইতিহাস</h3>
+        <div style="overflow-x:auto;">
+        <table class="ledger-table" id="depositHistoryTable">
+          <thead><tr><th>মাস</th><th>শেয়ার</th><th>পরিমাণ</th><th>পদ্ধতি</th><th>অবস্থা</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        </div>
+        <p class="empty" id="depositHistoryEmpty" style="display:none;">এখনো কোনো জমা দেওয়া হয়নি।</p>
       </div>
-      <div class="field">
-        <label>লোনের কারণ</label>
-        <input type="text" id="loanReason" placeholder="সংক্ষেপে লিখুন" required>
-      </div>
-      <button type="submit" class="btn btn-primary btn-block">আবেদন জমা দিন</button>
-      <p class="form-msg" id="loanMsg"></p>
-    </form>
+    </div>
+  </div>
+
+  <div id="depositSubLoan" style="display:none;">
+    <div class="panel" style="max-width:640px;">
+      <form id="loanForm">
+        <div class="field">
+          <label>নিবন্ধিত মোবাইল নম্বর</label>
+          <input type="tel" id="loanMobile" placeholder="মোবাইল নম্বর" required>
+        </div>
+        <div class="field">
+          <label>লোনের পরিমাণ (৳)</label>
+          <input type="number" id="loanAmount" placeholder="যেমন: ৫০০০০" required min="1000">
+        </div>
+        <div class="field">
+          <label>লোনের কারণ</label>
+          <input type="text" id="loanReason" placeholder="সংক্ষেপে লিখুন" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">আবেদন জমা দিন</button>
+        <p class="form-msg" id="loanMsg"></p>
+      </form>
+    </div>
   </div>
 </section>
 
@@ -743,6 +823,7 @@
       <div class="box"><div class="n" id="dashMembers">০</div><div class="l">মোট সদস্য</div></div>
       <div class="box"><div class="n" id="dashShares">০</div><div class="l">মোট শেয়ার</div></div>
       <div class="box"><div class="n" id="dashLoans">০</div><div class="l">লোন আবেদন</div></div>
+      <div class="box"><div class="n" id="dashPendingDeposits">০</div><div class="l">অপেক্ষমাণ জমা</div></div>
     </div>
     <div class="panel" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
       <div>
@@ -754,6 +835,7 @@
     <div class="tabs">
       <button class="tab-btn active" data-tab="members" onclick="adminTab('members')">সদস্য তালিকা</button>
       <button class="tab-btn" data-tab="loans" onclick="adminTab('loans')">লোন আবেদন</button>
+      <button class="tab-btn" data-tab="deposits" onclick="adminTab('deposits')">মাসিক জমা</button>
     </div>
     <div class="panel" id="adminMembersPanel">
       <div style="overflow-x:auto;">
@@ -774,6 +856,18 @@
         <tbody id="adminLoansBody"></tbody>
       </table>
       <p class="empty" id="adminLoansEmpty" style="display:none;">কোনো লোন আবেদন নেই।</p>
+    </div>
+    <div class="panel" id="adminDepositsPanel" style="display:none;">
+      <div style="overflow-x:auto;">
+      <table class="ledger-table" style="min-width:920px;">
+        <thead><tr>
+          <th>নাম</th><th>মোবাইল</th><th>মাস</th><th>শেয়ার</th><th>পরিমাণ</th>
+          <th>পদ্ধতি</th><th>রেফারেন্স</th><th>অবস্থা</th><th>অ্যাকশন</th>
+        </tr></thead>
+        <tbody id="adminDepositsBody"></tbody>
+      </table>
+      </div>
+      <p class="empty" id="adminDepositsEmpty" style="display:none;">কোনো জমা জমা দেওয়া হয়নি।</p>
     </div>
   </div>
 </section>
@@ -1085,6 +1179,10 @@ function goPage(name){
   document.getElementById('mainNav').classList.remove('open');
   window.scrollTo({top:0, behavior:'smooth'});
   if(name==='savings') renderLedger();
+  if(name==='deposit'){
+    depositSubTab('deposit');
+    if(depositSessionActive()) showDepositPanel(); else showDepositLogin();
+  }
   if(name==='admin') renderAdminIfLoggedIn();
   if(name==='finance'){
     if(sessionStorage.getItem('db17_admin_ok')==='1' && sessionStorage.getItem('db17_admin_token')){
@@ -1198,6 +1296,139 @@ document.getElementById('registerForm').addEventListener('submit', async e=>{
   submitBtn.disabled = false; submitBtn.textContent = 'নিবন্ধন সম্পন্ন করুন';
 });
 
+/* ---------- monthly deposit (member self-service) ---------- */
+
+function depositSubTab(tab){
+  document.querySelectorAll('[data-dtab]').forEach(b=>b.classList.toggle('active', b.dataset.dtab===tab));
+  document.getElementById('depositSubDeposit').style.display = tab==='deposit' ? 'block' : 'none';
+  document.getElementById('depositSubLoan').style.display = tab==='loan' ? 'block' : 'none';
+}
+
+function depositSessionActive(){
+  return !!(sessionStorage.getItem('db17_member_mobile') && sessionStorage.getItem('db17_member_pin'));
+}
+
+function showDepositLogin(){
+  document.getElementById('depositMainPanel').style.display='none';
+  document.getElementById('depositLoginPanel').style.display='block';
+}
+
+function showDepositPanel(){
+  const name = sessionStorage.getItem('db17_member_name');
+  const shares = sessionStorage.getItem('db17_member_shares');
+  document.getElementById('depMemberName').textContent = name || '';
+  document.getElementById('depMemberShares').textContent = shares || '0';
+  document.getElementById('depShares').value = shares || 1;
+  document.getElementById('depAmount').value = (parseInt(shares,10) || 1) * 1000;
+  document.getElementById('depMonth').value = new Date().toISOString().slice(0,7);
+  document.getElementById('depositLoginPanel').style.display='none';
+  document.getElementById('depositMainPanel').style.display='block';
+  refreshDepositHistory();
+}
+
+function depositLogout(){
+  sessionStorage.removeItem('db17_member_mobile');
+  sessionStorage.removeItem('db17_member_pin');
+  sessionStorage.removeItem('db17_member_name');
+  sessionStorage.removeItem('db17_member_shares');
+  document.getElementById('depositLoginForm').reset();
+  showDepositLogin();
+}
+
+document.getElementById('depositLoginForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const msg = document.getElementById('depLoginMsg');
+  msg.classList.remove('error','success');
+  if(showApiWarning(msg)) return;
+
+  const mobile = document.getElementById('depMobile').value.trim();
+  const pin = document.getElementById('depPin').value.trim();
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  submitBtn.disabled = true; submitBtn.textContent = 'যাচাই করা হচ্ছে...';
+  try{
+    const r = await apiCall('login', { mobile, pin });
+    if(r.success){
+      sessionStorage.setItem('db17_member_mobile', mobile);
+      sessionStorage.setItem('db17_member_pin', pin);
+      sessionStorage.setItem('db17_member_name', r.name);
+      sessionStorage.setItem('db17_member_shares', r.shares);
+      showDepositPanel();
+    } else {
+      msg.textContent = r.message || 'মোবাইল নম্বর বা পিন সঠিক নয়।';
+      msg.classList.add('error','show');
+    }
+  } catch(err){
+    msg.textContent = 'সার্ভারে সংযোগ করা যায়নি। আবার চেষ্টা করুন।';
+    msg.classList.add('error','show');
+  }
+  submitBtn.disabled = false; submitBtn.textContent = 'যাচাই করুন';
+});
+
+document.getElementById('depositForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const msg = document.getElementById('depMsg');
+  msg.classList.remove('error','success');
+  if(showApiWarning(msg)) return;
+
+  const mobile = sessionStorage.getItem('db17_member_mobile');
+  const pin = sessionStorage.getItem('db17_member_pin');
+  if(!mobile || !pin){ showDepositLogin(); return; }
+
+  const month = document.getElementById('depMonth').value;
+  const shares = document.getElementById('depShares').value;
+  const amount = document.getElementById('depAmount').value;
+  const paymentMethod = document.getElementById('depPayment').value;
+  const reference = document.getElementById('depReference').value.trim();
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  submitBtn.disabled = true; submitBtn.textContent = 'জমা হচ্ছে...';
+  try{
+    const r = await apiCall('submitDeposit', { mobile, pin, month, shares, amount, paymentMethod, reference });
+    if(r.success){
+      msg.textContent = r.message || 'জমা সফল হয়েছে।';
+      msg.classList.add('success','show');
+      document.getElementById('depReference').value = '';
+      document.getElementById('depPayment').value = '';
+      refreshDepositHistory();
+    } else {
+      msg.textContent = r.message || 'জমা ব্যর্থ হয়েছে।';
+      msg.classList.add('error','show');
+    }
+  } catch(err){
+    msg.textContent = 'সার্ভারে সংযোগ করা যায়নি। আবার চেষ্টা করুন।';
+    msg.classList.add('error','show');
+  }
+  submitBtn.disabled = false; submitBtn.textContent = 'জমা দিন';
+});
+
+async function refreshDepositHistory(){
+  const mobile = sessionStorage.getItem('db17_member_mobile');
+  const pin = sessionStorage.getItem('db17_member_pin');
+  if(!mobile || !pin) return;
+  const tbody = document.querySelector('#depositHistoryTable tbody');
+  const empty = document.getElementById('depositHistoryEmpty');
+  try{
+    const r = await apiCall('listMyDeposits', { mobile, pin });
+    tbody.innerHTML = '';
+    if(r.success && r.deposits && r.deposits.length){
+      empty.style.display='none';
+      r.deposits.forEach(d=>{
+        const badge = d.status==='approved' ? '<span class="badge ok">অনুমোদিত</span>'
+                    : d.status==='rejected' ? '<span class="badge no">বাতিল</span>'
+                    : '<span class="badge pending">অপেক্ষমান</span>';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${d.month}</td><td>${d.shares}টি</td><td>৳${d.amount}</td><td>${d.paymentMethod||'-'}</td><td>${badge}</td>`;
+        tbody.appendChild(tr);
+      });
+    } else {
+      tbody.innerHTML = '';
+      empty.style.display='block';
+    }
+  } catch(err){
+    tbody.innerHTML = '';
+    empty.style.display='block';
+  }
+}
+
 /* ---------- loan application ---------- */
 document.getElementById('loanForm').addEventListener('submit', async e=>{
   e.preventDefault();
@@ -1306,6 +1537,7 @@ async function showAdminDash(){
   document.getElementById('adminDashView').style.display='block';
   await renderAdminMembers();
   await renderAdminLoans();
+  await renderAdminDeposits();
   await loadRegistrationStatusAdmin();
 }
 
@@ -1351,6 +1583,7 @@ function adminTab(tab){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
   document.getElementById('adminMembersPanel').style.display = tab==='members' ? 'block':'none';
   document.getElementById('adminLoansPanel').style.display = tab==='loans' ? 'block':'none';
+  document.getElementById('adminDepositsPanel').style.display = tab==='deposits' ? 'block':'none';
 }
 
 let cachedMembers = [];
@@ -1455,6 +1688,45 @@ async function setLoanStatus(row, status){
   try{
     await apiCall('updateLoanStatus', { row, status });
     await renderAdminLoans();
+  } catch(err){
+    alert('আপডেট করা যায়নি, আবার চেষ্টা করুন।');
+  }
+}
+
+let cachedDeposits = [];
+
+async function renderAdminDeposits(){
+  const tbody = document.getElementById('adminDepositsBody');
+  const emptyMsg = document.getElementById('adminDepositsEmpty');
+  tbody.innerHTML = `<tr><td colspan="9" class="empty">লোড হচ্ছে...</td></tr>`;
+  try{
+    const r = await apiCall('listDeposits', {});
+    cachedDeposits = r.success ? r.deposits : [];
+  } catch(err){
+    cachedDeposits = [];
+  }
+  tbody.innerHTML = '';
+  emptyMsg.style.display = cachedDeposits.length ? 'none' : 'block';
+  cachedDeposits.forEach(d=>{
+    const badge = d.status==='approved' ? '<span class="badge ok">অনুমোদিত</span>'
+                : d.status==='rejected' ? '<span class="badge no">বাতিল</span>'
+                : '<span class="badge pending">অপেক্ষমান</span>';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${d.name}</td><td>${d.mobile}</td><td>${d.month}</td><td>${d.shares}টি</td>
+      <td>৳${d.amount}</td><td>${d.paymentMethod||'-'}</td><td>${d.reference||'-'}</td><td>${badge}</td>
+      <td class="row-actions">
+        <button class="approve" onclick="setDepositStatus(${d.row},'approved')">অনুমোদন</button>
+        <button class="reject" onclick="setDepositStatus(${d.row},'rejected')">বাতিল</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('dashPendingDeposits').textContent = cachedDeposits.filter(d=>d.status==='pending').length;
+}
+
+async function setDepositStatus(row, status){
+  try{
+    await apiCall('updateDepositStatus', { row, status });
+    await renderAdminDeposits();
   } catch(err){
     alert('আপডেট করা যায়নি, আবার চেষ্টা করুন।');
   }
