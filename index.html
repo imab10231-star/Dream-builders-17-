@@ -246,10 +246,15 @@
   .ledger-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px;}
   .ledger-table th,.ledger-table td{padding:11px 10px;text-align:left;border-bottom:1px solid var(--line);}
   .ledger-table th{color:var(--ink-soft);font-weight:600;font-size:13px;}
+  .ledger-table.compact{font-size:12.5px;}
+  .ledger-table.compact th,.ledger-table.compact td{padding:7px 8px;}
+  .ledger-table.compact th{font-size:11px;}
   .badge{padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;}
   .badge.ok{background:rgba(76,201,120,.14);color:#4cc978;}
   .badge.pending{background:rgba(255,176,32,.14);color:#ffb020;}
   .badge.no{background:rgba(255,77,77,.14);color:#ff4d4d;}
+  .ledger-table.compact .badge{padding:2px 8px;font-size:10.5px;white-space:nowrap;}
+  .ledger-table.compact .row-actions button{padding:4px 9px;font-size:11px;}
 
   /* Registration form */
   .reg-form{display:grid;grid-template-columns:1fr 1fr;gap:18px 20px;}
@@ -839,7 +844,7 @@
     </div>
     <div class="panel" id="adminMembersPanel">
       <div style="overflow-x:auto;">
-      <table class="ledger-table" style="min-width:1080px;">
+      <table class="ledger-table compact" style="min-width:760px;">
         <thead><tr>
           <th>নাম</th><th>মোবাইল</th><th>ইমেইল</th><th>NID/জন্ম সনদ</th><th>ঠিকানা</th>
           <th>শেয়ার</th><th>মাসিক পরিমাণ</th><th>পেমেন্ট পদ্ধতি</th><th>যোগদানের তারিখ</th>
@@ -851,7 +856,7 @@
       <p class="empty" id="adminMembersEmpty" style="display:none;">কোনো সদস্য নেই।</p>
     </div>
     <div class="panel" id="adminLoansPanel" style="display:none;">
-      <table class="ledger-table">
+      <table class="ledger-table compact">
         <thead><tr><th>মোবাইল</th><th>পরিমাণ</th><th>কারণ</th><th>অবস্থা</th><th>অ্যাকশন</th></tr></thead>
         <tbody id="adminLoansBody"></tbody>
       </table>
@@ -859,7 +864,7 @@
     </div>
     <div class="panel" id="adminDepositsPanel" style="display:none;">
       <div style="overflow-x:auto;">
-      <table class="ledger-table" style="min-width:920px;">
+      <table class="ledger-table compact" style="min-width:700px;">
         <thead><tr>
           <th>নাম</th><th>মোবাইল</th><th>মাস</th><th>শেয়ার</th><th>পরিমাণ</th>
           <th>পদ্ধতি</th><th>রেফারেন্স</th><th>অবস্থা</th><th>অ্যাকশন</th>
