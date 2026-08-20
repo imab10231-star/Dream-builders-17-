@@ -288,6 +288,22 @@
     font-size:20px;cursor:pointer;line-height:1;width:32px;height:32px;border-radius:8px;
   }
   .modal-close:hover{background:var(--line);color:var(--ink);}
+
+  /* Registration form re-used as a popup when opened from the Admin Panel */
+  .page.modal-mode{
+    display:flex !important;position:fixed;inset:0;z-index:1000;
+    background:rgba(0,0,0,.65);align-items:flex-start;justify-content:center;
+    padding:32px 20px;overflow-y:auto;flex-direction:column;
+  }
+  .page.modal-mode > *{max-width:640px;width:100%;margin-left:auto;margin-right:auto;}
+  .page.modal-mode .panel{position:relative;box-shadow:var(--shadow-lg);}
+  .reg-modal-close{
+    display:none;position:absolute;top:14px;right:16px;background:none;border:none;
+    color:var(--ink-soft);font-size:20px;cursor:pointer;line-height:1;width:32px;height:32px;
+    border-radius:8px;z-index:2;
+  }
+  .reg-modal-close:hover{background:var(--line);color:var(--ink);}
+  .page.modal-mode .reg-modal-close{display:flex;align-items:center;justify-content:center;}
   .modal-profile-header{text-align:center;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--line);}
   .modal-avatar{
     width:88px;height:88px;border-radius:50%;object-fit:cover;border:2px solid var(--mid-green);
@@ -317,10 +333,18 @@
   .modal-photo-edit input{
     flex:1;padding:9px 12px;border-radius:8px;border:1.5px solid var(--line);
     background:rgba(255,255,255,.06);color:var(--ink);font-size:13px;font-family:inherit;
+    min-width:0;
   }
+  .modal-photo-edit input[type="file"]{padding:7px 8px;font-size:12px;}
   .modal-photo-edit button{
     padding:9px 16px;border-radius:8px;border:none;background:var(--mid-green);color:#fff;
     font-weight:700;font-size:12.5px;cursor:pointer;white-space:nowrap;
+  }
+  .modal-photo-edit button:disabled{opacity:.6;cursor:default;}
+  .modal-photo-preview{margin-top:10px;}
+  .modal-photo-preview img{
+    width:88px;height:88px;border-radius:12px;object-fit:cover;
+    border:1.5px solid var(--line);display:block;
   }
   @media(max-width:520px){ .modal-detail-grid{grid-template-columns:1fr;} }
 
@@ -768,7 +792,8 @@
 </section>
 
 <!-- ================= REGISTER ================= -->
-<section id="page-register" class="page">
+<section id="page-register" class="page" onclick="if(event.target===this && this.classList.contains('modal-mode')) closeRegistrationModal();">
+  <button type="button" class="reg-modal-close" onclick="closeRegistrationModal()">✕</button>
   <div class="section-head">
     <h2>সদস্যপদ নিবন্ধন ফর্ম</h2>
     <p>Dream Builders 17-এর সদস্য হতে নিচের ফর্মটি পূরণ করুন।</p>
@@ -915,6 +940,9 @@
       <button class="tab-btn" data-tab="deposits" onclick="adminTab('deposits')">মাসিক জমা</button>
     </div>
     <div class="panel" id="adminMembersPanel">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:14px;">
+        <button class="btn btn-primary" style="padding:9px 18px;font-size:13px;width:auto;" onclick="openRegistrationModal()">+ নতুন সদস্য নিবন্ধন</button>
+      </div>
       <div style="overflow-x:auto;">
       <table class="ledger-table compact" style="min-width:520px;">
         <thead><tr>
@@ -1267,6 +1295,17 @@ function goPage(name){
     }
   }
 }
+/* ---------- registration form re-used as an admin-panel popup ---------- */
+function openRegistrationModal(){
+  document.getElementById('page-register').classList.add('modal-mode');
+}
+function closeRegistrationModal(){
+  document.getElementById('page-register').classList.remove('modal-mode');
+}
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape') closeRegistrationModal();
+});
+
 document.querySelectorAll('.nav-link').forEach(link=>{
   link.addEventListener('click', e=>{
     e.preventDefault();
@@ -1361,6 +1400,10 @@ document.getElementById('registerForm').addEventListener('submit', async e=>{
       document.querySelectorAll('.share-tier').forEach(t=>t.classList.remove('active'));
       document.getElementById('regJoinDate').valueAsDate = new Date();
       updateHomeStats();
+      // opened from Admin Panel? refresh the member list behind the modal
+      if(document.getElementById('page-register').classList.contains('modal-mode') && typeof renderAdminMembers==='function'){
+        renderAdminMembers();
+      }
     } else {
       msg.textContent = r.message || 'নিবন্ধন ব্যর্থ হয়েছে।';
       msg.classList.add('error','show');
@@ -1785,11 +1828,13 @@ function openMemberModal(mobile){
     </div>
 
     <div class="modal-section">
-      <div class="modal-section-title">ছবি আপডেট করুন</div>
+      <div class="modal-section-title">ছবি আপলোড করুন</div>
+      <div class="modal-photo-preview" id="modalPhotoPreview">${m.photoUrl ? `<img src="${m.photoUrl}" alt="preview">` : ''}</div>
       <div class="modal-photo-edit">
-        <input type="url" id="modalPhotoUrlInput" placeholder="ছবির লিংক পেস্ট করুন" value="${m.photoUrl||''}">
-        <button onclick="saveMemberPhoto('${mobile}', ${m.row})">সেভ</button>
+        <input type="file" id="modalPhotoFileInput" accept="image/jpeg,image/png,image/webp" onchange="previewMemberPhoto(this)">
+        <button id="modalPhotoSaveBtn" onclick="saveMemberPhoto('${mobile}', ${m.row})">আপলোড</button>
       </div>
+      <p style="font-size:11px;color:var(--ink-soft);margin-top:6px;">JPG, PNG বা WEBP — সর্বোচ্চ ৫ MB</p>
       <p class="form-msg" id="modalPhotoMsg" style="margin-top:8px;"></p>
     </div>
   `;
@@ -1800,27 +1845,68 @@ function closeMemberModal(){
   document.getElementById('memberModalOverlay').classList.remove('show');
 }
 
+/** Shows a quick local preview of the picked file before upload. */
+function previewMemberPhoto(input){
+  const preview = document.getElementById('modalPhotoPreview');
+  const file = input.files && input.files[0];
+  if(!file){ return; }
+  const reader = new FileReader();
+  reader.onload = e => { preview.innerHTML = `<img src="${e.target.result}" alt="preview">`; };
+  reader.readAsDataURL(file);
+}
+
+function fileToBase64_(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]); // strip "data:...;base64,"
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 async function saveMemberPhoto(mobile, row){
-  const input = document.getElementById('modalPhotoUrlInput');
+  const fileInput = document.getElementById('modalPhotoFileInput');
   const msg = document.getElementById('modalPhotoMsg');
-  const photoUrl = input.value.trim();
+  const saveBtn = document.getElementById('modalPhotoSaveBtn');
   msg.classList.remove('error','success');
+
+  const file = fileInput.files && fileInput.files[0];
+  if(!file){
+    msg.textContent = 'প্রথমে একটা ছবি নির্বাচন করুন।';
+    msg.classList.add('error','show');
+    return;
+  }
+  const allowedTypes = ['image/jpeg','image/png','image/webp'];
+  if(allowedTypes.indexOf(file.type) === -1){
+    msg.textContent = 'শুধু JPG, PNG বা WEBP ছবি আপলোড করা যাবে।';
+    msg.classList.add('error','show');
+    return;
+  }
+  if(file.size > 5 * 1024 * 1024){
+    msg.textContent = 'ছবির সাইজ ৫ MB এর কম হতে হবে।';
+    msg.classList.add('error','show');
+    return;
+  }
+
+  saveBtn.disabled = true; saveBtn.textContent = 'আপলোড হচ্ছে...';
   try{
-    const r = await apiCall('updateMemberPhoto', { row, photoUrl });
+    const imageBase64 = await fileToBase64_(file);
+    const r = await apiCall('uploadMemberPhoto', { row, imageBase64, mimeType: file.type, fileName: file.name });
     if(r.success){
-      msg.textContent = 'ছবি সেভ হয়েছে।';
+      msg.textContent = 'ছবি আপলোড হয়েছে।';
       msg.classList.add('success','show');
       const m = cachedMembers.find(x=>String(x.mobile)===String(mobile));
-      if(m) m.photoUrl = photoUrl;
+      if(m) m.photoUrl = r.photoUrl;
       await renderAdminMembers();
     } else {
-      msg.textContent = r.message || 'সেভ করা যায়নি।';
+      msg.textContent = r.message || 'আপলোড করা যায়নি।';
       msg.classList.add('error','show');
     }
   } catch(err){
     msg.textContent = 'সার্ভারে সংযোগ করা যায়নি।';
     msg.classList.add('error','show');
   }
+  saveBtn.disabled = false; saveBtn.textContent = 'আপলোড';
 }
 
 async function setMemberStatus(row, status){
