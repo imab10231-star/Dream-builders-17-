@@ -256,6 +256,74 @@
   .ledger-table.compact .badge{padding:2px 8px;font-size:10.5px;white-space:nowrap;}
   .ledger-table.compact .row-actions button{padding:4px 9px;font-size:11px;}
 
+  /* Member avatar (list thumbnail) */
+  .member-avatar-cell{width:44px;}
+  .member-avatar{
+    width:38px;height:38px;border-radius:50%;object-fit:cover;cursor:pointer;
+    border:1.5px solid var(--line);display:block;background:#222;transition:.15s;
+  }
+  .member-avatar:hover{border-color:var(--mid-green);transform:scale(1.06);}
+  .member-avatar-fallback{
+    width:38px;height:38px;border-radius:50%;cursor:pointer;
+    background:rgba(255,148,51,.14);color:var(--mid-green);font-weight:800;font-size:14px;
+    display:flex;align-items:center;justify-content:center;border:1.5px solid var(--line);transition:.15s;
+  }
+  .member-avatar-fallback:hover{border-color:var(--mid-green);transform:scale(1.06);}
+  .member-name-link{cursor:pointer;font-weight:700;}
+  .member-name-link:hover{color:var(--mid-green);}
+
+  /* Member profile modal */
+  .modal-overlay{
+    display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:999;
+    align-items:center;justify-content:center;padding:16px;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal-box{
+    background:var(--paper);border:1px solid var(--line);border-radius:16px;
+    max-width:560px;width:100%;max-height:88vh;overflow-y:auto;padding:26px;position:relative;
+    box-shadow:var(--shadow-lg);
+  }
+  .modal-close{
+    position:absolute;top:14px;right:16px;background:none;border:none;color:var(--ink-soft);
+    font-size:20px;cursor:pointer;line-height:1;width:32px;height:32px;border-radius:8px;
+  }
+  .modal-close:hover{background:var(--line);color:var(--ink);}
+  .modal-profile-header{text-align:center;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--line);}
+  .modal-avatar{
+    width:88px;height:88px;border-radius:50%;object-fit:cover;border:2px solid var(--mid-green);
+    display:block;margin:0 auto 12px;background:#222;
+  }
+  .modal-avatar-fallback{
+    width:88px;height:88px;border-radius:50%;background:rgba(255,148,51,.14);color:var(--mid-green);
+    display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;
+    margin:0 auto 12px;
+  }
+  .modal-profile-header h3{margin:0 0 6px;font-size:19px;color:var(--forest-dark);}
+  .modal-section{margin-bottom:20px;}
+  .modal-section-title{font-size:13px;font-weight:800;color:var(--mid-green);margin-bottom:10px;text-transform:uppercase;letter-spacing:.03em;}
+  .modal-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;}
+  .modal-detail-row{display:flex;flex-direction:column;gap:2px;font-size:13.5px;}
+  .modal-detail-row.full{grid-column:1/-1;}
+  .modal-detail-row .k{color:var(--ink-soft);font-size:11.5px;}
+  .modal-detail-row .v{font-weight:700;}
+  .modal-stat-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+  .modal-stat-box{flex:1;min-width:110px;background:#1a1a1e;border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center;}
+  .modal-stat-box .n{font-size:17px;font-weight:800;color:var(--mid-green);}
+  .modal-stat-box .l{font-size:11px;color:var(--ink-soft);margin-top:2px;}
+  .modal-mini-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .modal-mini-table th,.modal-mini-table td{padding:6px 8px;text-align:left;border-bottom:1px solid var(--line);}
+  .modal-mini-table th{color:var(--ink-soft);font-weight:600;font-size:11px;}
+  .modal-photo-edit{display:flex;gap:8px;margin-top:14px;}
+  .modal-photo-edit input{
+    flex:1;padding:9px 12px;border-radius:8px;border:1.5px solid var(--line);
+    background:rgba(255,255,255,.06);color:var(--ink);font-size:13px;font-family:inherit;
+  }
+  .modal-photo-edit button{
+    padding:9px 16px;border-radius:8px;border:none;background:var(--mid-green);color:#fff;
+    font-weight:700;font-size:12.5px;cursor:pointer;white-space:nowrap;
+  }
+  @media(max-width:520px){ .modal-detail-grid{grid-template-columns:1fr;} }
+
   /* Registration form */
   .reg-form{display:grid;grid-template-columns:1fr 1fr;gap:18px 20px;}
   .reg-form .full{grid-column:1/-1;}
@@ -514,21 +582,21 @@
           <div class="rule-icon">📆</div>
           <h4>মাসিক সঞ্চয় বাধ্যতামূলক</h4>
         </div>
-        <p>প্রতি মাসে নির্ধারিত তারিখের মধ্যে নিজের শেয়ার সংখ্যা অনুযায়ী টাকা জমা দিতে হবে।</p>
+        <p>প্রতি মাসে নির্ধারিত তারিখের মধ্যে নিজের শেয়ার সংখ্যা অনুযায়ী কিস্তি জমা দিতে হবে।</p>
       </div>
       <div class="rule-card">
         <div class="rule-head">
           <div class="rule-icon">🎯</div>
           <h4>শেয়ার ক্রয় সীমা</h4>
         </div>
-        <p>একজন সদস্য সর্বোচ্চ ৩টি শেয়ার পর্যন্ত ক্রয় করতে পারবেন — সবার সমান সুযোগ নিশ্চিত করতে।</p>
+        <p>একজন সদস্য সর্বোচ্চ ৫টি শেয়ার পর্যন্ত ক্রয় করতে পারবেন — সবার সমান সুযোগ নিশ্চিত করতে।</p>
       </div>
       <div class="rule-card">
         <div class="rule-head">
           <div class="rule-icon">💵</div>
           <h4>লোন সুবিধা</h4>
         </div>
-        <p>জমাকৃত শেয়ারের সর্বোচ্চ ৭০% পর্যন্ত স্বল্প সুদে লোন নেওয়া যাবে, (কমিটির অনুমোদন সাপেক্ষে)।</p>
+        <p>জমাকৃত শেয়ারের সর্বোচ্চ ৭০% পর্যন্ত স্বল্প সুদে লোন নেওয়া যাবে, কমিটির অনুমোদন সাপেক্ষে।</p>
       </div>
       <div class="rule-card">
         <div class="rule-head">
@@ -549,7 +617,7 @@
           <div class="rule-icon">📊</div>
           <h4>স্বচ্ছতা ও রিপোর্টিং</h4>
         </div>
-        <p>প্রতি ৬ মাস অন্তর সম্পূর্ণ আর্থিক প্রতিবেদন সকল সদস্যের সাথে শেয়ার করা হবে।</p>
+        <p>প্রতি ৩ মাস অন্তর সম্পূর্ণ আর্থিক প্রতিবেদন সকল সদস্যের সাথে শেয়ার করা হবে।</p>
       </div>
     </div>
   </div>
@@ -588,7 +656,7 @@
           <li><span class="dot" style="background:#dfe9e2;"></span> পরিচালন ব্যয় — ১২%</li>
         </ul>
       </div>
-      <p class="progress-note">জরুরি সহায়তা ফান্ড ইতিমধ্যে ০ জন সদস্যকে সহায়তা প্রদান করেছে।</p>
+      <p class="progress-note">জরুরি সহায়তা ফান্ড ইতিমধ্যে ২ জন সদস্যকে সহায়তা প্রদান করেছে।</p>
     </div>
   </div>
 </section>
@@ -731,6 +799,10 @@
             <input type="text" id="regAddress" placeholder=" " required>
             <label>বর্তমান ঠিকানা</label>
           </div>
+          <div class="float-field full">
+            <input type="url" id="regPhotoUrl" placeholder=" ">
+            <label>ছবির লিংক (ঐচ্ছিক)</label>
+          </div>
         </div>
       </div>
 
@@ -844,11 +916,9 @@
     </div>
     <div class="panel" id="adminMembersPanel">
       <div style="overflow-x:auto;">
-      <table class="ledger-table compact" style="min-width:760px;">
+      <table class="ledger-table compact" style="min-width:520px;">
         <thead><tr>
-          <th>নাম</th><th>মোবাইল</th><th>ইমেইল</th><th>NID/জন্ম সনদ</th><th>ঠিকানা</th>
-          <th>শেয়ার</th><th>মাসিক পরিমাণ</th><th>পেমেন্ট পদ্ধতি</th><th>যোগদানের তারিখ</th>
-          <th>অবস্থা</th><th>অ্যাকশন</th>
+          <th></th><th>নাম</th><th>মোবাইল</th><th>শেয়ার</th><th>অবস্থা</th><th>অ্যাকশন</th>
         </tr></thead>
         <tbody id="adminMembersBody"></tbody>
       </table>
@@ -1271,6 +1341,7 @@ document.getElementById('registerForm').addEventListener('submit', async e=>{
   const email = document.getElementById('regEmail').value.trim();
   const nid = document.getElementById('regNid').value.trim();
   const address = document.getElementById('regAddress').value.trim();
+  const photoUrl = document.getElementById('regPhotoUrl').value.trim();
   const shares = parseInt(document.getElementById('regShares').value || '1', 10);
   const monthlyAmount = document.getElementById('regMonthlyAmount').value.trim();
   const payment = document.getElementById('regPayment').value;
@@ -1281,7 +1352,7 @@ document.getElementById('registerForm').addEventListener('submit', async e=>{
 
   try{
     const r = await apiCall('register', {
-      name, mobile, email, nid, address, shares, monthlyAmount, payment, joinDate, pin
+      name, mobile, email, nid, address, photoUrl, shares, monthlyAmount, payment, joinDate, pin
     });
     if(r.success){
       msg.textContent = 'নিবন্ধন সফল হয়েছে! আপনি এখনই লগইন করতে পারবেন।';
@@ -1594,10 +1665,22 @@ function adminTab(tab){
 let cachedMembers = [];
 let cachedLoans = [];
 
+/** Returns an <img> (lazy-loaded) or a fallback initials avatar as HTML string. */
+function avatarHtml(m, size){
+  const cls = size==='sm' ? 'member-avatar' : 'modal-avatar';
+  const fallbackCls = size==='sm' ? 'member-avatar-fallback' : 'modal-avatar-fallback';
+  const initial = (m.name||'?').trim().charAt(0).toUpperCase();
+  if(m.photoUrl){
+    return `<img src="${m.photoUrl}" alt="${m.name}" class="${cls}" loading="lazy"
+      onerror="this.outerHTML='<div class=&quot;${fallbackCls}&quot;>${initial}</div>';">`;
+  }
+  return `<div class="${fallbackCls}">${initial}</div>`;
+}
+
 async function renderAdminMembers(){
   const tbody = document.getElementById('adminMembersBody');
   const emptyMsg = document.getElementById('adminMembersEmpty');
-  tbody.innerHTML = `<tr><td colspan="11" class="empty">লোড হচ্ছে...</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="6" class="empty">লোড হচ্ছে...</td></tr>`;
   try{
     const r = await apiCall('listMembers', {});
     cachedMembers = r.success ? r.members : [];
@@ -1611,9 +1694,9 @@ async function renderAdminMembers(){
                 : m.status==='rejected' ? '<span class="badge no">বাতিল</span>'
                 : '<span class="badge pending">অপেক্ষমান</span>';
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${m.name}</td><td>${m.mobile}</td><td>${m.email||'-'}</td><td>${m.nid||'-'}</td>
-      <td>${m.address||'-'}</td><td>${m.shares}টি</td><td>${m.monthlyAmount ? '৳'+m.monthlyAmount : '-'}</td><td>${m.payment||'-'}</td>
-      <td>${m.joinDate||'-'}</td><td>${badge}</td>
+    tr.innerHTML = `<td class="member-avatar-cell" onclick="openMemberModal('${m.mobile}')">${avatarHtml(m,'sm')}</td>
+      <td><span class="member-name-link" onclick="openMemberModal('${m.mobile}')">${m.name}</span></td>
+      <td>${m.mobile}</td><td>${m.shares}টি</td><td>${badge}</td>
       <td class="row-actions">
         <button class="approve" onclick="setMemberStatus(${m.row},'approved')">অনুমোদন</button>
         <button class="reject" onclick="setMemberStatus(${m.row},'rejected')">বাতিল</button>
@@ -1622,6 +1705,122 @@ async function renderAdminMembers(){
   });
   document.getElementById('dashMembers').textContent = cachedMembers.length;
   document.getElementById('dashShares').textContent = cachedMembers.reduce((s,m)=>s+Number(m.shares||0),0);
+}
+
+/* ---------- member profile modal ---------- */
+
+function openMemberModal(mobile){
+  const m = cachedMembers.find(x=>String(x.mobile)===String(mobile));
+  if(!m) return;
+
+  const badge = m.status==='approved' ? '<span class="badge ok">অনুমোদিত</span>'
+              : m.status==='rejected' ? '<span class="badge no">বাতিল</span>'
+              : '<span class="badge pending">অপেক্ষমান</span>';
+
+  const myDeposits = cachedDeposits.filter(d=>String(d.mobile)===String(mobile));
+  const approvedDeposits = myDeposits.filter(d=>d.status==='approved');
+  const pendingDeposits = myDeposits.filter(d=>d.status==='pending');
+  const totalSaved = approvedDeposits.reduce((s,d)=>s+Number(d.amount||0),0);
+
+  const myLoans = cachedLoans.filter(l=>String(l.mobile)===String(mobile));
+  const approvedLoanTotal = myLoans.filter(l=>l.status==='disbursed'||l.status==='approved'||l.status==='repaid')
+    .reduce((s,l)=>s+Number(l.amount||0),0);
+
+  const depositRows = myDeposits.length ? myDeposits.map(d=>{
+    const b = d.status==='approved' ? '<span class="badge ok">অনুমোদিত</span>'
+            : d.status==='rejected' ? '<span class="badge no">বাতিল</span>'
+            : '<span class="badge pending">অপেক্ষমান</span>';
+    return `<tr><td>${d.month}</td><td>৳${d.amount}</td><td>${d.paymentMethod||'-'}</td><td>${b}</td></tr>`;
+  }).join('') : '<tr><td colspan="4" class="empty">কোনো জমা নেই।</td></tr>';
+
+  const loanRows = myLoans.length ? myLoans.map(l=>{
+    const b = l.status==='rejected' ? '<span class="badge no">বাতিল</span>'
+            : (l.status==='approved'||l.status==='disbursed'||l.status==='repaid') ? '<span class="badge ok">'+l.status+'</span>'
+            : '<span class="badge pending">অপেক্ষমান</span>';
+    return `<tr><td>৳${l.amount}</td><td>${l.reason||'-'}</td><td>${b}</td></tr>`;
+  }).join('') : '<tr><td colspan="3" class="empty">কোনো লোন নেই।</td></tr>';
+
+  document.getElementById('memberModalBody').innerHTML = `
+    <div class="modal-profile-header">
+      ${avatarHtml(m,'lg')}
+      <h3>${m.name}</h3>
+      ${badge}
+      <div style="font-size:12px;color:var(--ink-soft);margin-top:8px;">যোগদান: ${m.joinDate||'-'}</div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">ব্যক্তিগত তথ্য</div>
+      <div class="modal-detail-grid">
+        <div class="modal-detail-row"><span class="k">মোবাইল</span><span class="v">${m.mobile}</span></div>
+        <div class="modal-detail-row"><span class="k">ইমেইল</span><span class="v">${m.email||'-'}</span></div>
+        <div class="modal-detail-row"><span class="k">NID/জন্ম সনদ</span><span class="v">${m.nid||'-'}</span></div>
+        <div class="modal-detail-row"><span class="k">শেয়ার সংখ্যা</span><span class="v">${m.shares}টি</span></div>
+        <div class="modal-detail-row full"><span class="k">ঠিকানা</span><span class="v">${m.address||'-'}</span></div>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">জমা / সঞ্চয়</div>
+      <div class="modal-stat-row">
+        <div class="modal-stat-box"><div class="n">৳${totalSaved}</div><div class="l">মোট অনুমোদিত জমা</div></div>
+        <div class="modal-stat-box"><div class="n">${pendingDeposits.length}</div><div class="l">অপেক্ষমান</div></div>
+        <div class="modal-stat-box"><div class="n">${approvedDeposits.length}</div><div class="l">অনুমোদিত সংখ্যা</div></div>
+      </div>
+      <table class="modal-mini-table">
+        <thead><tr><th>মাস</th><th>পরিমাণ</th><th>পদ্ধতি</th><th>অবস্থা</th></tr></thead>
+        <tbody>${depositRows}</tbody>
+      </table>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">লোন তথ্য</div>
+      <div class="modal-stat-row">
+        <div class="modal-stat-box"><div class="n">৳${approvedLoanTotal}</div><div class="l">মোট লোন</div></div>
+        <div class="modal-stat-box"><div class="n">${myLoans.length}</div><div class="l">মোট আবেদন</div></div>
+      </div>
+      <table class="modal-mini-table">
+        <thead><tr><th>পরিমাণ</th><th>কারণ</th><th>অবস্থা</th></tr></thead>
+        <tbody>${loanRows}</tbody>
+      </table>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">ছবি আপডেট করুন</div>
+      <div class="modal-photo-edit">
+        <input type="url" id="modalPhotoUrlInput" placeholder="ছবির লিংক পেস্ট করুন" value="${m.photoUrl||''}">
+        <button onclick="saveMemberPhoto('${mobile}', ${m.row})">সেভ</button>
+      </div>
+      <p class="form-msg" id="modalPhotoMsg" style="margin-top:8px;"></p>
+    </div>
+  `;
+  document.getElementById('memberModalOverlay').classList.add('show');
+}
+
+function closeMemberModal(){
+  document.getElementById('memberModalOverlay').classList.remove('show');
+}
+
+async function saveMemberPhoto(mobile, row){
+  const input = document.getElementById('modalPhotoUrlInput');
+  const msg = document.getElementById('modalPhotoMsg');
+  const photoUrl = input.value.trim();
+  msg.classList.remove('error','success');
+  try{
+    const r = await apiCall('updateMemberPhoto', { row, photoUrl });
+    if(r.success){
+      msg.textContent = 'ছবি সেভ হয়েছে।';
+      msg.classList.add('success','show');
+      const m = cachedMembers.find(x=>String(x.mobile)===String(mobile));
+      if(m) m.photoUrl = photoUrl;
+      await renderAdminMembers();
+    } else {
+      msg.textContent = r.message || 'সেভ করা যায়নি।';
+      msg.classList.add('error','show');
+    }
+  } catch(err){
+    msg.textContent = 'সার্ভারে সংযোগ করা যায়নি।';
+    msg.classList.add('error','show');
+  }
 }
 
 async function setMemberStatus(row, status){
@@ -2240,5 +2439,14 @@ async function loadPublicFinanceSummary(){
 renderLedger();
 loadPublicFinanceSummary();
 </script>
+
+<!-- ================= MEMBER PROFILE MODAL ================= -->
+<div class="modal-overlay" id="memberModalOverlay" onclick="if(event.target===this) closeMemberModal();">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeMemberModal()">✕</button>
+    <div id="memberModalBody">লোড হচ্ছে...</div>
+  </div>
+</div>
+
 </body>
 </html>
