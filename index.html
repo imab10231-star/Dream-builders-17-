@@ -272,6 +272,54 @@
   .member-name-link{cursor:pointer;font-weight:700;}
   .member-name-link:hover{color:var(--mid-green);}
 
+  /* Premium dark member profile cards */
+  .member-card-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px;margin-top:6px;
+  }
+  .member-card{
+    background:linear-gradient(180deg,#1c1c21 0%,var(--paper) 100%);
+    border:1px solid var(--line);border-radius:18px;overflow:hidden;cursor:pointer;
+    box-shadow:var(--shadow-sm);transition:transform .18s,box-shadow .18s,border-color .18s;
+    display:flex;flex-direction:column;
+  }
+  .member-card:hover{
+    transform:translateY(-4px);border-color:var(--mid-green);box-shadow:var(--shadow-md);
+  }
+  .member-card-photo-wrap{position:relative;width:100%;aspect-ratio:1/1;background:#151518;overflow:hidden;}
+  .member-card-photo{width:100%;height:100%;object-fit:cover;display:block;}
+  .member-card-photo-fallback{
+    width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+    background:rgba(255,148,51,.12);color:var(--mid-green);font-weight:800;font-size:44px;
+  }
+  .member-card-badge{
+    position:absolute;top:10px;right:10px;padding:4px 11px;border-radius:20px;
+    font-size:11px;font-weight:800;backdrop-filter:blur(4px);
+  }
+  .member-card-badge.ok{background:rgba(76,201,120,.85);color:#0b0b0d;}
+  .member-card-badge.pending{background:rgba(255,176,32,.88);color:#0b0b0d;}
+  .member-card-badge.no{background:rgba(255,77,77,.85);color:#0b0b0d;}
+  .member-card-body{padding:14px 14px 16px;flex:1;display:flex;flex-direction:column;gap:8px;}
+  .member-card-name{font-size:15px;font-weight:800;color:var(--ink);line-height:1.25;}
+  .member-card-id{font-size:11.5px;color:var(--ink-soft);font-family:'JetBrains Mono',monospace;}
+  .member-card-stats{
+    display:flex;gap:8px;margin-top:4px;padding-top:10px;border-top:1px solid var(--line);
+  }
+  .member-card-stat{flex:1;text-align:center;}
+  .member-card-stat .n{font-size:13.5px;font-weight:800;color:var(--mid-green);display:block;}
+  .member-card-stat .l{font-size:10px;color:var(--ink-soft);margin-top:1px;}
+  .member-card-actions{display:flex;gap:8px;margin-top:10px;}
+  .member-card-actions button{
+    flex:1;padding:7px 0;font-size:11.5px;font-weight:700;border-radius:8px;border:1px solid var(--line);
+    background:#1a1a1e;color:var(--ink);cursor:pointer;transition:.15s;
+  }
+  .member-card-actions button.approve:hover{border-color:#4cc978;color:#4cc978;}
+  .member-card-actions button.reject:hover{border-color:#ff4d4d;color:#ff4d4d;}
+  /* Public "জমার হিসাব" directory — same premium card, smaller grid, no admin actions */
+  .member-card-grid-public{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;}
+  .member-card-grid-public .member-card-body{padding:11px 11px 13px;gap:6px;}
+  .member-card-grid-public .member-card-name{font-size:13.5px;}
+  .member-card-grid-public .member-card-id{font-size:10.5px;}
+
   /* Member profile modal */
   .modal-overlay{
     display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:999;
@@ -662,11 +710,8 @@
       <p class="progress-note">লক্ষ্যমাত্রা: ৳৩০,০০,০০০ • সংগৃহীত: ৳২২,২০,০০০ (আনুমানিক)</p>
 
       <h3 style="font-size:16px;color:var(--forest-dark);margin:26px 0 10px;">সদস্যদের জমার তালিকা</h3>
-      <table class="ledger-table" id="ledgerTable">
-        <thead><tr><th>নাম</th><th>মোবাইল</th><th>শেয়ার</th><th>অবস্থা</th></tr></thead>
-        <tbody></tbody>
-      </table>
-      <p class="empty" id="ledgerEmpty" style="display:none;">এখনো কোনো সদস্য নিবন্ধিত হয়নি। <a href="#register" onclick="goPage('register')" style="color:var(--mid-green);font-weight:700;">নিবন্ধন করুন</a></p>
+      <div class="member-card-grid member-card-grid-public" id="ledgerCards"></div>
+      <p class="empty" id="ledgerEmpty" style="display:none;">এখনো কোনো সদস্য নিবন্ধিত হয়নি।</p>
     </div>
 
     <div class="panel">
@@ -824,9 +869,13 @@
             <input type="text" id="regAddress" placeholder=" " required>
             <label>বর্তমান ঠিকানা</label>
           </div>
-          <div class="float-field full">
-            <input type="url" id="regPhotoUrl" placeholder=" ">
-            <label>ছবির লিংক (ঐচ্ছিক)</label>
+          <div class="reg-photo-field full">
+            <label style="font-size:12.5px;color:var(--ink-soft);display:block;margin-bottom:8px;">প্রোফাইল ছবি (ঐচ্ছিক)</label>
+            <div class="modal-photo-preview" id="regPhotoPreview"></div>
+            <div class="modal-photo-edit" style="margin-top:8px;">
+              <input type="file" id="regPhotoFileInput" accept="image/jpeg,image/png,image/webp" onchange="previewRegPhoto(this)">
+            </div>
+            <p style="font-size:11px;color:var(--ink-soft);margin-top:6px;">JPG, PNG বা WEBP — সর্বোচ্চ ৫ MB</p>
           </div>
         </div>
       </div>
@@ -940,18 +989,26 @@
       <button class="tab-btn" data-tab="deposits" onclick="adminTab('deposits')">মাসিক জমা</button>
     </div>
     <div class="panel" id="adminMembersPanel">
-      <div style="display:flex;justify-content:flex-end;margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;flex:1;min-width:220px;">
+          <input type="text" id="memberSearchInput" placeholder="নাম বা মোবাইল দিয়ে খুঁজুন..." oninput="onMemberFilterChange()"
+            style="flex:1;min-width:160px;padding:9px 14px;border-radius:8px;border:1.5px solid var(--line);background:#1a1a1e;color:var(--ink);font-size:13.5px;font-family:inherit;">
+          <select id="memberStatusFilter" onchange="onMemberFilterChange()"
+            style="padding:9px 12px;border-radius:8px;border:1.5px solid var(--line);background:#1a1a1e;color:var(--ink);font-size:13px;font-family:inherit;">
+            <option value="">সব অবস্থা</option>
+            <option value="approved">অনুমোদিত</option>
+            <option value="pending">অপেক্ষমান</option>
+            <option value="rejected">বাতিল</option>
+          </select>
+        </div>
         <button class="btn btn-primary" style="padding:9px 18px;font-size:13px;width:auto;" onclick="openRegistrationModal()">+ নতুন সদস্য নিবন্ধন</button>
       </div>
-      <div style="overflow-x:auto;">
-      <table class="ledger-table compact" style="min-width:520px;">
-        <thead><tr>
-          <th></th><th>নাম</th><th>মোবাইল</th><th>শেয়ার</th><th>অবস্থা</th><th>অ্যাকশন</th>
-        </tr></thead>
-        <tbody id="adminMembersBody"></tbody>
-      </table>
-      </div>
+      <p id="memberFilterCount" style="font-size:12px;color:var(--ink-soft);margin-bottom:12px;"></p>
+      <div class="member-card-grid" id="adminMembersBody"></div>
       <p class="empty" id="adminMembersEmpty" style="display:none;">কোনো সদস্য নেই।</p>
+      <div style="text-align:center;margin-top:18px;">
+        <button class="btn btn-ghost" id="memberLoadMoreBtn" style="padding:10px 24px;font-size:13px;width:auto;display:none;" onclick="loadMoreMembers()">আরও দেখুন</button>
+      </div>
     </div>
     <div class="panel" id="adminLoansPanel" style="display:none;">
       <table class="ledger-table compact">
@@ -1363,6 +1420,16 @@ function selectShareTier(el){
   document.getElementById('regMonthlyAmount').value = el.dataset.amount;
 }
 
+/** Shows a quick local preview of the picked registration photo before submit. */
+function previewRegPhoto(input){
+  const preview = document.getElementById('regPhotoPreview');
+  const file = input.files && input.files[0];
+  if(!file){ preview.innerHTML=''; return; }
+  const reader = new FileReader();
+  reader.onload = e => { preview.innerHTML = `<img src="${e.target.result}" alt="preview">`; };
+  reader.readAsDataURL(file);
+}
+
 document.getElementById('registerForm').addEventListener('submit', async e=>{
   e.preventDefault();
   const msg = document.getElementById('regMsg');
@@ -1380,7 +1447,6 @@ document.getElementById('registerForm').addEventListener('submit', async e=>{
   const email = document.getElementById('regEmail').value.trim();
   const nid = document.getElementById('regNid').value.trim();
   const address = document.getElementById('regAddress').value.trim();
-  const photoUrl = document.getElementById('regPhotoUrl').value.trim();
   const shares = parseInt(document.getElementById('regShares').value || '1', 10);
   const monthlyAmount = document.getElementById('regMonthlyAmount').value.trim();
   const payment = document.getElementById('regPayment').value;
@@ -1389,14 +1455,23 @@ document.getElementById('registerForm').addEventListener('submit', async e=>{
   const submitBtn = e.target.querySelector('button[type="submit"]');
   submitBtn.disabled = true; submitBtn.textContent = 'জমা হচ্ছে...';
 
+  // Optional profile photo, uploaded the same way the admin panel does it.
+  let imageBase64 = null, mimeType = null;
+  const photoFile = document.getElementById('regPhotoFileInput').files[0];
+  if(photoFile){
+    try{ imageBase64 = await fileToBase64_(photoFile); mimeType = photoFile.type; }
+    catch(err){ /* photo is optional — registration continues without it */ }
+  }
+
   try{
     const r = await apiCall('register', {
-      name, mobile, email, nid, address, photoUrl, shares, monthlyAmount, payment, joinDate, pin
+      name, mobile, email, nid, address, shares, monthlyAmount, payment, joinDate, pin, imageBase64, mimeType
     });
     if(r.success){
       msg.textContent = 'নিবন্ধন সফল হয়েছে! আপনি এখনই লগইন করতে পারবেন।';
       msg.classList.add('success','show');
       e.target.reset();
+      document.getElementById('regPhotoPreview').innerHTML = '';
       document.querySelectorAll('.share-tier').forEach(t=>t.classList.remove('active'));
       document.getElementById('regJoinDate').valueAsDate = new Date();
       updateHomeStats();
@@ -1578,12 +1653,160 @@ document.getElementById('loanForm').addEventListener('submit', async e=>{
   submitBtn.disabled = false; submitBtn.textContent = 'আবেদন জমা দিন';
 });
 
+/* ---------- my profile (public "জমার হিসাব" — login gated, reuses deposit-tab session) ---------- */
+
+function openPublicProfileModal(){
+  document.getElementById('publicProfileModalOverlay').classList.add('show');
+  if(depositSessionActive()){
+    loadAndRenderPublicProfile();
+  } else {
+    renderPublicProfileLoginForm();
+  }
+}
+
+function closePublicProfileModal(){
+  document.getElementById('publicProfileModalOverlay').classList.remove('show');
+}
+
+function renderPublicProfileLoginForm(msgText, isError){
+  document.getElementById('publicProfileModalBody').innerHTML = `
+    <div class="modal-profile-header">
+      <div class="modal-avatar-fallback">🔒</div>
+      <h3>প্রোফাইল দেখতে যাচাই করুন</h3>
+      <div style="font-size:12.5px;color:var(--ink-soft);margin-top:6px;">আপনার নিজের মোবাইল নম্বর ও পিন দিন</div>
+    </div>
+    <div class="modal-section">
+      <form id="publicProfileLoginForm">
+        <div class="field">
+          <label>মোবাইল নম্বর</label>
+          <input type="tel" id="pubMobile" placeholder="মোবাইল নম্বর" required>
+        </div>
+        <div class="field pin">
+          <label>পিন</label>
+          <input type="password" id="pubPin" placeholder="৪ সংখ্যার পিন" required>
+          <button type="button" class="toggle-eye" onclick="toggleEye('pubPin', this)">👁</button>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">যাচাই করুন</button>
+        <p class="form-msg ${isError?'error show':''}" id="pubProfileMsg">${msgText||''}</p>
+      </form>
+    </div>
+  `;
+  document.getElementById('publicProfileLoginForm').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const mobile = document.getElementById('pubMobile').value.trim();
+    const pin = document.getElementById('pubPin').value.trim();
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.disabled = true; submitBtn.textContent = 'যাচাই করা হচ্ছে...';
+    try{
+      const r = await apiCall('getMemberProfile', { mobile, pin });
+      if(r.success){
+        // Save the same session the "মাসিক জমা" tab uses, so login carries over.
+        sessionStorage.setItem('db17_member_mobile', mobile);
+        sessionStorage.setItem('db17_member_pin', pin);
+        sessionStorage.setItem('db17_member_name', r.member.name);
+        sessionStorage.setItem('db17_member_shares', r.member.shares);
+        renderPublicProfile(r);
+      } else {
+        renderPublicProfileLoginForm(r.message || 'মোবাইল নম্বর বা পিন সঠিক নয়।', true);
+      }
+    } catch(err){
+      renderPublicProfileLoginForm('সার্ভারে সংযোগ করা যায়নি। আবার চেষ্টা করুন।', true);
+    }
+  });
+}
+
+async function loadAndRenderPublicProfile(){
+  document.getElementById('publicProfileModalBody').innerHTML = 'লোড হচ্ছে...';
+  const mobile = sessionStorage.getItem('db17_member_mobile');
+  const pin = sessionStorage.getItem('db17_member_pin');
+  try{
+    const r = await apiCall('getMemberProfile', { mobile, pin });
+    if(r.success){
+      renderPublicProfile(r);
+    } else {
+      // Stored session is no longer valid — fall back to asking again.
+      depositLogout();
+      renderPublicProfileLoginForm(r.message || 'আবার লগইন করুন।', true);
+    }
+  } catch(err){
+    renderPublicProfileLoginForm('সার্ভারে সংযোগ করা যায়নি। আবার চেষ্টা করুন।', true);
+  }
+}
+
+function renderPublicProfile(r){
+  const m = r.member;
+  const badge = memberStatusBadge_(m.status, false);
+
+  const approvedDeposits = r.deposits.filter(d=>d.status==='approved');
+  const pendingDeposits = r.deposits.filter(d=>d.status==='pending');
+  const totalSaved = approvedDeposits.reduce((s,d)=>s+Number(d.amount||0),0);
+
+  const depositRows = r.deposits.length ? r.deposits.map(d=>{
+    const b = d.status==='approved' ? '<span class="badge ok">অনুমোদিত</span>'
+            : d.status==='rejected' ? '<span class="badge no">বাতিল</span>'
+            : '<span class="badge pending">অপেক্ষমান</span>';
+    return `<tr><td>${d.month}</td><td>৳${d.amount}</td><td>${d.paymentMethod||'-'}</td><td>${b}</td></tr>`;
+  }).join('') : '<tr><td colspan="4" class="empty">কোনো জমা নেই।</td></tr>';
+
+  const loanRows = r.loans.length ? r.loans.map(l=>{
+    const b = l.status==='rejected' ? '<span class="badge no">বাতিল</span>'
+            : (l.status==='approved'||l.status==='disbursed'||l.status==='repaid') ? '<span class="badge ok">'+l.status+'</span>'
+            : '<span class="badge pending">অপেক্ষমান</span>';
+    return `<tr><td>৳${l.amount}</td><td>${l.reason||'-'}</td><td>${b}</td></tr>`;
+  }).join('') : '<tr><td colspan="3" class="empty">কোনো লোন নেই।</td></tr>';
+
+  document.getElementById('publicProfileModalBody').innerHTML = `
+    <div class="modal-profile-header">
+      ${avatarHtml(m,'lg')}
+      <h3>${m.name}</h3>
+      ${badge}
+      <div style="font-size:12px;color:var(--ink-soft);margin-top:8px;">যোগদান: ${m.joinDate||'-'}</div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">ব্যক্তিগত তথ্য</div>
+      <div class="modal-detail-grid">
+        <div class="modal-detail-row"><span class="k">মোবাইল</span><span class="v">${m.mobile}</span></div>
+        <div class="modal-detail-row"><span class="k">ইমেইল</span><span class="v">${m.email||'-'}</span></div>
+        <div class="modal-detail-row"><span class="k">NID/জন্ম সনদ</span><span class="v">${m.nid||'-'}</span></div>
+        <div class="modal-detail-row"><span class="k">শেয়ার সংখ্যা</span><span class="v">${m.shares}টি</span></div>
+        <div class="modal-detail-row full"><span class="k">ঠিকানা</span><span class="v">${m.address||'-'}</span></div>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">জমা / সঞ্চয়</div>
+      <div class="modal-stat-row">
+        <div class="modal-stat-box"><div class="n">৳${totalSaved}</div><div class="l">মোট অনুমোদিত জমা</div></div>
+        <div class="modal-stat-box"><div class="n">${pendingDeposits.length}</div><div class="l">অপেক্ষমান</div></div>
+        <div class="modal-stat-box"><div class="n">${approvedDeposits.length}</div><div class="l">অনুমোদিত সংখ্যা</div></div>
+      </div>
+      <table class="modal-mini-table">
+        <thead><tr><th>মাস</th><th>পরিমাণ</th><th>পদ্ধতি</th><th>অবস্থা</th></tr></thead>
+        <tbody>${depositRows}</tbody>
+      </table>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">লোন তথ্য</div>
+      <table class="modal-mini-table">
+        <thead><tr><th>পরিমাণ</th><th>কারণ</th><th>অবস্থা</th></tr></thead>
+        <tbody>${loanRows}</tbody>
+      </table>
+    </div>
+
+    <div style="text-align:center;margin-top:6px;">
+      <button class="btn btn-ghost" style="padding:8px 20px;font-size:13px;width:auto;" onclick="depositLogout(); closePublicProfileModal();">লগআউট</button>
+    </div>
+  `;
+}
+
 /* ---------- savings ledger (public) ---------- */
 async function renderLedger(){
-  const tbody = document.querySelector('#ledgerTable tbody');
+  const grid = document.getElementById('ledgerCards');
   const emptyMsg = document.getElementById('ledgerEmpty');
   if(!isApiConfigured()){
-    tbody.innerHTML = '';
+    grid.innerHTML = '';
     emptyMsg.style.display = 'block';
     emptyMsg.textContent = 'ব্যাকএন্ড কানেক্ট করা হয়নি — HTML ফাইলে API_URL বসান।';
     return;
@@ -1591,7 +1814,7 @@ async function renderLedger(){
   let members = [];
   try{
     // Public page — uses listMembersPublic, which returns only
-    // name / masked mobile / shares / status. No PII, no admin token needed.
+    // name / masked mobile / shares / status / photo. No PII, no admin token needed.
     const r = await apiCall('listMembersPublic', {});
     members = r.success ? r.members : [];
   } catch(err){
@@ -1599,16 +1822,27 @@ async function renderLedger(){
     emptyMsg.textContent = 'ডেটা লোড করা যায়নি।';
     return;
   }
-  tbody.innerHTML = '';
+  grid.innerHTML = '';
   emptyMsg.style.display = members.length ? 'none' : 'block';
   emptyMsg.textContent = 'এখনো কোনো সদস্য নিবন্ধিত হয়নি।';
   members.forEach(m=>{
-    const tr = document.createElement('tr');
-    const badge = m.status==='approved' ? '<span class="badge ok">অনুমোদিত</span>'
-                : m.status==='rejected' ? '<span class="badge no">বাতিল</span>'
-                : '<span class="badge pending">অপেক্ষমান</span>';
-    tr.innerHTML = `<td>${m.name}</td><td>${m.maskedMobile}</td><td>${m.shares}</td><td>${badge}</td>`;
-    tbody.appendChild(tr);
+    const badge = memberStatusBadge_(m.status, true);
+    const card = document.createElement('div');
+    card.className = 'member-card';
+    card.onclick = () => openPublicProfileModal();
+    card.innerHTML = `
+      <div class="member-card-photo-wrap">
+        ${memberCardPhotoHtml(m)}
+        ${badge}
+      </div>
+      <div class="member-card-body">
+        <div class="member-card-name">${m.name}</div>
+        <div class="member-card-id">${m.maskedMobile}</div>
+        <div class="member-card-stats">
+          <div class="member-card-stat"><span class="n">${m.shares}টি</span><span class="l">শেয়ার</span></div>
+        </div>
+      </div>`;
+    grid.appendChild(card);
   });
   requestAnimationFrame(()=>{ document.getElementById('progressFill').style.width = '74%'; });
   updateHomeStats(members);
@@ -1720,34 +1954,102 @@ function avatarHtml(m, size){
   return `<div class="${fallbackCls}">${initial}</div>`;
 }
 
+/** Large lazy-loaded photo (or initials fallback) for the top of a profile card. */
+function memberCardPhotoHtml(m){
+  const initial = (m.name||'?').trim().charAt(0).toUpperCase();
+  if(m.photoUrl){
+    return `<img src="${m.photoUrl}" alt="${m.name}" class="member-card-photo" loading="lazy"
+      onerror="this.outerHTML='<div class=&quot;member-card-photo-fallback&quot;>${initial}</div>';">`;
+  }
+  return `<div class="member-card-photo-fallback">${initial}</div>`;
+}
+
+function memberStatusBadge_(status, cardStyle){
+  const prefix = cardStyle ? 'member-card-badge' : 'badge';
+  if(status==='approved') return `<span class="${prefix} ok">অনুমোদিত</span>`;
+  if(status==='rejected') return `<span class="${prefix} no">বাতিল</span>`;
+  return `<span class="${prefix} pending">অপেক্ষমান</span>`;
+}
+
+const MEMBER_PAGE_SIZE = 5; // "আরও দেখুন" এ প্রতিবার এতজন করে যোগ হবে
+let memberVisibleCount = MEMBER_PAGE_SIZE;
+
 async function renderAdminMembers(){
-  const tbody = document.getElementById('adminMembersBody');
+  const grid = document.getElementById('adminMembersBody');
   const emptyMsg = document.getElementById('adminMembersEmpty');
-  tbody.innerHTML = `<tr><td colspan="6" class="empty">লোড হচ্ছে...</td></tr>`;
+  grid.innerHTML = `<p class="empty">লোড হচ্ছে...</p>`;
   try{
     const r = await apiCall('listMembers', {});
     cachedMembers = r.success ? r.members : [];
   } catch(err){
     cachedMembers = [];
   }
-  tbody.innerHTML = '';
-  emptyMsg.style.display = cachedMembers.length ? 'none' : 'block';
-  cachedMembers.forEach(m=>{
-    const badge = m.status==='approved' ? '<span class="badge ok">অনুমোদিত</span>'
-                : m.status==='rejected' ? '<span class="badge no">বাতিল</span>'
-                : '<span class="badge pending">অপেক্ষমান</span>';
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td class="member-avatar-cell" onclick="openMemberModal('${m.mobile}')">${avatarHtml(m,'sm')}</td>
-      <td><span class="member-name-link" onclick="openMemberModal('${m.mobile}')">${m.name}</span></td>
-      <td>${m.mobile}</td><td>${m.shares}টি</td><td>${badge}</td>
-      <td class="row-actions">
-        <button class="approve" onclick="setMemberStatus(${m.row},'approved')">অনুমোদন</button>
-        <button class="reject" onclick="setMemberStatus(${m.row},'rejected')">বাতিল</button>
-      </td>`;
-    tbody.appendChild(tr);
-  });
   document.getElementById('dashMembers').textContent = cachedMembers.length;
   document.getElementById('dashShares').textContent = cachedMembers.reduce((s,m)=>s+Number(m.shares||0),0);
+  memberVisibleCount = MEMBER_PAGE_SIZE;
+  renderMemberCardsFiltered();
+}
+
+/** Re-applies the search box + status dropdown to cachedMembers and re-renders (no new API call). */
+function onMemberFilterChange(){
+  memberVisibleCount = MEMBER_PAGE_SIZE; // reset paging whenever the filter changes
+  renderMemberCardsFiltered();
+}
+
+function loadMoreMembers(){
+  memberVisibleCount += MEMBER_PAGE_SIZE;
+  renderMemberCardsFiltered();
+}
+
+function renderMemberCardsFiltered(){
+  const grid = document.getElementById('adminMembersBody');
+  const emptyMsg = document.getElementById('adminMembersEmpty');
+  const countLabel = document.getElementById('memberFilterCount');
+  const loadMoreBtn = document.getElementById('memberLoadMoreBtn');
+
+  const q = document.getElementById('memberSearchInput').value.trim().toLowerCase();
+  const statusFilter = document.getElementById('memberStatusFilter').value;
+
+  const filtered = cachedMembers.filter(m=>{
+    if(statusFilter && (m.status||'pending') !== statusFilter) return false;
+    if(q && !(String(m.name||'').toLowerCase().includes(q) || String(m.mobile||'').includes(q))) return false;
+    return true;
+  });
+
+  const visible = filtered.slice(0, memberVisibleCount);
+
+  grid.innerHTML = '';
+  emptyMsg.style.display = filtered.length ? 'none' : 'block';
+  countLabel.textContent = filtered.length
+    ? `${filtered.length} জন সদস্যের মধ্যে ${visible.length} জন দেখানো হচ্ছে`
+    : '';
+  loadMoreBtn.style.display = (filtered.length > visible.length) ? 'inline-block' : 'none';
+
+  visible.forEach(m=>{
+    const badge = memberStatusBadge_(m.status, true);
+    const monthly = m.monthlyAmount ? Number(m.monthlyAmount).toLocaleString('bn-BD') : '-';
+    const card = document.createElement('div');
+    card.className = 'member-card';
+    card.onclick = () => openMemberModal(m.mobile);
+    card.innerHTML = `
+      <div class="member-card-photo-wrap">
+        ${memberCardPhotoHtml(m)}
+        ${badge}
+      </div>
+      <div class="member-card-body">
+        <div class="member-card-name">${m.name}</div>
+        <div class="member-card-id">আইডি: ${m.mobile}</div>
+        <div class="member-card-stats">
+          <div class="member-card-stat"><span class="n">${m.shares}টি</span><span class="l">শেয়ার</span></div>
+          <div class="member-card-stat"><span class="n">৳${monthly}</span><span class="l">মাসিক জমা</span></div>
+        </div>
+        <div class="member-card-actions">
+          <button class="approve" onclick="event.stopPropagation();setMemberStatus(${m.row},'approved')">অনুমোদন</button>
+          <button class="reject" onclick="event.stopPropagation();setMemberStatus(${m.row},'rejected')">বাতিল</button>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
 }
 
 /* ---------- member profile modal ---------- */
@@ -2526,11 +2828,19 @@ renderLedger();
 loadPublicFinanceSummary();
 </script>
 
-<!-- ================= MEMBER PROFILE MODAL ================= -->
+<!-- ================= MEMBER PROFILE MODAL (admin panel) ================= -->
 <div class="modal-overlay" id="memberModalOverlay" onclick="if(event.target===this) closeMemberModal();">
   <div class="modal-box">
     <button class="modal-close" onclick="closeMemberModal()">✕</button>
     <div id="memberModalBody">লোড হচ্ছে...</div>
+  </div>
+</div>
+
+<!-- ================= MY PROFILE MODAL (public "জমার হিসাব" — login gated) ================= -->
+<div class="modal-overlay" id="publicProfileModalOverlay" onclick="if(event.target===this) closePublicProfileModal();">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closePublicProfileModal()">✕</button>
+    <div id="publicProfileModalBody">লোড হচ্ছে...</div>
   </div>
 </div>
 
