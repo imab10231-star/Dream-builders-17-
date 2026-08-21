@@ -1394,8 +1394,14 @@ document.getElementById('memberLoginForm').addEventListener('submit', async e=>{
   try{
     const r = await apiCall('login', { mobile, pin });
     if(r.success){
-      msg.textContent = `স্বাগতম, ${r.name}! আপনার শেয়ার: ${r.shares}টি`;
+      msg.textContent = `স্বাগতম, ${r.name}! প্রোফাইল খোলা হচ্ছে...`;
       msg.classList.add('success','show');
+      // Save the same session "মাসিক জমা" ও প্রোফাইল মোডাল ব্যবহার করে, যাতে আবার লগইন করা না লাগে
+      sessionStorage.setItem('db17_member_mobile', mobile);
+      sessionStorage.setItem('db17_member_pin', pin);
+      sessionStorage.setItem('db17_member_name', r.name);
+      sessionStorage.setItem('db17_member_shares', r.shares);
+      openPublicProfileModal();
     } else {
       msg.textContent = r.message || 'মোবাইল নম্বর বা পিন সঠিক নয়।';
       msg.classList.add('error','show');
