@@ -1966,7 +1966,9 @@ function memberCardPhotoHtml(m){
 
 function memberStatusBadge_(status, cardStyle){
   const prefix = cardStyle ? 'member-card-badge' : 'badge';
-  if(status==='approved') return `<span class="${prefix} ok">অনুমোদিত</span>`;
+  // Approved is the normal/expected state — no need to call it out separately.
+  // Only flag the exceptions (pending review / rejected).
+  if(status==='approved') return '';
   if(status==='rejected') return `<span class="${prefix} no">বাতিল</span>`;
   return `<span class="${prefix} pending">অপেক্ষমান</span>`;
 }
@@ -2026,7 +2028,6 @@ function renderMemberCardsFiltered(){
   loadMoreBtn.style.display = (filtered.length > visible.length) ? 'inline-block' : 'none';
 
   visible.forEach(m=>{
-    const badge = memberStatusBadge_(m.status, true);
     const monthly = m.monthlyAmount ? Number(m.monthlyAmount).toLocaleString('bn-BD') : '-';
     const card = document.createElement('div');
     card.className = 'member-card';
@@ -2034,7 +2035,6 @@ function renderMemberCardsFiltered(){
     card.innerHTML = `
       <div class="member-card-photo-wrap">
         ${memberCardPhotoHtml(m)}
-        ${badge}
       </div>
       <div class="member-card-body">
         <div class="member-card-name">${m.name}</div>
