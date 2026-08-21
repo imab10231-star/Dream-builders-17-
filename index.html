@@ -495,6 +495,17 @@
   .row-actions .reject{background:rgba(255,77,77,.14);color:#ff4d4d;}
   .row-actions .disburse{background:var(--gold);color:#1a1a1e;}
   .row-actions .repay{background:#3a86ff;color:#fff;}
+  .status-icon-cell{white-space:nowrap;}
+  .status-icon-btn{
+    width:28px;height:28px;border-radius:8px;border:1.5px solid var(--line);background:transparent;
+    font-size:14px;font-weight:800;cursor:pointer;margin-right:6px;line-height:1;
+    display:inline-flex;align-items:center;justify-content:center;color:var(--ink-soft);
+    transition:.15s;
+  }
+  .status-icon-btn.ok:hover{border-color:#4cc978;color:#4cc978;}
+  .status-icon-btn.no:hover{border-color:#ff4d4d;color:#ff4d4d;}
+  .status-icon-btn.ok.active{background:#4cc978;border-color:#4cc978;color:#fff;}
+  .status-icon-btn.no.active{background:#ff4d4d;border-color:#ff4d4d;color:#fff;}
   .empty{color:var(--ink-soft);font-size:14px;padding:20px 0;text-align:center;}
   .logout-btn{font-size:13px;color:var(--danger);font-weight:700;background:none;border:none;}
   .finance-btn{font-size:13px;color:var(--gold);font-weight:700;background:none;border:1.5px solid var(--gold);border-radius:8px;padding:6px 14px;}
@@ -1019,10 +1030,10 @@
     </div>
     <div class="panel" id="adminDepositsPanel" style="display:none;">
       <div style="overflow-x:auto;">
-      <table class="ledger-table compact" style="min-width:700px;">
+      <table class="ledger-table compact" style="min-width:620px;">
         <thead><tr>
           <th>নাম</th><th>মোবাইল</th><th>মাস</th><th>শেয়ার</th><th>পরিমাণ</th>
-          <th>পদ্ধতি</th><th>রেফারেন্স</th><th>অবস্থা</th><th>অ্যাকশন</th>
+          <th>পদ্ধতি</th><th>রেফারেন্স</th><th></th>
         </tr></thead>
         <tbody id="adminDepositsBody"></tbody>
       </table>
@@ -2296,7 +2307,7 @@ let cachedDeposits = [];
 async function renderAdminDeposits(){
   const tbody = document.getElementById('adminDepositsBody');
   const emptyMsg = document.getElementById('adminDepositsEmpty');
-  tbody.innerHTML = `<tr><td colspan="9" class="empty">লোড হচ্ছে...</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="8" class="empty">লোড হচ্ছে...</td></tr>`;
   try{
     const r = await apiCall('listDeposits', {});
     cachedDeposits = r.success ? r.deposits : [];
@@ -2306,15 +2317,12 @@ async function renderAdminDeposits(){
   tbody.innerHTML = '';
   emptyMsg.style.display = cachedDeposits.length ? 'none' : 'block';
   cachedDeposits.forEach(d=>{
-    const badge = d.status==='approved' ? '<span class="badge ok">অনুমোদিত</span>'
-                : d.status==='rejected' ? '<span class="badge no">বাতিল</span>'
-                : '<span class="badge pending">অপেক্ষমান</span>';
     const tr = document.createElement('tr');
     tr.innerHTML = `<td>${d.name}</td><td>${d.mobile}</td><td>${d.month}</td><td>${d.shares}টি</td>
-      <td>৳${d.amount}</td><td>${d.paymentMethod||'-'}</td><td>${d.reference||'-'}</td><td>${badge}</td>
-      <td class="row-actions">
-        <button class="approve" onclick="setDepositStatus(${d.row},'approved')">অনুমোদন</button>
-        <button class="reject" onclick="setDepositStatus(${d.row},'rejected')">বাতিল</button>
+      <td>৳${d.amount}</td><td>${d.paymentMethod||'-'}</td><td>${d.reference||'-'}</td>
+      <td class="status-icon-cell">
+        <button class="status-icon-btn ok ${d.status==='approved'?'active':''}" title="অনুমোদন" onclick="setDepositStatus(${d.row},'approved')">✓</button>
+        <button class="status-icon-btn no ${d.status==='rejected'?'active':''}" title="বাতিল" onclick="setDepositStatus(${d.row},'rejected')">✗</button>
       </td>`;
     tbody.appendChild(tr);
   });
