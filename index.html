@@ -274,8 +274,26 @@
 
   /* Premium dark member profile cards */
   .member-card-grid{
-    display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px;margin-top:6px;
+    display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:6px;
   }
+  @media(max-width:900px){ .member-card-grid{grid-template-columns:repeat(3,1fr);} }
+  @media(max-width:680px){ .member-card-grid{grid-template-columns:repeat(2,1fr);} }
+  @media(max-width:420px){ .member-card-grid{grid-template-columns:1fr;} }
+
+  /* ON/OFF toggle switch (registration open/closed) */
+  .toggle-switch{position:relative;display:inline-block;width:52px;height:30px;flex-shrink:0;}
+  .toggle-switch input{opacity:0;width:0;height:0;}
+  .toggle-slider{
+    position:absolute;cursor:pointer;inset:0;background:#3a2a1a;border:1.5px solid var(--line);
+    border-radius:30px;transition:.2s;
+  }
+  .toggle-slider::before{
+    content:"";position:absolute;height:22px;width:22px;left:3px;top:2.5px;
+    background:#c9c4bc;border-radius:50%;transition:.2s;
+  }
+  .toggle-switch input:checked + .toggle-slider{background:var(--mid-green);border-color:var(--mid-green);}
+  .toggle-switch input:checked + .toggle-slider::before{transform:translateX(22px);background:#fff;}
+  .toggle-switch input:disabled + .toggle-slider{opacity:.5;cursor:default;}
   .member-card{
     background:linear-gradient(180deg,#1c1c21 0%,var(--paper) 100%);
     border:1px solid var(--line);border-radius:18px;overflow:hidden;cursor:pointer;
@@ -992,7 +1010,10 @@
         <strong style="font-size:14.5px;color:var(--forest-dark);">নতুন সদস্য নিবন্ধন</strong>
         <p style="font-size:12.5px;color:var(--ink-soft);margin-top:3px;" id="regStatusNote">অবস্থা যাচাই হচ্ছে...</p>
       </div>
-      <button class="finance-btn" id="regToggleBtn" onclick="toggleRegistrationStatus()">লোড হচ্ছে...</button>
+      <label class="toggle-switch">
+        <input type="checkbox" id="regToggleBtn" onchange="toggleRegistrationStatus()">
+        <span class="toggle-slider"></span>
+      </label>
     </div>
     <div class="tabs">
       <button class="tab-btn active" data-tab="members" onclick="adminTab('members')">সদস্য তালিকা</button>
@@ -1913,25 +1934,25 @@ async function showAdminDash(){
 
 let regIsOpen = true;
 async function loadRegistrationStatusAdmin(){
-  const btn = document.getElementById('regToggleBtn');
+  const toggle = document.getElementById('regToggleBtn');
   const note = document.getElementById('regStatusNote');
   try{
     const r = await apiCall('getRegistrationStatus', {});
     regIsOpen = !!r.open;
-    btn.textContent = regIsOpen ? 'নিবন্ধন বন্ধ করুন' : 'নিবন্ধন খুলুন';
+    toggle.checked = regIsOpen;
     note.textContent = regIsOpen
       ? 'নিবন্ধন এখন খোলা আছে — নতুন সদস্য যোগ হতে পারবে।'
       : 'নিবন্ধন এখন বন্ধ আছে — ফর্ম দেখা যাবে কিন্তু জমা দিলে সদস্য হিসেবে যোগ হবে না।';
   } catch(err){
-    btn.textContent = 'স্ট্যাটাস পাওয়া যায়নি';
-    note.textContent = '';
+    note.textContent = 'স্ট্যাটাস পাওয়া যায়নি।';
   }
 }
 async function toggleRegistrationStatus(){
-  const btn = document.getElementById('regToggleBtn');
-  btn.disabled = true;
+  const toggle = document.getElementById('regToggleBtn');
+  const desiredState = toggle.checked; // the checkbox already flipped visually on click
+  toggle.disabled = true;
   try{
-    const r = await apiCall('setRegistrationStatus', { open: !regIsOpen });
+    const r = await apiCall('setRegistrationStatus', { open: desiredState });
     if(!r.success){
       alert(r.message || 'পরিবর্তন করা যায়নি। আবার লগইন করে চেষ্টা করুন।');
       if(r.authError){
@@ -1942,8 +1963,9 @@ async function toggleRegistrationStatus(){
     await loadRegistrationStatusAdmin();
   } catch(err){
     alert('সার্ভারে সংযোগ করা যায়নি। আবার চেষ্টা করুন।');
+    toggle.checked = regIsOpen; // revert the visual flip on failure
   }
-  btn.disabled = false;
+  toggle.disabled = false;
 }
 
 async function adminLogout(){
