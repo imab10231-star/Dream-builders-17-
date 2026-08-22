@@ -1311,7 +1311,7 @@
       - Who has access: Anyone
    ৪. যে URL পাবেন সেটা নিচে বসান
    ============================================================ */
-const API_URL = "https://script.google.com/macros/s/AKfycbweX4ybDkZDV8VTbfWG6iE48b4qcYuP0AXBEcll4g6wRwL_zJMnZxCEBH1wDMt-Lfl1/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbytLVOY_T09rajXVXSKGcQr0oMd5kRiwwMcUdRXS1eKo8H5h_MYi8RhMI8ltloEgQI/exec";
 
 async function apiCall(action, payload){
   const token = sessionStorage.getItem('db17_admin_token');
@@ -1833,7 +1833,7 @@ async function renderLedger(){
     // Public page — uses listMembersPublic, which returns only
     // name / masked mobile / shares / status / photo. No PII, no admin token needed.
     const r = await apiCall('listMembersPublic', {});
-    members = r.success ? r.members : [];
+    members = r.success ? (r.members || []) : [];
   } catch(err){
     emptyMsg.style.display = 'block';
     emptyMsg.textContent = 'ডেটা লোড করা যায়নি।';
@@ -1999,7 +1999,7 @@ async function renderAdminMembers(){
   grid.innerHTML = `<p class="empty">লোড হচ্ছে...</p>`;
   try{
     const r = await apiCall('listMembers', {});
-    cachedMembers = r.success ? r.members : [];
+    cachedMembers = r.success ? (r.members || []) : [];
   } catch(err){
     cachedMembers = [];
   }
@@ -2244,7 +2244,7 @@ async function renderAdminLoans(){
   tbody.innerHTML = `<tr><td colspan="5" class="empty">লোড হচ্ছে...</td></tr>`;
   try{
     const r = await apiCall('listLoans', {});
-    cachedLoans = r.success ? r.loans : [];
+    cachedLoans = r.success ? (r.loans || []) : [];
   } catch(err){
     cachedLoans = [];
   }
@@ -2310,7 +2310,7 @@ async function renderAdminDeposits(){
   tbody.innerHTML = `<tr><td colspan="8" class="empty">লোড হচ্ছে...</td></tr>`;
   try{
     const r = await apiCall('listDeposits', {});
-    cachedDeposits = r.success ? r.deposits : [];
+    cachedDeposits = r.success ? (r.deposits || []) : [];
   } catch(err){
     cachedDeposits = [];
   }
@@ -2515,7 +2515,7 @@ async function renderExpenseList(){
   tbody.innerHTML = `<tr><td colspan="6" class="empty">লোড হচ্ছে...</td></tr>`;
   try{
     const r = await apiCall('listExpenses', currentFinanceRangePayload());
-    const items = r.success ? r.expenses : [];
+    const items = r.success ? (r.expenses || []) : [];
     tbody.innerHTML = '';
     emptyMsg.style.display = items.length ? 'none' : 'block';
     items.forEach(x=>{
@@ -2578,7 +2578,7 @@ async function renderIncomeList(){
   tbody.innerHTML = `<tr><td colspan="6" class="empty">লোড হচ্ছে...</td></tr>`;
   try{
     const r = await apiCall('listIncomes', currentFinanceRangePayload());
-    const items = r.success ? r.incomes : [];
+    const items = r.success ? (r.incomes || []) : [];
     tbody.innerHTML = '';
     emptyMsg.style.display = items.length ? 'none' : 'block';
     items.forEach(x=>{
@@ -2643,7 +2643,7 @@ async function renderInvestmentList(){
   tbody.innerHTML = `<tr><td colspan="7" class="empty">লোড হচ্ছে...</td></tr>`;
   try{
     const r = await apiCall('listInvestments', {});
-    const items = r.success ? r.investments : [];
+    const items = r.success ? (r.investments || []) : [];
     tbody.innerHTML = '';
     emptyMsg.style.display = items.length ? 'none' : 'block';
     items.forEach(x=>{
@@ -2712,7 +2712,7 @@ async function renderBankInterestList(){
   tbody.innerHTML = `<tr><td colspan="7" class="empty">লোড হচ্ছে...</td></tr>`;
   try{
     const r = await apiCall('listBankInterest', currentFinanceRangePayload());
-    const items = r.success ? r.bankInterest : [];
+    const items = r.success ? (r.bankInterest || []) : [];
     tbody.innerHTML = '';
     emptyMsg.style.display = items.length ? 'none' : 'block';
     items.forEach(x=>{
@@ -2767,7 +2767,7 @@ async function renderDonationList(){
   tbody.innerHTML = `<tr><td colspan="5" class="empty">লোড হচ্ছে...</td></tr>`;
   try{
     const r = await apiCall('listDonations', currentFinanceRangePayload());
-    const items = r.success ? r.donations : [];
+    const items = r.success ? (r.donations || []) : [];
     tbody.innerHTML = '';
     emptyMsg.style.display = items.length ? 'none' : 'block';
     items.forEach(x=>{
@@ -2806,7 +2806,7 @@ async function renderReportsList(){
   tbody.innerHTML = `<tr><td colspan="5" class="empty">লোড হচ্ছে...</td></tr>`;
   try{
     const r = await apiCall('listTransactions', currentFinanceRangePayload());
-    const items = r.success ? r.transactions : [];
+    const items = r.success ? (r.transactions || []) : [];
     tbody.innerHTML = '';
     emptyMsg.style.display = items.length ? 'none' : 'block';
     items.forEach(x=>{
