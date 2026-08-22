@@ -509,14 +509,6 @@
   .empty{color:var(--ink-soft);font-size:14px;padding:20px 0;text-align:center;}
   .logout-btn{font-size:13px;color:var(--danger);font-weight:700;background:none;border:none;}
   .finance-btn{font-size:13px;color:var(--gold);font-weight:700;background:none;border:1.5px solid var(--gold);border-radius:8px;padding:6px 14px;}
-  /* --- registration on/off switch --- */
-  .reg-switch{position:relative;display:inline-block;width:54px;height:30px;flex-shrink:0;cursor:pointer;}
-  .reg-switch input{opacity:0;width:0;height:0;}
-  .reg-switch-slider{position:absolute;inset:0;background:#ccc;border-radius:999px;transition:background .2s;}
-  .reg-switch-slider::before{content:"";position:absolute;height:24px;width:24px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.3);}
-  .reg-switch input:checked + .reg-switch-slider{background:var(--forest-dark,#1e5631);}
-  .reg-switch input:checked + .reg-switch-slider::before{transform:translateX(24px);}
-  .reg-switch input:disabled + .reg-switch-slider{opacity:.5;cursor:not-allowed;}
 
   /* ===== Finance dashboard ===== */
   .finance-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-bottom:22px;}
@@ -995,15 +987,12 @@
       <div class="box"><div class="n" id="dashLoans">০</div><div class="l">লোন আবেদন</div></div>
       <div class="box"><div class="n" id="dashPendingDeposits">০</div><div class="l">অপেক্ষমাণ জমা</div></div>
     </div>
-    <div class="panel" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:20px;">
+    <div class="panel" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
       <div>
         <strong style="font-size:14.5px;color:var(--forest-dark);">নতুন সদস্য নিবন্ধন</strong>
         <p style="font-size:12.5px;color:var(--ink-soft);margin-top:3px;" id="regStatusNote">অবস্থা যাচাই হচ্ছে...</p>
       </div>
-      <label id="regToggleSwitch" class="reg-switch" title="নিবন্ধন অন/অফ করুন">
-        <input type="checkbox" id="regToggleCheckbox" onchange="toggleRegistrationStatus()" disabled>
-        <span class="reg-switch-slider"></span>
-      </label>
+      <button class="finance-btn" id="regToggleBtn" onclick="toggleRegistrationStatus()">লোড হচ্ছে...</button>
     </div>
     <div class="tabs">
       <button class="tab-btn active" data-tab="members" onclick="adminTab('members')">সদস্য তালিকা</button>
@@ -1323,6 +1312,7 @@
    ৪. যে URL পাবেন সেটা নিচে বসান
    ============================================================ */
 const API_URL = "https://script.google.com/macros/s/AKfycbx1uLAlT9lw5x-SGKtuJKhWXedU66bwzrUy8ovm3VdvBGUZbLHrTZIX-LLpPf3PPLyV/exec";
+
 async function apiCall(action, payload){
   const token = sessionStorage.getItem('db17_admin_token');
   const body = token ? { action, token, ...payload } : { action, ...payload };
@@ -1843,7 +1833,7 @@ async function renderLedger(){
     // Public page — uses listMembersPublic, which returns only
     // name / masked mobile / shares / status / photo. No PII, no admin token needed.
     const r = await apiCall('listMembersPublic', {});
-    members = r.success ? (r.members || []) : [];
+    members = r.success ? r.members : [];
   } catch(err){
     emptyMsg.style.display = 'block';
     emptyMsg.textContent = 'ডেটা লোড করা যায়নি।';
@@ -1915,52 +1905,45 @@ function renderAdminIfLoggedIn(){
 async function showAdminDash(){
   document.getElementById('adminLoginView').style.display='none';
   document.getElementById('adminDashView').style.display='block';
-  // Each step wrapped separately — one failing (e.g. bad/old API response)
-  // must never block the others (like the registration switch) from loading.
-  try{ await renderAdminMembers(); } catch(err){ console.error('renderAdminMembers failed:', err); }
-  try{ await renderAdminLoans(); } catch(err){ console.error('renderAdminLoans failed:', err); }
-  try{ await renderAdminDeposits(); } catch(err){ console.error('renderAdminDeposits failed:', err); }
-  try{ await loadRegistrationStatusAdmin(); } catch(err){ console.error('loadRegistrationStatusAdmin failed:', err); }
+  await renderAdminMembers();
+  await renderAdminLoans();
+  await renderAdminDeposits();
+  await loadRegistrationStatusAdmin();
 }
 
 let regIsOpen = true;
 async function loadRegistrationStatusAdmin(){
-  const checkbox = document.getElementById('regToggleCheckbox');
+  const btn = document.getElementById('regToggleBtn');
   const note = document.getElementById('regStatusNote');
   try{
     const r = await apiCall('getRegistrationStatus', {});
     regIsOpen = !!r.open;
-    checkbox.checked = regIsOpen;
-    checkbox.disabled = false;
+    btn.textContent = regIsOpen ? 'নিবন্ধন বন্ধ করুন' : 'নিবন্ধন খুলুন';
     note.textContent = regIsOpen
-      ? 'নিবন্ধন এখন খোলা আছে — নতুন সদস্য যোগ হতে পারবে। (সুইচ বন্ধ করলে নিবন্ধন বন্ধ হয়ে যাবে)'
-      : 'নিবন্ধন এখন বন্ধ আছে — ফর্ম দেখা যাবে কিন্তু জমা দিলে সদস্য হিসেবে যোগ হবে না। (সুইচ চালু করলে আবার খুলবে)';
+      ? 'নিবন্ধন এখন খোলা আছে — নতুন সদস্য যোগ হতে পারবে।'
+      : 'নিবন্ধন এখন বন্ধ আছে — ফর্ম দেখা যাবে কিন্তু জমা দিলে সদস্য হিসেবে যোগ হবে না।';
   } catch(err){
-    note.textContent = 'স্ট্যাটাস আনতে সমস্যা হয়েছে: ' + (err && err.message ? err.message : err);
-    checkbox.disabled = true;
+    btn.textContent = 'স্ট্যাটাস পাওয়া যায়নি';
+    note.textContent = '';
   }
 }
 async function toggleRegistrationStatus(){
-  const checkbox = document.getElementById('regToggleCheckbox');
-  const note = document.getElementById('regStatusNote');
-  const desiredState = checkbox.checked; // what the user just set it to
-  checkbox.disabled = true;
-  note.textContent = 'পরিবর্তন করা হচ্ছে...';
+  const btn = document.getElementById('regToggleBtn');
+  btn.disabled = true;
   try{
-    const r = await apiCall('setRegistrationStatus', { open: desiredState });
-    if(!r || !r.success){
-      throw new Error((r && r.message) || 'ব্যাকএন্ড থেকে সফল উত্তর আসেনি।');
+    const r = await apiCall('setRegistrationStatus', { open: !regIsOpen });
+    if(!r.success){
+      alert(r.message || 'পরিবর্তন করা যায়নি। আবার লগইন করে চেষ্টা করুন।');
+      if(r.authError){
+        adminLogout();
+        return;
+      }
     }
     await loadRegistrationStatusAdmin();
   } catch(err){
-    // Revert the visual switch since the change did NOT actually happen,
-    // and show the user exactly what went wrong instead of doing nothing.
-    checkbox.checked = !desiredState;
-    const msg = (err && err.message) ? err.message : String(err);
-    note.textContent = 'পরিবর্তন ব্যর্থ হয়েছে: ' + msg;
-    alert('নিবন্ধন অন/অফ করা যায়নি।\n\nকারণ: ' + msg + '\n\nদয়া করে ইন্টারনেট সংযোগ ও এডমিন লগইন চেক করুন, তারপর আবার চেষ্টা করুন।');
+    alert('সার্ভারে সংযোগ করা যায়নি। আবার চেষ্টা করুন।');
   }
-  checkbox.disabled = false;
+  btn.disabled = false;
 }
 
 async function adminLogout(){
@@ -2023,7 +2006,7 @@ async function renderAdminMembers(){
   grid.innerHTML = `<p class="empty">লোড হচ্ছে...</p>`;
   try{
     const r = await apiCall('listMembers', {});
-    cachedMembers = r.success ? (r.members || []) : [];
+    cachedMembers = r.success ? r.members : [];
   } catch(err){
     cachedMembers = [];
   }
@@ -2268,7 +2251,7 @@ async function renderAdminLoans(){
   tbody.innerHTML = `<tr><td colspan="5" class="empty">লোড হচ্ছে...</td></tr>`;
   try{
     const r = await apiCall('listLoans', {});
-    cachedLoans = r.success ? (r.loans || []) : [];
+    cachedLoans = r.success ? r.loans : [];
   } catch(err){
     cachedLoans = [];
   }
@@ -2334,7 +2317,7 @@ async function renderAdminDeposits(){
   tbody.innerHTML = `<tr><td colspan="8" class="empty">লোড হচ্ছে...</td></tr>`;
   try{
     const r = await apiCall('listDeposits', {});
-    cachedDeposits = r.success ? (r.deposits || []) : [];
+    cachedDeposits = r.success ? r.deposits : [];
   } catch(err){
     cachedDeposits = [];
   }
@@ -2539,7 +2522,7 @@ async function renderExpenseList(){
   tbody.innerHTML = `<tr><td colspan="6" class="empty">লোড হচ্ছে...</td></tr>`;
   try{
     const r = await apiCall('listExpenses', currentFinanceRangePayload());
-    const items = r.success ? (r.expenses || []) : [];
+    const items = r.success ? r.expenses : [];
     tbody.innerHTML = '';
     emptyMsg.style.display = items.length ? 'none' : 'block';
     items.forEach(x=>{
@@ -2602,7 +2585,7 @@ async function renderIncomeList(){
   tbody.innerHTML = `<tr><td colspan="6" class="empty">লোড হচ্ছে...</td></tr>`;
   try{
     const r = await apiCall('listIncomes', currentFinanceRangePayload());
-    const items = r.success ? (r.incomes || []) : [];
+    const items = r.success ? r.incomes : [];
     tbody.innerHTML = '';
     emptyMsg.style.display = items.length ? 'none' : 'block';
     items.forEach(x=>{
@@ -2667,7 +2650,7 @@ async function renderInvestmentList(){
   tbody.innerHTML = `<tr><td colspan="7" class="empty">লোড হচ্ছে...</td></tr>`;
   try{
     const r = await apiCall('listInvestments', {});
-    const items = r.success ? (r.investments || []) : [];
+    const items = r.success ? r.investments : [];
     tbody.innerHTML = '';
     emptyMsg.style.display = items.length ? 'none' : 'block';
     items.forEach(x=>{
@@ -2736,7 +2719,7 @@ async function renderBankInterestList(){
   tbody.innerHTML = `<tr><td colspan="7" class="empty">লোড হচ্ছে...</td></tr>`;
   try{
     const r = await apiCall('listBankInterest', currentFinanceRangePayload());
-    const items = r.success ? (r.bankInterest || []) : [];
+    const items = r.success ? r.bankInterest : [];
     tbody.innerHTML = '';
     emptyMsg.style.display = items.length ? 'none' : 'block';
     items.forEach(x=>{
@@ -2791,7 +2774,7 @@ async function renderDonationList(){
   tbody.innerHTML = `<tr><td colspan="5" class="empty">লোড হচ্ছে...</td></tr>`;
   try{
     const r = await apiCall('listDonations', currentFinanceRangePayload());
-    const items = r.success ? (r.donations || []) : [];
+    const items = r.success ? r.donations : [];
     tbody.innerHTML = '';
     emptyMsg.style.display = items.length ? 'none' : 'block';
     items.forEach(x=>{
@@ -2830,7 +2813,7 @@ async function renderReportsList(){
   tbody.innerHTML = `<tr><td colspan="5" class="empty">লোড হচ্ছে...</td></tr>`;
   try{
     const r = await apiCall('listTransactions', currentFinanceRangePayload());
-    const items = r.success ? (r.transactions || []) : [];
+    const items = r.success ? r.transactions : [];
     tbody.innerHTML = '';
     emptyMsg.style.display = items.length ? 'none' : 'block';
     items.forEach(x=>{
