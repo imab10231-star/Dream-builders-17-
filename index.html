@@ -1322,8 +1322,7 @@
       - Who has access: Anyone
    ৪. যে URL পাবেন সেটা নিচে বসান
    ============================================================ */
-const API_URL = "https://script.google.com/macros/s/AKfycbweX4ybDkZDV8VTbfWG6iE48b4qcYuP0AXBEcll4g6wRwL_zJMnZxCEBH1wDMt-Lfl1/exec";
-
+const API_URL = "https://script.google.com/macros/s/AKfycbx1uLAlT9lw5x-SGKtuJKhWXedU66bwzrUy8ovm3VdvBGUZbLHrTZIX-LLpPf3PPLyV/exec";
 async function apiCall(action, payload){
   const token = sessionStorage.getItem('db17_admin_token');
   const body = token ? { action, token, ...payload } : { action, ...payload };
