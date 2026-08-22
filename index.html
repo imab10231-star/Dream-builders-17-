@@ -382,7 +382,17 @@
   }
   .modal-profile-header h3{margin:0 0 6px;font-size:19px;color:var(--forest-dark);}
   .modal-section{margin-bottom:20px;}
-  .modal-section-title{font-size:13px;font-weight:800;color:var(--mid-green);margin-bottom:10px;text-transform:uppercase;letter-spacing:.03em;}
+  .modal-section-title{
+    font-size:13px;font-weight:800;color:var(--mid-green);margin-bottom:10px;
+    text-transform:uppercase;letter-spacing:.03em;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+  }
+  .edit-icon-btn{
+    text-transform:none;letter-spacing:0;font-size:12px;font-weight:700;cursor:pointer;
+    background:transparent;border:1.5px solid var(--line);color:var(--ink-soft);
+    padding:4px 11px;border-radius:20px;transition:.15s;
+  }
+  .edit-icon-btn:hover{border-color:var(--mid-green);color:var(--mid-green);}
   .modal-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;}
   .modal-detail-row{display:flex;flex-direction:column;gap:2px;font-size:13.5px;}
   .modal-detail-row.full{grid-column:1/-1;}
@@ -744,17 +754,8 @@
     </div>
 
     <div class="panel">
-      <h3 style="font-size:16px;color:var(--forest-dark);">তহবিল বণ্টন (ভিজ্যুয়াল)</h3>
-      <div class="donut-wrap">
-        <div class="donut" style="background:conic-gradient(var(--forest) 0% 45%, var(--mid-green) 45% 70%, var(--gold) 70% 88%, #dfe9e2 88% 100%);"></div>
-        <ul class="legend">
-          <li><span class="dot" style="background:var(--forest);"></span> মূল সঞ্চয় — ৪৫%</li>
-          <li><span class="dot" style="background:var(--mid-green);"></span> বিনিয়োগ মুনাফা — ২৫%</li>
-          <li><span class="dot" style="background:var(--gold);"></span> জরুরি সহায়তা ফান্ড — ১৮%</li>
-          <li><span class="dot" style="background:#dfe9e2;"></span> পরিচালন ব্যয় — ১২%</li>
-        </ul>
-      </div>
-      <p class="progress-note">জরুরি সহায়তা ফান্ড ইতিমধ্যে ২ জন সদস্যকে সহায়তা প্রদান করেছে।</p>
+      <h3 style="font-size:16px;color:var(--forest-dark);">তহবিল বণ্টন (সামগ্রিক, প্রকৃত হিসাব)</h3>
+      <div id="fundDistributionPublic"><p class="empty">লোড হচ্ছে...</p></div>
     </div>
   </div>
 </section>
@@ -1370,7 +1371,7 @@ function goPage(name){
   document.querySelectorAll('.nav-link').forEach(l=>l.classList.toggle('active', l.dataset.page===name));
   document.getElementById('mainNav').classList.remove('open');
   window.scrollTo({top:0, behavior:'smooth'});
-  if(name==='savings') renderLedger();
+  if(name==='savings'){ renderLedger(); loadFundDistributionPublic(); }
   if(name==='deposit'){
     depositSubTab('deposit');
     if(depositSessionActive()) showDepositPanel(); else showDepositLogin();
@@ -1771,7 +1772,10 @@ async function loadAndRenderPublicProfile(){
   }
 }
 
-function renderPublicProfile(r){
+let lastProfileData = null; // cached so toggling edit mode doesn't need another API call
+
+function renderPublicProfile(r, editMode){
+  lastProfileData = r;
   const m = r.member;
   const badge = memberStatusBadge_(m.status, false);
 
@@ -1793,6 +1797,55 @@ function renderPublicProfile(r){
     return `<tr><td>৳${l.amount}</td><td>${l.reason||'-'}</td><td>${b}</td></tr>`;
   }).join('') : '<tr><td colspan="3" class="empty">কোনো লোন নেই।</td></tr>';
 
+  const personalSectionHtml = editMode ? `
+    <div class="modal-section-title">
+      ব্যক্তিগত তথ্য
+      <button class="edit-icon-btn" onclick="renderPublicProfile(lastProfileData, false)" title="বাতিল">✕ বাতিল</button>
+    </div>
+    <form id="editProfileForm">
+      <div class="field">
+        <label>নাম</label>
+        <input type="text" id="editName" value="${(m.name||'').replace(/"/g,'&quot;')}" required>
+      </div>
+      <div class="field">
+        <label>ইমেইল</label>
+        <input type="email" id="editEmail" value="${(m.email||'').replace(/"/g,'&quot;')}">
+      </div>
+      <div class="field">
+        <label>NID/জন্ম সনদ</label>
+        <input type="text" id="editNid" value="${(m.nid||'').replace(/"/g,'&quot;')}">
+      </div>
+      <div class="field">
+        <label>ঠিকানা</label>
+        <input type="text" id="editAddress" value="${(m.address||'').replace(/"/g,'&quot;')}">
+      </div>
+      <div class="field">
+        <label>পেমেন্ট পদ্ধতি</label>
+        <select id="editPayment">
+          <option value="ব্যাংক ট্রান্সফার" ${m.payment==='ব্যাংক ট্রান্সফার'?'selected':''}>ব্যাংক ট্রান্সফার</option>
+          <option value="বিকাশ" ${m.payment==='বিকাশ'?'selected':''}>বিকাশ</option>
+          <option value="নগদ" ${m.payment==='নগদ'?'selected':''}>নগদ</option>
+          <option value="রকেট" ${m.payment==='রকেট'?'selected':''}>রকেট</option>
+        </select>
+      </div>
+      <p style="font-size:11.5px;color:var(--ink-soft);margin:4px 0 12px;">মোবাইল নম্বর ও শেয়ার সংখ্যা পরিবর্তন করা যাবে না — এগুলো অ্যাডমিন নিয়ন্ত্রণ করেন।</p>
+      <button type="submit" class="btn btn-primary btn-block">সেভ করুন</button>
+      <p class="form-msg" id="editProfileMsg"></p>
+    </form>
+  ` : `
+    <div class="modal-section-title">
+      ব্যক্তিগত তথ্য
+      <button class="edit-icon-btn" onclick="renderPublicProfile(lastProfileData, true)" title="তথ্য এডিট করুন">✏️ এডিট</button>
+    </div>
+    <div class="modal-detail-grid">
+      <div class="modal-detail-row"><span class="k">মোবাইল</span><span class="v">${m.mobile}</span></div>
+      <div class="modal-detail-row"><span class="k">ইমেইল</span><span class="v">${m.email||'-'}</span></div>
+      <div class="modal-detail-row"><span class="k">NID/জন্ম সনদ</span><span class="v">${m.nid||'-'}</span></div>
+      <div class="modal-detail-row"><span class="k">শেয়ার সংখ্যা</span><span class="v">${m.shares}টি</span></div>
+      <div class="modal-detail-row full"><span class="k">ঠিকানা</span><span class="v">${m.address||'-'}</span></div>
+    </div>
+  `;
+
   document.getElementById('publicProfileModalBody').innerHTML = `
     <div class="modal-profile-header">
       ${avatarHtml(m,'lg')}
@@ -1802,14 +1855,7 @@ function renderPublicProfile(r){
     </div>
 
     <div class="modal-section">
-      <div class="modal-section-title">ব্যক্তিগত তথ্য</div>
-      <div class="modal-detail-grid">
-        <div class="modal-detail-row"><span class="k">মোবাইল</span><span class="v">${m.mobile}</span></div>
-        <div class="modal-detail-row"><span class="k">ইমেইল</span><span class="v">${m.email||'-'}</span></div>
-        <div class="modal-detail-row"><span class="k">NID/জন্ম সনদ</span><span class="v">${m.nid||'-'}</span></div>
-        <div class="modal-detail-row"><span class="k">শেয়ার সংখ্যা</span><span class="v">${m.shares}টি</span></div>
-        <div class="modal-detail-row full"><span class="k">ঠিকানা</span><span class="v">${m.address||'-'}</span></div>
-      </div>
+      ${personalSectionHtml}
     </div>
 
     <div class="modal-section">
@@ -1833,10 +1879,125 @@ function renderPublicProfile(r){
       </table>
     </div>
 
+    <div class="modal-section">
+      <div class="modal-section-title">তহবিল বণ্টন (আপনার জমার ভিত্তিতে)</div>
+      <div id="fundDistributionPersonal-${m.mobile}"><p class="empty" style="margin:0;">লোড হচ্ছে...</p></div>
+    </div>
+
     <div style="text-align:center;margin-top:6px;">
       <button class="btn btn-ghost" style="padding:8px 20px;font-size:13px;width:auto;" onclick="depositLogout(); closePublicProfileModal();">লগআউট</button>
     </div>
   `;
+
+  if(!editMode){
+    loadFundDistributionPersonal_(m.mobile, totalSaved);
+  }
+
+  if(editMode){
+    document.getElementById('editProfileForm').addEventListener('submit', async e=>{
+      e.preventDefault();
+      const msg = document.getElementById('editProfileMsg');
+      msg.classList.remove('error','success');
+      const payload = {
+        mobile: sessionStorage.getItem('db17_member_mobile'),
+        pin: sessionStorage.getItem('db17_member_pin'),
+        name: document.getElementById('editName').value.trim(),
+        email: document.getElementById('editEmail').value.trim(),
+        nid: document.getElementById('editNid').value.trim(),
+        address: document.getElementById('editAddress').value.trim(),
+        payment: document.getElementById('editPayment').value
+      };
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      submitBtn.disabled = true; submitBtn.textContent = 'সেভ হচ্ছে...';
+      try{
+        const res = await apiCall('updateMemberProfile', payload);
+        if(res.success){
+          sessionStorage.setItem('db17_member_name', payload.name);
+          await loadAndRenderPublicProfile(); // reload fresh data, back to view mode
+        } else {
+          msg.textContent = res.message || 'সেভ করা যায়নি।';
+          msg.classList.add('error','show');
+          submitBtn.disabled = false; submitBtn.textContent = 'সেভ করুন';
+        }
+      } catch(err){
+        msg.textContent = 'সার্ভারে সংযোগ করা যায়নি।';
+        msg.classList.add('error','show');
+        submitBtn.disabled = false; submitBtn.textContent = 'সেভ করুন';
+      }
+    });
+  }
+}
+
+/* ---------- fund distribution (real data — main savings / investment+interest / donation / expense) ---------- */
+
+function fundDistributionData_(fs){
+  const mainSavings = Math.max(0, Number(fs.memberSavingsTakaValue)||0);
+  const investProfit = Math.max(0, (Number(fs.totalInvestmentCurrentValue)||0) - (Number(fs.totalInvestmentPrincipal)||0))
+                      + Math.max(0, Number(fs.totalBankInterest)||0);
+  const emergencyFund = Math.max(0, Number(fs.totalDonation)||0);
+  const opEx = Math.max(0, Number(fs.totalExpense)||0);
+  const total = mainSavings + investProfit + emergencyFund + opEx;
+  const pct = v => total>0 ? (v/total*100) : 0;
+  return {
+    total,
+    items: [
+      { label:'মূল সঞ্চয়', value:mainSavings, pct:pct(mainSavings), color:'var(--forest)' },
+      { label:'বিনিয়োগ মুনাফা (ব্যাংক ইন্টারেস্ট সহ)', value:investProfit, pct:pct(investProfit), color:'var(--mid-green)' },
+      { label:'জরুরি সহায়তা ফান্ড', value:emergencyFund, pct:pct(emergencyFund), color:'var(--gold)' },
+      { label:'পরিচালন ব্যয়', value:opEx, pct:pct(opEx), color:'#dfe9e2' }
+    ]
+  };
+}
+
+/** amounts: optional array to show instead of each item's own org-wide value (used to show a member's personal share) */
+function renderDonutHtml_(items, amounts){
+  let cursor = 0;
+  const stops = items.map(it=>{
+    const start = cursor, end = cursor + it.pct;
+    cursor = end;
+    return `${it.color} ${start}% ${end}%`;
+  }).join(', ');
+  const legend = items.map((it,i)=>{
+    const amt = amounts ? amounts[i] : it.value;
+    return `<li><span class="dot" style="background:${it.color};"></span> ${it.label} — ${it.pct.toFixed(1)}% (৳${Math.round(amt).toLocaleString('bn-BD')})</li>`;
+  }).join('');
+  return `<div class="donut-wrap">
+    <div class="donut" style="background:conic-gradient(${stops});"></div>
+    <ul class="legend">${legend}</ul>
+  </div>`;
+}
+
+async function loadFundDistributionPublic(){
+  const holder = document.getElementById('fundDistributionPublic');
+  try{
+    const fs = await apiCall('getPublicFinancialSummary', {});
+    if(!fs.success){ holder.innerHTML = '<p class="empty">লোড করা যায়নি।</p>'; return; }
+    const dist = fundDistributionData_(fs);
+    if(dist.total <= 0){ holder.innerHTML = '<p class="empty">এখনো পর্যাপ্ত হিসাব নেই।</p>'; return; }
+    holder.innerHTML = renderDonutHtml_(dist.items);
+  } catch(err){
+    holder.innerHTML = '<p class="empty">লোড করা যায়নি।</p>';
+  }
+}
+
+/** Same real org-wide ratios, but the taka amounts shown are this member's own share (their totalSaved × each ratio). */
+async function loadFundDistributionPersonal_(mobile, memberTotalSaved){
+  const holder = document.getElementById('fundDistributionPersonal-'+mobile);
+  if(!holder) return;
+  if(memberTotalSaved <= 0){
+    holder.innerHTML = '<p class="empty" style="margin:0;">এখনো কোনো অনুমোদিত জমা নেই।</p>';
+    return;
+  }
+  try{
+    const fs = await apiCall('getPublicFinancialSummary', {});
+    if(!fs.success){ holder.innerHTML = '<p class="empty" style="margin:0;">লোড করা যায়নি।</p>'; return; }
+    const dist = fundDistributionData_(fs);
+    if(dist.total <= 0){ holder.innerHTML = '<p class="empty" style="margin:0;">এখনো পর্যাপ্ত হিসাব নেই।</p>'; return; }
+    const myAmounts = dist.items.map(it => memberTotalSaved * (it.pct/100));
+    holder.innerHTML = renderDonutHtml_(dist.items, myAmounts);
+  } catch(err){
+    holder.innerHTML = '<p class="empty" style="margin:0;">লোড করা যায়নি।</p>';
+  }
 }
 
 /* ---------- savings ledger (public) ---------- */
@@ -2868,6 +3029,7 @@ async function loadPublicFinanceSummary(){
 }
 
 renderLedger();
+loadFundDistributionPublic();
 loadPublicFinanceSummary();
 </script>
 
