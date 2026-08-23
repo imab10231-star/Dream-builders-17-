@@ -42,6 +42,10 @@
   button{font-family:inherit;cursor:pointer;}
   img{max-width:100%;display:block;}
 
+  /* টাইপ করার সময় লেখা দেখা যাওয়ার জন্য — সব ইনপুট/টেক্সটএরিয়া/সিলেক্টে সাদা ফন্ট */
+  input,textarea,select{color:#fff !important;caret-color:#fff;}
+  input::placeholder,textarea::placeholder{color:rgba(255,255,255,.45) !important;}
+
   /* ===== Header ===== */
   header.site-header{
     position:sticky;top:0;z-index:100;
