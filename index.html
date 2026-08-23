@@ -166,20 +166,20 @@
     display:grid;grid-template-columns:repeat(6,1fr);gap:16px;
   }
   .stat-card{
-    background:var(--paper);border-radius:var(--radius);padding:20px 14px;
+    background:var(--paper);border-radius:var(--radius);padding:14px 12px;
     box-shadow:var(--shadow-md);text-align:center;border:1px solid var(--line);
     transition:transform .18s, box-shadow .18s;
   }
   .stat-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg);}
   .stat-card.highlight{background:linear-gradient(160deg,#241a10,#2e2013);border-color:#4a3319;}
   .stat-icon{
-    width:44px;height:44px;border-radius:50%;margin:0 auto 10px;
-    display:flex;align-items:center;justify-content:center;font-size:20px;
+    width:34px;height:34px;border-radius:50%;margin:0 auto 6px;
+    display:flex;align-items:center;justify-content:center;font-size:16px;
     background:rgba(255,122,26,.12);color:var(--forest);
   }
   .stat-card.highlight .stat-icon{background:var(--gold);color:#2b2205;}
-  .stat-label{font-size:12.5px;color:var(--ink-soft);font-weight:600;margin-bottom:5px;}
-  .stat-value{font-size:21px;font-weight:700;color:var(--forest-dark);}
+  .stat-label{font-size:11px;color:var(--ink-soft);font-weight:600;margin-bottom:3px;line-height:1.3;}
+  .stat-value{font-size:16px;font-weight:700;color:var(--forest-dark);}
   .stat-mini-note{font-size:11px;color:var(--ink-soft);margin-top:4px;}
 
   /* mini donut for emergency fund stat */
@@ -274,11 +274,11 @@
 
   /* Premium dark member profile cards */
   .member-card-grid{
-    display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:6px;
+    display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(6px,2vw,16px);margin-top:6px;
   }
-  @media(max-width:900px){ .member-card-grid{grid-template-columns:repeat(3,1fr);} }
-  @media(max-width:680px){ .member-card-grid{grid-template-columns:repeat(2,1fr);} }
-  @media(max-width:420px){ .member-card-grid{grid-template-columns:1fr;} }
+  @media(max-width:900px){ .member-card-grid{grid-template-columns:repeat(6,1fr);} }
+  @media(max-width:680px){ .member-card-grid{grid-template-columns:repeat(4,1fr);} }
+  @media(max-width:420px){ .member-card-grid{grid-template-columns:repeat(4,1fr);} }
 
   /* ON/OFF toggle switch (registration open/closed) */
   .toggle-switch{position:relative;display:inline-block;width:52px;height:30px;flex-shrink:0;}
@@ -316,27 +316,35 @@
   .member-card-badge.ok{background:rgba(76,201,120,.85);color:#0b0b0d;}
   .member-card-badge.pending{background:rgba(255,176,32,.88);color:#0b0b0d;}
   .member-card-badge.no{background:rgba(255,77,77,.85);color:#0b0b0d;}
-  .member-card-body{padding:14px 14px 16px;flex:1;display:flex;flex-direction:column;gap:8px;}
-  .member-card-name{font-size:15px;font-weight:800;color:var(--ink);line-height:1.25;}
-  .member-card-id{font-size:11.5px;color:var(--ink-soft);font-family:'JetBrains Mono',monospace;}
-  .member-card-stats{
-    display:flex;gap:8px;margin-top:4px;padding-top:10px;border-top:1px solid var(--line);
+  .member-card-body{
+    padding:clamp(5px,2.2vw,14px) clamp(4px,2vw,14px) clamp(7px,2.6vw,16px);
+    flex:1;display:flex;flex-direction:column;gap:clamp(3px,1vw,8px);
   }
-  .member-card-stat{flex:1;text-align:center;}
-  .member-card-stat .n{font-size:13.5px;font-weight:800;color:var(--mid-green);display:block;}
-  .member-card-stat .l{font-size:10px;color:var(--ink-soft);margin-top:1px;}
-  .member-card-actions{display:flex;gap:8px;margin-top:10px;}
+  .member-card-name{
+    font-size:clamp(9px,2.9vw,15px);font-weight:800;color:var(--ink);line-height:1.25;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .member-card-id{
+    font-size:clamp(7.5px,2.3vw,11.5px);color:var(--ink-soft);font-family:'JetBrains Mono',monospace;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .member-card-stats{
+    display:flex;gap:clamp(3px,1vw,8px);margin-top:2px;
+    padding-top:clamp(4px,1.4vw,10px);border-top:1px solid var(--line);
+  }
+  .member-card-stat{flex:1;text-align:center;min-width:0;}
+  .member-card-stat .n{font-size:clamp(9px,2.7vw,13.5px);font-weight:800;color:var(--mid-green);display:block;}
+  .member-card-stat .l{font-size:clamp(6.5px,1.8vw,10px);color:var(--ink-soft);margin-top:1px;}
+  .member-card-actions{display:flex;gap:clamp(3px,1vw,8px);margin-top:clamp(4px,1.4vw,10px);}
   .member-card-actions button{
-    flex:1;padding:7px 0;font-size:11.5px;font-weight:700;border-radius:8px;border:1px solid var(--line);
-    background:#1a1a1e;color:var(--ink);cursor:pointer;transition:.15s;
+    flex:1;padding:clamp(3px,1.2vw,7px) 0;font-size:clamp(7.5px,2vw,11.5px);font-weight:700;
+    border-radius:8px;border:1px solid var(--line);
+    background:#1a1a1e;color:var(--ink);cursor:pointer;transition:.15s;white-space:nowrap;
   }
   .member-card-actions button.approve:hover{border-color:#4cc978;color:#4cc978;}
   .member-card-actions button.reject:hover{border-color:#ff4d4d;color:#ff4d4d;}
   /* Public "জমার হিসাব" directory — same premium card, smaller grid, no admin actions */
-  .member-card-grid-public{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;}
-  .member-card-grid-public .member-card-body{padding:11px 11px 13px;gap:6px;}
-  .member-card-grid-public .member-card-name{font-size:13.5px;}
-  .member-card-grid-public .member-card-id{font-size:10.5px;}
+  .member-card-grid-public{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));}
 
   /* Member profile modal */
   .modal-overlay{
@@ -571,7 +579,11 @@
     nav.main-nav.open{display:flex;}
     .hamburger{display:block;}
     .hero-inner{grid-template-columns:1fr;}
-    .stats-grid{grid-template-columns:repeat(2,1fr);}
+    .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
+    .stat-card{padding:10px 8px;}
+    .stat-icon{width:28px;height:28px;font-size:13px;margin-bottom:4px;}
+    .stat-label{font-size:10px;}
+    .stat-value{font-size:13.5px;}
     .rules-grid{grid-template-columns:1fr;}
     .grid-2{grid-template-columns:1fr;}
     .reg-form{grid-template-columns:1fr;}
@@ -1365,7 +1377,20 @@ function showApiWarning(msg){
 }
 
 /* ---------- navigation ---------- */
-function goPage(name){
+/* history.pushState/replaceState can throw (e.g. inside a sandboxed
+   about:srcdoc preview) — wrap so a restricted environment never breaks
+   the rest of the app; the page still works, it just won't deep-link. */
+function safePushState(state, url){
+  try{ history.pushState(state, '', url); } catch(e){ /* sandboxed preview — ignore */ }
+}
+function safeReplaceState(state, url){
+  try{ history.replaceState(state, '', url); } catch(e){ /* sandboxed preview — ignore */ }
+}
+
+function goPage(name, pushHistory){
+  if(pushHistory !== false){
+    safePushState({page:name}, '#'+name);
+  }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.nav-link').forEach(l=>l.classList.toggle('active', l.dataset.page===name));
@@ -1385,6 +1410,19 @@ function goPage(name){
     }
   }
 }
+
+// ব্রাউজারের ব্যাক/ফরওয়ার্ড বাটন চাপলে সঠিক আগের পেজে নিয়ে যায় (নতুন history entry পুশ না করেই)
+window.addEventListener('popstate', function(e){
+  const name = (e.state && e.state.page) || (location.hash ? location.hash.split('/')[0].slice(1) : 'home');
+  if(document.getElementById('page-'+name)){
+    goPage(name, false);
+  }
+  const subtab = e.state && e.state.subtab;
+  if(subtab){
+    if(name==='admin') adminTab(subtab, false);
+    if(name==='deposit') depositSubTab(subtab, false);
+  }
+});
 /* ---------- registration form re-used as an admin-panel popup ---------- */
 function openRegistrationModal(){
   document.getElementById('page-register').classList.add('modal-mode');
@@ -1531,10 +1569,13 @@ document.getElementById('registerForm').addEventListener('submit', async e=>{
 
 /* ---------- monthly deposit (member self-service) ---------- */
 
-function depositSubTab(tab){
+function depositSubTab(tab, updateHash){
   document.querySelectorAll('[data-dtab]').forEach(b=>b.classList.toggle('active', b.dataset.dtab===tab));
   document.getElementById('depositSubDeposit').style.display = tab==='deposit' ? 'block' : 'none';
   document.getElementById('depositSubLoan').style.display = tab==='loan' ? 'block' : 'none';
+  if(updateHash !== false){
+    safeReplaceState({page:'deposit', subtab:tab}, '#deposit/'+tab);
+  }
 }
 
 function depositSessionActive(){
@@ -2139,11 +2180,14 @@ async function adminLogout(){
   document.getElementById('adminDashView').style.display='none';
 }
 
-function adminTab(tab){
+function adminTab(tab, updateHash){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
   document.getElementById('adminMembersPanel').style.display = tab==='members' ? 'block':'none';
   document.getElementById('adminLoansPanel').style.display = tab==='loans' ? 'block':'none';
   document.getElementById('adminDepositsPanel').style.display = tab==='deposits' ? 'block':'none';
+  if(updateHash !== false){
+    safeReplaceState({page:'admin', subtab:tab}, '#admin/'+tab);
+  }
 }
 
 let cachedMembers = [];
@@ -3027,6 +3071,21 @@ async function loadPublicFinanceSummary(){
     });
   }
 }
+
+// পেজ প্রথম লোড হওয়ার সময় URL হ্যাশ চেক করে সেই পেজ/সাব-ট্যাবেই রাখে (রিফ্রেশ দিলে হোমে চলে যাওয়া বন্ধ)
+(function restorePageFromHash(){
+  const raw = location.hash ? location.hash.slice(1) : 'home';
+  const [page, subtab] = raw.split('/');
+  const initial = page || 'home';
+  if(document.getElementById('page-'+initial)){
+    goPage(initial, false);
+  }
+  if(subtab){
+    if(initial==='admin') adminTab(subtab, false);
+    if(initial==='deposit') depositSubTab(subtab, false);
+  }
+  safeReplaceState({page:initial, subtab:subtab||null}, location.hash || '#home');
+})();
 
 renderLedger();
 loadFundDistributionPublic();
