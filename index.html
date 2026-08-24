@@ -329,11 +329,11 @@
   .member-card-badge.pending{background:rgba(255,176,32,.88);color:#0b0b0d;}
   .member-card-badge.no{background:rgba(255,77,77,.85);color:#0b0b0d;}
   .member-card-body{
-    padding:clamp(5px,2.2vw,14px) clamp(4px,2vw,14px) clamp(7px,2.6vw,16px);
-    flex:1;display:flex;flex-direction:column;gap:clamp(3px,1vw,8px);
+    padding:clamp(4px,1.6vw,10px) clamp(4px,1.6vw,10px) clamp(5px,1.8vw,11px);
+    flex:1;display:flex;flex-direction:column;gap:clamp(2px,0.6vw,4px);
   }
   .member-card-name{
-    font-size:clamp(9px,2.9vw,15px);font-weight:800;color:var(--ink);line-height:1.25;
+    font-size:clamp(9px,2.9vw,15px);font-weight:800;color:var(--ink);line-height:1.2;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   }
   .member-card-id{
@@ -341,15 +341,15 @@
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   }
   .member-card-stats{
-    display:flex;gap:clamp(3px,1vw,8px);margin-top:2px;
-    padding-top:clamp(4px,1.4vw,10px);border-top:1px solid var(--line);
+    display:flex;gap:clamp(3px,1vw,8px);margin-top:1px;
+    padding-top:clamp(2px,0.8vw,6px);border-top:1px solid var(--line);
   }
   .member-card-stat{flex:1;text-align:center;min-width:0;}
-  .member-card-stat .n{font-size:clamp(9px,2.7vw,13.5px);font-weight:800;color:var(--mid-green);display:block;}
-  .member-card-stat .l{font-size:clamp(6.5px,1.8vw,10px);color:var(--ink-soft);margin-top:1px;}
-  .member-card-actions{display:flex;gap:clamp(3px,1vw,8px);margin-top:clamp(4px,1.4vw,10px);}
+  .member-card-stat .n{font-size:clamp(9px,2.7vw,13.5px);font-weight:800;color:var(--mid-green);display:block;line-height:1.15;}
+  .member-card-stat .l{font-size:clamp(6px,1.6vw,9px);color:var(--ink-soft);margin-top:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;}
+  .member-card-actions{display:flex;gap:clamp(3px,1vw,8px);margin-top:clamp(2px,0.8vw,6px);}
   .member-card-actions button{
-    flex:1;padding:clamp(3px,1.2vw,7px) 0;font-size:clamp(7.5px,2vw,11.5px);font-weight:700;
+    flex:1;padding:clamp(2px,0.9vw,5px) 0;font-size:clamp(7.5px,2vw,11.5px);font-weight:700;
     border-radius:8px;border:1px solid var(--line);
     background:#1a1a1e;color:var(--ink);cursor:pointer;transition:.15s;white-space:nowrap;
   }
@@ -823,6 +823,14 @@
 
         <form id="depositForm">
           <div class="reg-form" style="gap:16px 18px;">
+            <div class="field full" style="background:rgba(255,148,51,.08);border:1px solid rgba(255,148,51,.25);border-radius:10px;padding:14px 16px;">
+              <label style="font-size:13px;color:var(--gold);font-weight:800;margin-bottom:8px;display:block;">নিচের যেকোনো একটি মাধ্যমে টাকা পাঠান</label>
+              <p style="font-size:13.5px;line-height:1.7;color:var(--ink);margin:0;">
+                <b>ব্যাংক:</b> ০০০ — অ্যাকাউন্ট নম্বর: ০০০ — নামে: ০০০ — ব্রাঞ্চ: ০০০<br>
+                <b>বিকাশ (Personal/Merchant):</b> ০০০
+              </p>
+              <p style="font-size:11.5px;color:var(--ink-soft);margin:8px 0 0;">টাকা পাঠানোর পর নিচে রিসিট/স্ক্রিনশট আপলোড করুন — রিসিট দেখেই অ্যাডমিন আপনার জমা অনুমোদন করবেন।</p>
+            </div>
             <div class="field">
               <label>কোন মাসের জমা</label>
               <input type="month" id="depMonth" required>
@@ -848,6 +856,14 @@
             <div class="field full">
               <label>ট্রানজেকশন আইডি / রেফারেন্স (ঐচ্ছিক)</label>
               <input type="text" id="depReference" placeholder="যেমন: bKash TrxID">
+            </div>
+            <div class="reg-photo-field full">
+              <label style="font-size:12.5px;color:var(--ink-soft);display:block;margin-bottom:8px;">জমার রিসিট / স্ক্রিনশট আপলোড করুন</label>
+              <div class="modal-photo-preview" id="depReceiptPreview"></div>
+              <div class="modal-photo-edit" style="margin-top:8px;">
+                <input type="file" id="depReceiptFileInput" accept="image/jpeg,image/png,image/webp" onchange="previewDepositReceipt(this)">
+              </div>
+              <p style="font-size:11px;color:var(--ink-soft);margin-top:6px;">JPG, PNG বা WEBP — সর্বোচ্চ ৫ MB</p>
             </div>
           </div>
           <button type="submit" class="btn btn-primary btn-block">জমা দিন</button>
@@ -1076,10 +1092,10 @@
     </div>
     <div class="panel" id="adminDepositsPanel" style="display:none;">
       <div style="overflow-x:auto;">
-      <table class="ledger-table compact" style="min-width:620px;">
+      <table class="ledger-table compact" style="min-width:680px;">
         <thead><tr>
           <th>নাম</th><th>মোবাইল</th><th>মাস</th><th>শেয়ার</th><th>পরিমাণ</th>
-          <th>পদ্ধতি</th><th>রেফারেন্স</th><th></th>
+          <th>পদ্ধতি</th><th>রেফারেন্স</th><th>রিসিট</th><th></th>
         </tr></thead>
         <tbody id="adminDepositsBody"></tbody>
       </table>
@@ -1650,6 +1666,16 @@ document.getElementById('depositLoginForm').addEventListener('submit', async e=>
   submitBtn.disabled = false; submitBtn.textContent = 'যাচাই করুন';
 });
 
+/** Shows a quick local preview of the picked deposit receipt before submit. */
+function previewDepositReceipt(input){
+  const preview = document.getElementById('depReceiptPreview');
+  const file = input.files && input.files[0];
+  if(!file){ preview.innerHTML=''; return; }
+  const reader = new FileReader();
+  reader.onload = e => { preview.innerHTML = `<img src="${e.target.result}" alt="preview">`; };
+  reader.readAsDataURL(file);
+}
+
 document.getElementById('depositForm').addEventListener('submit', async e=>{
   e.preventDefault();
   const msg = document.getElementById('depMsg');
@@ -1666,14 +1692,25 @@ document.getElementById('depositForm').addEventListener('submit', async e=>{
   const paymentMethod = document.getElementById('depPayment').value;
   const reference = document.getElementById('depReference').value.trim();
   const submitBtn = e.target.querySelector('button[type="submit"]');
+
+  // রিসিট/স্ক্রিনশট, প্রোফাইল ছবির মতো একই পদ্ধতিতে আপলোড হবে
+  let receiptImageBase64 = null, receiptMimeType = null;
+  const receiptFile = document.getElementById('depReceiptFileInput').files[0];
+  if(receiptFile){
+    try{ receiptImageBase64 = await fileToBase64_(receiptFile); receiptMimeType = receiptFile.type; }
+    catch(err){ /* রিসিট আপলোডে সমস্যা হলেও জমার তথ্য পাঠানো চলবে */ }
+  }
+
   submitBtn.disabled = true; submitBtn.textContent = 'জমা হচ্ছে...';
   try{
-    const r = await apiCall('submitDeposit', { mobile, pin, month, shares, amount, paymentMethod, reference });
+    const r = await apiCall('submitDeposit', { mobile, pin, month, shares, amount, paymentMethod, reference, receiptImageBase64, receiptMimeType });
     if(r.success){
       msg.textContent = r.message || 'জমা সফল হয়েছে।';
       msg.classList.add('success','show');
       document.getElementById('depReference').value = '';
       document.getElementById('depPayment').value = '';
+      document.getElementById('depReceiptFileInput').value = '';
+      document.getElementById('depReceiptPreview').innerHTML = '';
       refreshDepositHistory();
     } else {
       msg.textContent = r.message || 'জমা ব্যর্থ হয়েছে।';
@@ -2236,7 +2273,7 @@ function memberStatusBadge_(status, cardStyle){
   return `<span class="${prefix} pending">অপেক্ষমান</span>`;
 }
 
-const MEMBER_PAGE_SIZE = 5; // "আরও দেখুন" এ প্রতিবার এতজন করে যোগ হবে
+const MEMBER_PAGE_SIZE = 8; // "আরও দেখুন" এ প্রতিবার এতজন করে যোগ হবে
 let memberVisibleCount = MEMBER_PAGE_SIZE;
 
 async function renderAdminMembers(){
@@ -2564,8 +2601,12 @@ async function renderAdminDeposits(){
   emptyMsg.style.display = cachedDeposits.length ? 'none' : 'block';
   cachedDeposits.forEach(d=>{
     const tr = document.createElement('tr');
+    const receiptCell = d.receiptUrl
+      ? `<button type="button" class="btn btn-ghost" style="padding:5px 10px;font-size:12px;" onclick="viewDepositReceipt('${d.receiptUrl}')">দেখুন</button>`
+      : `<span style="color:var(--ink-soft);font-size:12px;">নেই</span>`;
     tr.innerHTML = `<td>${d.name}</td><td>${d.mobile}</td><td>${d.month}</td><td>${d.shares}টি</td>
       <td>৳${d.amount}</td><td>${d.paymentMethod||'-'}</td><td>${d.reference||'-'}</td>
+      <td>${receiptCell}</td>
       <td class="status-icon-cell">
         <button class="status-icon-btn ok ${d.status==='approved'?'active':''}" title="অনুমোদন" onclick="setDepositStatus(${d.row},'approved')">✓</button>
         <button class="status-icon-btn no ${d.status==='rejected'?'active':''}" title="বাতিল" onclick="setDepositStatus(${d.row},'rejected')">✗</button>
@@ -2573,6 +2614,19 @@ async function renderAdminDeposits(){
     tbody.appendChild(tr);
   });
   document.getElementById('dashPendingDeposits').textContent = cachedDeposits.filter(d=>d.status==='pending').length;
+}
+
+/** Opens the deposit's uploaded receipt/screenshot in a simple lightbox so admin can inspect it before approving. */
+function viewDepositReceipt(url){
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay show';
+  overlay.onclick = () => overlay.remove();
+  overlay.innerHTML = `
+    <div class="modal-box" style="max-width:520px;text-align:center;" onclick="event.stopPropagation();">
+      <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✕</button>
+      <img src="${url}" alt="রিসিট" style="max-width:100%;border-radius:10px;">
+    </div>`;
+  document.body.appendChild(overlay);
 }
 
 async function setDepositStatus(row, status){
