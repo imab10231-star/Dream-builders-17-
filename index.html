@@ -1091,6 +1091,11 @@
       <p class="empty" id="adminLoansEmpty" style="display:none;">কোনো লোন আবেদন নেই।</p>
     </div>
     <div class="panel" id="adminDepositsPanel" style="display:none;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+        <label for="depositMonthFilter" style="font-size:13.5px;color:var(--ink-soft);">মাস নির্বাচন করুন:</label>
+        <input type="month" id="depositMonthFilter" onchange="renderAdminDeposits()"
+          style="padding:8px 12px;border-radius:8px;border:1.5px solid rgba(255,122,26,.18);background:rgba(255,255,255,.06);color:var(--ink);font-family:inherit;font-size:14px;">
+      </div>
       <div style="overflow-x:auto;">
       <table class="ledger-table compact" style="min-width:680px;">
         <thead><tr>
@@ -1100,7 +1105,7 @@
         <tbody id="adminDepositsBody"></tbody>
       </table>
       </div>
-      <p class="empty" id="adminDepositsEmpty" style="display:none;">কোনো জমা জমা দেওয়া হয়নি।</p>
+      <p class="empty" id="adminDepositsEmpty" style="display:none;">এই মাসে কোনো জমা নেই।</p>
     </div>
   </div>
 </section>
@@ -1890,7 +1895,7 @@ function renderPublicProfile(r, editMode){
   const personalSectionHtml = editMode ? `
     <div class="modal-section-title">
       ব্যক্তিগত তথ্য
-      <button class="edit-icon-btn" onclick="renderPublicProfile(lastProfileData, false)" title="বাতিল">✕ বাতিল</button>
+      <button class="edit-icon-btn" id="cancelEditProfileBtn" type="button" title="বাতিল">✕ বাতিল</button>
     </div>
     <form id="editProfileForm">
       <div class="field">
@@ -1925,7 +1930,7 @@ function renderPublicProfile(r, editMode){
   ` : `
     <div class="modal-section-title">
       ব্যক্তিগত তথ্য
-      <button class="edit-icon-btn" onclick="renderPublicProfile(lastProfileData, true)" title="তথ্য এডিট করুন">✏️ এডিট</button>
+      <button class="edit-icon-btn" id="editProfileBtn" type="button" title="তথ্য এডিট করুন">✏️ এডিট</button>
     </div>
     <div class="modal-detail-grid">
       <div class="modal-detail-row"><span class="k">মোবাইল</span><span class="v">${m.mobile}</span></div>
@@ -1981,6 +1986,14 @@ function renderPublicProfile(r, editMode){
 
   if(!editMode){
     loadFundDistributionPersonal_(m.mobile, totalSaved);
+    // ইনলাইন onclick-এর বদলে addEventListener ব্যবহার করা হচ্ছে — কিছু
+    // in-app ব্রাউজার (যেমন Facebook/Messenger-এর ভেতরের ব্রাউজার) ইনলাইন
+    // onclick ব্লক করে দেয়, addEventListener তুলনামূলক বেশি নির্ভরযোগ্য।
+    const editBtn = document.getElementById('editProfileBtn');
+    if(editBtn) editBtn.addEventListener('click', () => renderPublicProfile(lastProfileData, true));
+  } else {
+    const cancelBtn = document.getElementById('cancelEditProfileBtn');
+    if(cancelBtn) cancelBtn.addEventListener('click', () => renderPublicProfile(lastProfileData, false));
   }
 
   if(editMode){
@@ -2587,19 +2600,30 @@ async function setLoanStatus(row, status){
 
 let cachedDeposits = [];
 
+/** বর্তমান মাসকে 'yyyy-MM' ফরম্যাটে দেয় — <input type="month"> এর ডিফল্ট ভ্যালুর জন্য। */
+function currentMonthStr_(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+}
+
 async function renderAdminDeposits(){
   const tbody = document.getElementById('adminDepositsBody');
   const emptyMsg = document.getElementById('adminDepositsEmpty');
-  tbody.innerHTML = `<tr><td colspan="8" class="empty">লোড হচ্ছে...</td></tr>`;
+  const monthInput = document.getElementById('depositMonthFilter');
+  if(!monthInput.value) monthInput.value = currentMonthStr_(); // ডিফল্টে চলতি মাস দেখাবে
+  const selectedMonth = monthInput.value;
+
+  tbody.innerHTML = `<tr><td colspan="9" class="empty">লোড হচ্ছে...</td></tr>`;
   try{
     const r = await apiCall('listDeposits', {});
     cachedDeposits = r.success ? r.deposits : [];
   } catch(err){
     cachedDeposits = [];
   }
+  const filtered = cachedDeposits.filter(d => d.month === selectedMonth);
   tbody.innerHTML = '';
-  emptyMsg.style.display = cachedDeposits.length ? 'none' : 'block';
-  cachedDeposits.forEach(d=>{
+  emptyMsg.style.display = filtered.length ? 'none' : 'block';
+  filtered.forEach(d=>{
     const tr = document.createElement('tr');
     const receiptCell = d.receiptUrl
       ? `<button type="button" class="btn btn-ghost" style="padding:5px 10px;font-size:12px;" onclick="viewDepositReceipt('${d.receiptUrl}')">দেখুন</button>`
@@ -2609,7 +2633,7 @@ async function renderAdminDeposits(){
       <td>${receiptCell}</td>
       <td class="status-icon-cell">
         <button class="status-icon-btn ok ${d.status==='approved'?'active':''}" title="অনুমোদন" onclick="setDepositStatus(${d.row},'approved')">✓</button>
-        <button class="status-icon-btn no ${d.status==='rejected'?'active':''}" title="বাতিল" onclick="setDepositStatus(${d.row},'rejected')">✗</button>
+        <button class="status-icon-btn no" title="বাতিল (মুছে যাবে)" onclick="setDepositStatus(${d.row},'rejected')">✗</button>
       </td>`;
     tbody.appendChild(tr);
   });
