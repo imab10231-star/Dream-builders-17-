@@ -349,12 +349,14 @@
   .member-card-stat .l{font-size:clamp(6px,1.6vw,9px);color:var(--ink-soft);margin-top:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;}
   .member-card-actions{display:flex;gap:clamp(3px,1vw,8px);margin-top:clamp(2px,0.8vw,6px);}
   .member-card-actions button{
-    flex:1;padding:clamp(2px,0.9vw,5px) 0;font-size:clamp(7.5px,2vw,11.5px);font-weight:700;
+    flex:1;padding:clamp(2px,0.9vw,5px) 0;font-size:clamp(11px,2.6vw,15px);font-weight:700;
     border-radius:8px;border:1px solid var(--line);
     background:#1a1a1e;color:var(--ink);cursor:pointer;transition:.15s;white-space:nowrap;
   }
-  .member-card-actions button.approve:hover{border-color:#4cc978;color:#4cc978;}
-  .member-card-actions button.reject:hover{border-color:#ff4d4d;color:#ff4d4d;}
+  .member-card-actions button.approve{color:#4cc978;border-color:rgba(76,201,120,.3);}
+  .member-card-actions button.reject{color:#ff4d4d;border-color:rgba(255,77,77,.3);}
+  .member-card-actions button.approve:hover{background:rgba(76,201,120,.12);}
+  .member-card-actions button.reject:hover{background:rgba(255,77,77,.12);}
   /* Public "জমার হিসাব" directory — same premium card, smaller grid, no admin actions */
   .member-card-grid-public{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));}
 
@@ -2357,8 +2359,8 @@ function renderMemberCardsFiltered(){
           <div class="member-card-stat"><span class="n">৳${monthly}</span><span class="l">মাসিক জমা</span></div>
         </div>
         <div class="member-card-actions">
-          <button class="approve" onclick="event.stopPropagation();setMemberStatus(${m.row},'approved')">অনুমোদন</button>
-          <button class="reject" onclick="event.stopPropagation();setMemberStatus(${m.row},'rejected')">বাতিল</button>
+          ${m.status!=='approved' ? `<button class="approve" title="অনুমোদন" onclick="event.stopPropagation();setMemberStatus(${m.row},'approved')">✓</button>` : ''}
+          <button class="reject" title="বাতিল" onclick="event.stopPropagation();setMemberStatus(${m.row},'rejected')">✗</button>
         </div>
       </div>`;
     grid.appendChild(card);
@@ -2632,7 +2634,7 @@ async function renderAdminDeposits(){
       <td>৳${d.amount}</td><td>${d.paymentMethod||'-'}</td><td>${d.reference||'-'}</td>
       <td>${receiptCell}</td>
       <td class="status-icon-cell">
-        <button class="status-icon-btn ok ${d.status==='approved'?'active':''}" title="অনুমোদন" onclick="setDepositStatus(${d.row},'approved')">✓</button>
+        ${d.status!=='approved' ? `<button class="status-icon-btn ok" title="অনুমোদন" onclick="setDepositStatus(${d.row},'approved')">✓</button>` : ''}
         <button class="status-icon-btn no" title="বাতিল (মুছে যাবে)" onclick="setDepositStatus(${d.row},'rejected')">✗</button>
       </td>`;
     tbody.appendChild(tr);
