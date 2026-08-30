@@ -156,6 +156,44 @@
   }
   .login-card h3{font-size:19px;color:var(--forest-dark);margin-bottom:18px;}
   .field{margin-bottom:16px;}
+
+  /* ===== জমা পাঠানোর মাধ্যম (bKash/Bank) কার্ড ===== */
+  .payment-info-box{
+    background:rgba(255,255,255,.03);border:1px solid rgba(76,201,120,.25);
+    border-radius:14px;overflow:hidden;padding:0;
+  }
+  .payment-info-header{
+    display:flex;align-items:flex-start;gap:10px;
+    background:linear-gradient(135deg,#123524,#1b4a34);
+    padding:14px 16px;
+  }
+  .payment-info-icon{font-size:20px;line-height:1;}
+  .payment-info-title{color:#fff;font-weight:800;font-size:14.5px;}
+  .payment-info-subtitle{color:rgba(255,255,255,.75);font-size:12px;margin-top:2px;}
+  .payment-methods-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px;}
+  @media (max-width:520px){.payment-methods-grid{grid-template-columns:1fr;}}
+  .payment-method-card{
+    background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:10px;padding:14px;
+  }
+  .payment-method-card.bkash{border-color:rgba(226,26,123,.35);}
+  .payment-method-card.bank{border-color:rgba(59,130,246,.3);}
+  .payment-method-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .payment-method-badge{font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px;color:#fff;}
+  .bkash-badge{background:#e2136e;}
+  .bank-badge{background:#1c3f95;}
+  .payment-method-name{font-weight:700;font-size:13.5px;color:var(--ink);}
+  .payment-method-number{font-size:17px;font-weight:800;color:var(--mid-green);letter-spacing:.5px;}
+  .payment-method-sub{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+  .payment-method-detail{font-size:12.5px;color:var(--ink);line-height:1.7;}
+  .payment-copy-btn{
+    margin-top:10px;width:100%;padding:7px 0;border-radius:7px;border:1px solid var(--line);
+    background:rgba(255,255,255,.05);color:var(--ink);font-size:12.5px;font-weight:600;cursor:pointer;transition:.15s;
+  }
+  .payment-copy-btn:hover{border-color:var(--mid-green);color:var(--mid-green);}
+  .payment-info-footer{
+    font-size:11.5px;color:var(--gold);background:rgba(255,148,51,.08);padding:10px 16px;margin:0;
+    border-top:1px solid rgba(255,148,51,.15);
+  }
   .field label{display:block;font-size:13.5px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;}
   .field input{
     width:100%;padding:12px 14px;border-radius:9px;border:1.5px solid rgba(255,122,26,.18);
@@ -825,13 +863,36 @@
 
         <form id="depositForm">
           <div class="reg-form" style="gap:16px 18px;">
-            <div class="field full" style="background:rgba(255,148,51,.08);border:1px solid rgba(255,148,51,.25);border-radius:10px;padding:14px 16px;">
-              <label style="font-size:13px;color:var(--gold);font-weight:800;margin-bottom:8px;display:block;">নিচের যেকোনো একটি মাধ্যমে টাকা পাঠান</label>
-              <p style="font-size:13.5px;line-height:1.7;color:var(--ink);margin:0;">
-                <b>ব্যাংক:</b> ০০০ — অ্যাকাউন্ট নম্বর: ০০০ — নামে: ০০০ — ব্রাঞ্চ: ০০০<br>
-                <b>বিকাশ (Personal/Merchant):</b> ০০০
-              </p>
-              <p style="font-size:11.5px;color:var(--ink-soft);margin:8px 0 0;">টাকা পাঠানোর পর নিচে রিসিট/স্ক্রিনশট আপলোড করুন — রিসিট দেখেই অ্যাডমিন আপনার জমা অনুমোদন করবেন।</p>
+            <div class="field full payment-info-box">
+              <div class="payment-info-header">
+                <span class="payment-info-icon">💳</span>
+                <div>
+                  <div class="payment-info-title">জমা পাঠানোর মাধ্যম</div>
+                  <div class="payment-info-subtitle">নিচের যেকোনো মাধ্যমে টাকা পাঠিয়ে রিসিট আপলোড করুন</div>
+                </div>
+              </div>
+              <div class="payment-methods-grid">
+                <div class="payment-method-card bkash">
+                  <div class="payment-method-head">
+                    <span class="payment-method-badge bkash-badge">bKash</span>
+                    <span class="payment-method-name">বিকাশ</span>
+                  </div>
+                  <div class="payment-method-number">01857-718430</div>
+                  <div class="payment-method-sub">Personal</div>
+                  <button type="button" class="payment-copy-btn" onclick="copyPaymentInfo(this,'01857718430')">📋 কপি করুন</button>
+                </div>
+                <div class="payment-method-card bank">
+                  <div class="payment-method-head">
+                    <span class="payment-method-badge bank-badge">IFIC</span>
+                    <span class="payment-method-name">IFIC ব্যাংক</span>
+                  </div>
+                  <div class="payment-method-detail"><b>শাখা:</b> আনন্দ বাজার, চাঁদপুর</div>
+                  <div class="payment-method-detail"><b>একাউন্ট:</b> 0210016395031</div>
+                  <div class="payment-method-detail"><b>নামে:</b> Harun Ur Rashid &amp; Friends</div>
+                  <button type="button" class="payment-copy-btn" onclick="copyPaymentInfo(this,'0210016395031')">📋 কপি করুন</button>
+                </div>
+              </div>
+              <p class="payment-info-footer">⚠️ টাকা পাঠানোর পর রিসিট/স্ক্রিনশট সংরক্ষণ করুন এবং নিচে আপলোড করুন — রিসিট দেখেই অ্যাডমিন আপনার জমা অনুমোদন করবেন।</p>
             </div>
             <div class="field">
               <label>কোন মাসের জমা</label>
@@ -1683,6 +1744,17 @@ function previewDepositReceipt(input){
   reader.readAsDataURL(file);
 }
 
+/** নম্বর ক্লিপবোর্ডে কপি করে বাটনে সাময়িক "কপি হয়েছে" ফিডব্যাক দেখায়। */
+function copyPaymentInfo(btn, text){
+  const original = btn.textContent;
+  const done = () => { btn.textContent = '✅ কপি হয়েছে'; setTimeout(()=>{ btn.textContent = original; }, 1500); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=> alert('কপি করা যায়নি, ম্যানুয়ালি কপি করুন: ' + text));
+  } else {
+    alert('কপি করা যায়নি, ম্যানুয়ালি কপি করুন: ' + text);
+  }
+}
+
 document.getElementById('depositForm').addEventListener('submit', async e=>{
   e.preventDefault();
   const msg = document.getElementById('depMsg');
@@ -2358,10 +2430,11 @@ function renderMemberCardsFiltered(){
           <div class="member-card-stat"><span class="n">${m.shares}টি</span><span class="l">শেয়ার</span></div>
           <div class="member-card-stat"><span class="n">৳${monthly}</span><span class="l">মাসিক জমা</span></div>
         </div>
+        ${m.status!=='approved' ? `
         <div class="member-card-actions">
-          ${m.status!=='approved' ? `<button class="approve" title="অনুমোদন" onclick="event.stopPropagation();setMemberStatus(${m.row},'approved')">✓</button>` : ''}
+          <button class="approve" title="অনুমোদন" onclick="event.stopPropagation();setMemberStatus(${m.row},'approved')">✓</button>
           <button class="reject" title="বাতিল" onclick="event.stopPropagation();setMemberStatus(${m.row},'rejected')">✗</button>
-        </div>
+        </div>` : ''}
       </div>`;
     grid.appendChild(card);
   });
