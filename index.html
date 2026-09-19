@@ -676,6 +676,10 @@
   .finance-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-bottom:22px;}
   .finance-cards .fcard{
     background:#1a1a1f;border-radius:10px;padding:16px 18px;border:1px solid var(--line);
+    transition:transform .15s, border-color .15s, background .15s;
+  }
+  .finance-cards .fcard:hover, .finance-cards .fcard:focus-visible{
+    transform:translateY(-3px);border-color:var(--gold);background:#1f1f24;outline:none;
   }
   .finance-cards .fcard .n{font-size:19px;font-weight:700;color:var(--mid-green);word-break:break-word;}
   .finance-cards .fcard .n.neg{color:var(--danger);}
@@ -776,11 +780,6 @@
 
   <div class="stats">
     <div class="stats-grid">
-      <div class="stat-card highlight">
-        <div class="stat-icon">📊</div>
-        <div class="stat-label">ওভারভিউ (নেট ক্যাশ ফ্লো)</div>
-        <div class="stat-value" id="pubOverview">লোড হচ্ছে...</div>
-      </div>
       <div class="stat-card">
         <div class="stat-icon">💸</div>
         <div class="stat-label">মোট খরচ</div>
@@ -3081,21 +3080,34 @@ async function renderFinanceCards(){
     const r = await apiCall('getFinancialSummary', currentFinanceRangePayload());
     if(!r.success){ wrap.innerHTML = '<div class="empty">লোড করা যায়নি।</div>'; return; }
     const cards = [
-      ['মোট আয়', fmtTaka(r.totalIncome)],
-      ['মোট খরচ', fmtTaka(r.totalExpense)],
-      ['মোট দান', fmtTaka(r.totalDonation)],
-      ['ব্যাংক সুদ (নেট)', fmtTaka(r.totalBankInterest)],
-      ['বিনিয়োগ রিটার্ন', fmtTaka(r.totalInvestmentReturn)],
-      ['মোট বিনিয়োগ (প্রিন্সিপাল)', fmtTaka(r.totalInvestmentPrincipal)],
-      ['বিনিয়োগ লাভ/ক্ষতি', fmtTaka(r.investmentProfitLoss), r.investmentProfitLoss<0],
-      ['লোন বকেয়া', fmtTaka(r.loanOutstanding)],
-      ['মোট সদস্য শেয়ার', r.memberSavings.totalShares + 'টি (' + r.memberSavings.note + ')'],
-      ['নেট অপারেটিং ক্যাশ ফ্লো', fmtTaka(r.netOperatingCashFlow), r.netOperatingCashFlow<0],
-      ['উপলব্ধ তহবিল (Available Fund)', fmtTaka(r.availableFund), r.availableFund<0],
+      ['মোট আয়', fmtTaka(r.totalIncome), false, 'income'],
+      ['মোট খরচ', fmtTaka(r.totalExpense), false, 'expense'],
+      ['মোট দান', fmtTaka(r.totalDonation), false, 'donation'],
+      ['ব্যাংক সুদ (নেট)', fmtTaka(r.totalBankInterest), false, 'bankinterest'],
+      ['বিনিয়োগ রিটার্ন', fmtTaka(r.totalInvestmentReturn), false, 'investment'],
+      ['মোট বিনিয়োগ (প্রিন্সিপাল)', fmtTaka(r.totalInvestmentPrincipal), false, 'investment'],
+      ['বিনিয়োগ লাভ/ক্ষতি', fmtTaka(r.investmentProfitLoss), r.investmentProfitLoss<0, 'investment'],
+      ['লোন বকেয়া', fmtTaka(r.loanOutstanding), false, 'reports'],
+      ['মোট সদস্য শেয়ার', r.memberSavings.totalShares + 'টি (' + r.memberSavings.note + ')', false, 'members'],
+      ['উপলব্ধ তহবিল (Available Fund)', fmtTaka(r.availableFund), r.availableFund<0, 'reports'],
     ];
-    wrap.innerHTML = cards.map(c => `<div class="fcard"><div class="n${c[2]?' neg':''}">${c[1]}</div><div class="l">${c[0]}</div></div>`).join('');
+    wrap.innerHTML = cards.map(c =>
+      `<div class="fcard" tabindex="0" role="button" title="বিস্তারিত দেখতে ক্লিক করুন" style="cursor:pointer;" onclick="financeCardClick('${c[3]}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();financeCardClick('${c[3]}');}">
+        <div class="n${c[2]?' neg':''}">${c[1]}</div><div class="l">${c[0]}</div>
+      </div>`
+    ).join('');
   } catch(err){
     wrap.innerHTML = '<div class="empty">লোড করা যায়নি।</div>';
+  }
+}
+
+/** কার্ডে ক্লিক করলে সংশ্লিষ্ট বিস্তারিত তালিকায় (তারিখসহ) নিয়ে যায়। */
+function financeCardClick(target){
+  if(target === 'members'){
+    goPage('admin');
+    adminTab('members');
+  } else {
+    financeTab(target);
   }
 }
 
@@ -3497,7 +3509,6 @@ async function loadPublicFinanceSummary(){
   try{
     const r = await apiCall('getPublicFinancialSummary', {});
     if(!r.success) return;
-    document.getElementById('pubOverview').textContent = fmtTaka(r.netOperatingCashFlow);
     document.getElementById('pubExpense').textContent = fmtTaka(r.totalExpense);
     document.getElementById('pubIncome').textContent = fmtTaka(r.totalIncome);
     document.getElementById('pubInvestment').textContent = fmtTaka(r.totalInvestmentCurrentValue);
@@ -3506,7 +3517,7 @@ async function loadPublicFinanceSummary(){
     document.getElementById('pubTxCount').textContent = Number(r.transactionCount||0).toLocaleString('bn-BD');
     document.getElementById('pubAvailableFund').textContent = fmtTaka(r.availableFund);
   } catch(err){
-    ['pubOverview','pubExpense','pubIncome','pubInvestment','pubBankInterest','pubDonation','pubTxCount','pubAvailableFund'].forEach(id=>{
+    ['pubExpense','pubIncome','pubInvestment','pubBankInterest','pubDonation','pubTxCount','pubAvailableFund'].forEach(id=>{
       const el = document.getElementById(id);
       if(el) el.textContent = 'পাওয়া যায়নি';
     });
