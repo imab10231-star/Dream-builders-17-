@@ -3101,13 +3101,72 @@ async function renderFinanceCards(){
   }
 }
 
-/** কার্ডে ক্লিক করলে সংশ্লিষ্ট বিস্তারিত তালিকায় (তারিখসহ) নিয়ে যায়। */
-function financeCardClick(target){
-  if(target === 'members'){
-    goPage('admin');
-    adminTab('members');
-  } else {
-    financeTab(target);
+/** কার্ডে ক্লিক করলে সংশ্লিষ্ট বিস্তারিত তালিকা (তারিখসহ) একটা আলাদা মডালে দেখায়। */
+async function financeCardClick(target){
+  const config = {
+    income:       { title: 'মোট আয় — বিস্তারিত', action: 'listIncomes', listKey: 'incomes' },
+    expense:      { title: 'মোট খরচ — বিস্তারিত', action: 'listExpenses', listKey: 'expenses' },
+    donation:     { title: 'মোট দান — বিস্তারিত', action: 'listDonations', listKey: 'donations' },
+    bankinterest: { title: 'ব্যাংক সুদ (নেট) — বিস্তারিত', action: 'listBankInterest', listKey: 'bankInterest' },
+    investment:   { title: 'বিনিয়োগ — বিস্তারিত', action: 'listInvestments', listKey: 'investments' },
+    reports:      { title: 'সকল লেনদেন — বিস্তারিত', action: 'listTransactions', listKey: 'transactions' },
+    members:      { title: 'মোট সদস্য শেয়ার — বিস্তারিত', action: 'listMembers', listKey: 'members' },
+  }[target];
+  if(!config) return;
+  openFinanceDetailModal(config);
+}
+
+async function openFinanceDetailModal(config){
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay show';
+  overlay.onclick = () => overlay.remove();
+  overlay.innerHTML = `
+    <div class="modal-box" style="max-width:620px;" onclick="event.stopPropagation();">
+      <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✕</button>
+      <h3 style="font-size:16px;margin-bottom:14px;">${config.title}</h3>
+      <div id="financeDetailModalBody" style="overflow-x:auto;max-height:60vh;overflow-y:auto;">
+        <p class="empty">লোড হচ্ছে...</p>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  try{
+    const r = await apiCall(config.action, currentFinanceRangePayload());
+    const body = document.getElementById('financeDetailModalBody');
+    if(!r.success){ body.innerHTML = '<p class="empty">লোড করা যায়নি।</p>'; return; }
+    const rows = r[config.listKey] || [];
+    if(rows.length === 0){ body.innerHTML = '<p class="empty">কোনো তথ্য নেই।</p>'; return; }
+
+    let head, trs;
+    switch(config.listKey){
+      case 'incomes': case 'expenses':
+        head = '<tr><th>তারিখ</th><th>শিরোনাম</th><th>ক্যাটাগরি</th><th>পরিমাণ</th></tr>';
+        trs = rows.map(x => `<tr><td>${x.date}</td><td>${x.title||'-'}</td><td>${x.category||'-'}</td><td>${fmtTaka(x.amount)}</td></tr>`).join('');
+        break;
+      case 'donations':
+        head = '<tr><th>তারিখ</th><th>দাতা</th><th>ক্যাটাগরি</th><th>পরিমাণ</th></tr>';
+        trs = rows.map(x => `<tr><td>${x.date}</td><td>${x.donorDisplay||'-'}</td><td>${x.category||'-'}</td><td>${fmtTaka(x.amount)}</td></tr>`).join('');
+        break;
+      case 'bankInterest':
+        head = '<tr><th>তারিখ</th><th>ব্যাংক</th><th>মোট সুদ</th><th>কর/চার্জ</th><th>নেট সুদ</th></tr>';
+        trs = rows.map(x => `<tr><td>${x.date}</td><td>${x.bankName||'-'}</td><td>${fmtTaka(x.grossInterest)}</td><td>${fmtTaka(x.taxCharge)}</td><td>${fmtTaka(x.netInterest)}</td></tr>`).join('');
+        break;
+      case 'investments':
+        head = '<tr><th>তারিখ</th><th>নাম</th><th>ধরন</th><th>প্রিন্সিপাল</th><th>বর্তমান মূল্য</th></tr>';
+        trs = rows.map(x => `<tr><td>${x.investDate}</td><td>${x.name||'-'}</td><td>${x.type||'-'}</td><td>${fmtTaka(x.principal)}</td><td>${fmtTaka(x.currentValue)}</td></tr>`).join('');
+        break;
+      case 'transactions':
+        head = '<tr><th>তারিখ</th><th>ধরন</th><th>ক্যাটাগরি</th><th>পরিমাণ</th><th>বিবরণ</th></tr>';
+        trs = rows.map(x => `<tr><td>${x.date}</td><td>${x.type}</td><td>${x.category||'-'}</td><td>${fmtTaka(x.amount)}</td><td>${x.description||'-'}</td></tr>`).join('');
+        break;
+      case 'members':
+        head = '<tr><th>নাম</th><th>মোবাইল</th><th>শেয়ার</th><th>যোগদান</th></tr>';
+        trs = rows.map(x => `<tr><td>${x.name}</td><td>${x.mobile}</td><td>${x.shares}টি</td><td>${x.joinDate||'-'}</td></tr>`).join('');
+        break;
+    }
+    body.innerHTML = `<table class="ledger-table"><thead>${head}</thead><tbody>${trs}</tbody></table>`;
+  } catch(err){
+    document.getElementById('financeDetailModalBody').innerHTML = '<p class="empty">সার্ভারে সংযোগ করা যায়নি।</p>';
   }
 }
 
