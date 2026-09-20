@@ -696,6 +696,12 @@
   .finance-cards .fcard .n{font-size:19px;font-weight:700;color:var(--mid-green);word-break:break-word;}
   .finance-cards .fcard .n.neg{color:var(--danger);}
   .finance-cards .fcard .l{font-size:12px;color:var(--ink-soft);margin-top:4px;}
+  @media (max-width:560px){
+    .finance-cards{grid-template-columns:repeat(2,1fr);gap:10px;}
+    .finance-cards .fcard{padding:12px 10px;}
+    .finance-cards .fcard .n{font-size:16px;}
+    .finance-cards .fcard .l{font-size:10.5px;}
+  }
   .finance-toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:20px;}
   .finance-toolbar select,.finance-toolbar input[type=date]{
     background:#1a1a1e;border:1.5px solid var(--line);color:var(--ink);border-radius:8px;
@@ -713,14 +719,14 @@
   .charts-grid::-webkit-scrollbar{height:6px;}
   .charts-grid::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:6px;}
   .chart-box{
-    flex:0 0 88%;max-width:420px;scroll-snap-align:center;
+    flex:0 0 100%;scroll-snap-align:start;
     background:rgba(255,255,255,.05);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
     border-radius:16px;padding:16px;border:1px solid rgba(255,255,255,.12);
     box-shadow:0 12px 32px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.08);
   }
   .chart-box h4{font-size:13.5px;color:var(--forest-dark);margin-bottom:10px;}
   .chart-canvas-wrap{position:relative;height:170px;width:100%;}
-  @media (min-width:640px){ .chart-box{flex:0 0 46%;} }
+  @media (min-width:640px){ .chart-box{flex:0 0 calc(50% - 8px);} }
 
   footer{
     background:#0d0d10;color:#c9c4bc;padding:26px 24px;text-align:center;font-size:13px;
