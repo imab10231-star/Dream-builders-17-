@@ -1,0 +1,32 @@
+{
+  "name": "Dream Builders 17",
+  "short_name": "DB 17",
+  "description": "Dream Builders 17 — সঞ্চয় ও বিনিয়োগ প্ল্যাটফর্ম",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#17171b",
+  "theme_color": "#17171b",
+  "lang": "bn",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
