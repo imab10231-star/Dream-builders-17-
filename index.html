@@ -148,6 +148,29 @@
   .nav-link.active{background:var(--forest);color:#fff;}
   .nav-link.admin{border:1.5px solid var(--forest);}
   .hamburger{display:none;background:none;border:none;font-size:22px;color:var(--forest-dark);padding:6px;}
+  .header-right{display:flex;align-items:center;gap:16px;}
+  .header-actions{display:flex;align-items:center;gap:8px;}
+
+  /* ===== বটম-ন্যাভিগেশন বার (শুধু মোবাইলে) ===== */
+  .bottom-nav{display:none;}
+  @media (max-width:880px){
+    body{padding-bottom:64px;} /* বটম-নেভ যাতে কনটেন্ট ঢেকে না দেয় */
+    .hamburger{display:none !important;}
+    nav.main-nav{display:none !important;}
+    .bottom-nav{
+      display:flex;position:fixed;left:0;right:0;bottom:0;z-index:200;
+      background:var(--paper);border-top:1px solid var(--line);
+      box-shadow:0 -6px 20px rgba(0,0,0,.25);
+      padding:5px 2px calc(5px + env(safe-area-inset-bottom,0px));
+    }
+    .bottom-nav-link{
+      flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+      padding:5px 1px;border-radius:12px;font-size:9.5px;font-weight:700;
+      color:var(--ink-soft);text-decoration:none;transition:.15s;
+    }
+    .bottom-nav-link .bn-icon{font-size:19px;line-height:1;}
+    .bottom-nav-link.active{color:var(--forest);background:rgba(255,122,26,.12);}
+  }
 
   /* ===== Hero ===== */
   .hero{
@@ -814,18 +837,31 @@
         <small>Dream Builders 17</small>
       </div>
     </div>
-    <button class="hamburger" id="hamburgerBtn" aria-label="মেনু">☰</button>
-    <nav class="main-nav" id="mainNav">
-      <a href="#home" class="nav-link" data-page="home">হোম</a>
-      <a href="#savings" class="nav-link" data-page="savings">[ জমার হিসাব ]</a>
-      <a href="#deposit" class="nav-link" data-page="deposit">[ জমা / লোন ]</a>
-      <a href="#register" class="nav-link" data-page="register">[ নিবন্ধন ]</a>
-      <a href="#admin" class="nav-link admin" data-page="admin">অ্যাডমিন প্যানেল</a>
-      <button id="themeToggleBtn" onclick="toggleTheme()" type="button" title="থিম বদলান">🌙</button>
-      <button id="installAppBtn" onclick="installApp()" type="button" style="display:none;align-items:center;gap:6px;background:var(--gold);color:#1a1005;border:none;border-radius:8px;padding:9px 16px;font-weight:700;font-size:13.5px;font-family:inherit;cursor:pointer;">📲 অ্যাপ ইনস্টল করুন</button>
-    </nav>
+    <div class="header-right">
+      <nav class="main-nav" id="mainNav">
+        <a href="#home" class="nav-link" data-page="home">হোম</a>
+        <a href="#savings" class="nav-link" data-page="savings">[ জমার হিসাব ]</a>
+        <a href="#deposit" class="nav-link" data-page="deposit">[ জমা / লোন ]</a>
+        <a href="#register" class="nav-link" data-page="register">[ নিবন্ধন ]</a>
+        <a href="#admin" class="nav-link admin" data-page="admin">অ্যাডমিন প্যানেল</a>
+      </nav>
+      <div class="header-actions">
+        <button id="themeToggleBtn" onclick="toggleTheme()" type="button" title="থিম বদলান">🌙</button>
+        <button id="installAppBtn" onclick="installApp()" type="button" style="display:none;align-items:center;gap:6px;background:var(--gold);color:#1a1005;border:none;border-radius:8px;padding:9px 16px;font-weight:700;font-size:13.5px;font-family:inherit;cursor:pointer;">📲 অ্যাপ ইনস্টল করুন</button>
+        <button class="hamburger" id="hamburgerBtn" aria-label="মেনু">☰</button>
+      </div>
+    </div>
   </div>
 </header>
+
+<!-- মোবাইলে সবসময় দেখা যাবে এমন বটম-ন্যাভিগেশন বার — থ্রি-লাইন মেনুতে ক্লিক করার দরকার নেই -->
+<nav class="bottom-nav" id="bottomNav">
+  <a href="#home" class="nav-link bottom-nav-link" data-page="home"><span class="bn-icon">🏠</span><span>হোম</span></a>
+  <a href="#savings" class="nav-link bottom-nav-link" data-page="savings"><span class="bn-icon">📒</span><span>জমার হিসাব</span></a>
+  <a href="#deposit" class="nav-link bottom-nav-link" data-page="deposit"><span class="bn-icon">💰</span><span>জমা/লোন</span></a>
+  <a href="#register" class="nav-link bottom-nav-link" data-page="register"><span class="bn-icon">📝</span><span>নিবন্ধন</span></a>
+  <a href="#admin" class="nav-link bottom-nav-link" data-page="admin"><span class="bn-icon">⚙️</span><span>অ্যাডমিন</span></a>
+</nav>
 
 <!-- ================= HOME ================= -->
 <section id="page-home" class="page active">
@@ -2558,10 +2594,15 @@ function renderAdminIfLoggedIn(){
 async function showAdminDash(){
   document.getElementById('adminLoginView').style.display='none';
   document.getElementById('adminDashView').style.display='block';
-  await renderAdminMembers();
-  await renderAdminLoans();
-  await renderAdminDeposits();
-  await loadRegistrationStatusAdmin();
+  // আগে এই ৪টা কল একটার পর একটা (sequentially) হতো — প্রতিটায় ১-২ সেকেন্ড
+  // লাগলে মোট ৪-৮ সেকেন্ড লাগত। এখন একসাথে (parallel) চালানো হচ্ছে, তাই
+  // মোট সময় লাগবে সবচেয়ে ধীর কলটার সমান — অনেকটাই দ্রুত হবে।
+  await Promise.all([
+    renderAdminMembers(),
+    renderAdminLoans(),
+    renderAdminDeposits(),
+    loadRegistrationStatusAdmin()
+  ]);
 }
 
 let regIsOpen = true;
@@ -2898,8 +2939,7 @@ async function saveMemberPhoto(mobile, row){
 async function setMemberStatus(row, status){
   try{
     await apiCall('updateMemberStatus', { row, status });
-    await renderAdminMembers();
-    await renderLedger();
+    await Promise.all([renderAdminMembers(), renderLedger()]); // দুটো রি-রেন্ডারই একে অপরের উপর নির্ভর করে না, তাই একসাথে
   } catch(err){
     alert('আপডেট করা যায়নি, আবার চেষ্টা করুন।');
   }
@@ -3343,7 +3383,7 @@ async function submitExpenseForm(e){
       document.getElementById('expenseForm').reset();
       document.getElementById('expenseId').value = '';
       toggleFinanceForm('expenseForm');
-      await renderExpenseList(); await renderFinanceCards();
+      await Promise.all([renderExpenseList(), renderFinanceCards()]);
     } else { msg.textContent = r.message || 'সংরক্ষণ ব্যর্থ হয়েছে।'; }
   } catch(err){ msg.textContent = 'সার্ভারে সংযোগ করা যায়নি।'; }
   return false;
@@ -3383,7 +3423,7 @@ function editExpenseRow(x){
 async function deleteExpenseRow(id){
   if(!confirm('এই খরচটি মুছে ফেলবেন?')) return;
   await apiCall('deleteExpense', {id});
-  await renderExpenseList(); await renderFinanceCards();
+  await Promise.all([renderExpenseList(), renderFinanceCards()]);
 }
 
 /* ---------- Income ---------- */
@@ -3406,7 +3446,7 @@ async function submitIncomeForm(e){
       document.getElementById('incomeForm').reset();
       document.getElementById('incomeId').value = '';
       toggleFinanceForm('incomeForm');
-      await renderIncomeList(); await renderFinanceCards();
+      await Promise.all([renderIncomeList(), renderFinanceCards()]);
     } else { msg.textContent = r.message || 'সংরক্ষণ ব্যর্থ হয়েছে।'; }
   } catch(err){ msg.textContent = 'সার্ভারে সংযোগ করা যায়নি।'; }
   return false;
@@ -3446,7 +3486,7 @@ function editIncomeRow(x){
 async function deleteIncomeRow(id){
   if(!confirm('এই আয়ের এন্ট্রিটি মুছে ফেলবেন?')) return;
   await apiCall('deleteIncome', {id});
-  await renderIncomeList(); await renderFinanceCards();
+  await Promise.all([renderIncomeList(), renderFinanceCards()]);
 }
 
 /* ---------- Investment ---------- */
@@ -3471,7 +3511,7 @@ async function submitInvestmentForm(e){
       document.getElementById('investmentForm').reset();
       document.getElementById('investmentId').value = '';
       toggleFinanceForm('investmentForm');
-      await renderInvestmentList(); await renderFinanceCards();
+      await Promise.all([renderInvestmentList(), renderFinanceCards()]);
     } else { msg.textContent = r.message || 'সংরক্ষণ ব্যর্থ হয়েছে।'; }
   } catch(err){ msg.textContent = 'সার্ভারে সংযোগ করা যায়নি।'; }
   return false;
@@ -3516,7 +3556,7 @@ async function addInvestmentReturnPrompt(investmentId){
   try{
     const r = await apiCall('addInvestmentReturn', { investmentId, amount, date: new Date().toISOString().slice(0,10) });
     if(!r.success) alert(r.message || 'ব্যর্থ হয়েছে।');
-    await renderInvestmentList(); await renderFinanceCards();
+    await Promise.all([renderInvestmentList(), renderFinanceCards()]);
   } catch(err){ alert('সার্ভারে সংযোগ করা যায়নি।'); }
 }
 
@@ -3540,7 +3580,7 @@ async function submitBankInterestForm(e){
       document.getElementById('bankinterestForm').reset();
       document.getElementById('bankinterestId').value = '';
       toggleFinanceForm('bankinterestForm');
-      await renderBankInterestList(); await renderFinanceCards();
+      await Promise.all([renderBankInterestList(), renderFinanceCards()]);
     } else { msg.textContent = r.message || 'সংরক্ষণ ব্যর্থ হয়েছে।'; }
   } catch(err){ msg.textContent = 'সার্ভারে সংযোগ করা যায়নি।'; }
   return false;
@@ -3595,7 +3635,7 @@ async function submitDonationForm(e){
       document.getElementById('donationForm').reset();
       document.getElementById('donationId').value = '';
       toggleFinanceForm('donationForm');
-      await renderDonationList(); await renderFinanceCards();
+      await Promise.all([renderDonationList(), renderFinanceCards()]);
     } else { msg.textContent = r.message || 'সংরক্ষণ ব্যর্থ হয়েছে।'; }
   } catch(err){ msg.textContent = 'সার্ভারে সংযোগ করা যায়নি।'; }
   return false;
@@ -3635,7 +3675,7 @@ function editDonationRow(x){
 async function deleteDonationRow(id){
   if(!confirm('এই দানের এন্ট্রিটি মুছে ফেলবেন?')) return;
   await apiCall('deleteDonation', {id});
-  await renderDonationList(); await renderFinanceCards();
+  await Promise.all([renderDonationList(), renderFinanceCards()]);
 }
 
 /* ---------- Reports (unified ledger) ---------- */
